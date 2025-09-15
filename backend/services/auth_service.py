@@ -43,7 +43,7 @@ class AuthenticationService:
         self.rate_limits: Dict[str, Dict] = {}  # user_id -> rate limit data
         self.security_events: List[SecurityEvent] = []
 
-        print("🔐 Authentication Service initialized")
+        print("Authentication Service initialized")
 
     def _generate_secret_key(self) -> str:
         """Generate secure random secret key"""

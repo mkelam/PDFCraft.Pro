@@ -15,7 +15,7 @@ Pillow==10.1.0   # Image processing for PDF conversion
 
 # Performance and async support
 asyncio-throttle==1.0.2
-concurrent-futures==3.1.1
+# concurrent-futures is built into Python 3.x, no need to install
 
 # System monitoring
 psutil==5.9.6

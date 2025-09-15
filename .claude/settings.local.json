@@ -33,7 +33,9 @@
       "Bash(git push:*)",
       "Bash(git fetch:*)",
       "Bash(git filter-branch:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(.python-portablepython.exe --version)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
