@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bmad init:*)",
+      "Bash(node:*)",
+      "Bash(npm install)",
+      "Read(//c/Users/Mac/OneDrive/Desktop/Projects/**)",
+      "Bash(npx bmad-method install:*)",
+      "Bash(cp:*)",
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(./bmad:*)",
+      "Bash(npm run install:bmad:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(npm test)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run preview:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(pip install:*)",
+      "mcp__playwright__playwright_navigate",
+      "Bash(npx playwright:*)",
+      "Bash(where bmad)",
+      "Bash(dir)",
+      "Bash(dir:*)",
+      "Bash(powershell:*)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "bmadVersion": "4.43.0",
+  "projectName": "PDF Creator",
+  "installedPacks": ["bmad-core"],
+  "ideIntegration": ["claude-code"],
+  "setupComplete": true,
+  "installDate": "2024-09-14",
+  "coreConfigPath": ".bmad-core/core-config.yaml"
+}

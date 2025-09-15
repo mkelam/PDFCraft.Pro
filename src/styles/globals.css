@@ -1,0 +1,277 @@
+/* Import Premium Design System */
+@import './design-system.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PDF SaaS Platform Global Styles */
+
+:root {
+  /* Glassmorphic backgrounds - CSS Variables for dynamic theming */
+  --glass-light: rgb(255 255 255 / 0.5);
+  --glass-medium: rgb(255 255 255 / 0.7);
+  --glass-strong: rgb(255 255 255 / 0.8);
+  --glass-border: rgb(255 255 255 / 0.2);
+  --glass-shadow: rgb(0 0 0 / 0.05);
+
+  /* Performance-optimized blur levels */
+  --blur-mobile: 8px;
+  --blur-desktop: 20px;
+  --blur-light: 4px;
+  --blur-strong: 24px;
+
+  /* Animation timing */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-light: rgb(15 23 42 / 0.5);
+    --glass-medium: rgb(15 23 42 / 0.7);
+    --glass-strong: rgb(15 23 42 / 0.8);
+    --glass-border: rgb(148 163 184 / 0.2);
+    --glass-shadow: rgb(0 0 0 / 0.2);
+  }
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Focus styles for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white;
+  }
+
+  /* Smooth transitions for reduced motion users */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Glassmorphic utility classes */
+  .glass-light {
+    background: var(--glass-light);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+  }
+
+  .glass-medium {
+    background: var(--glass-medium);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+  }
+
+  .glass-strong {
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 12px 40px 0 var(--glass-shadow);
+  }
+
+  /* Performance-optimized glassmorphic effects */
+  .glassmorphic-base {
+    will-change: transform;
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+
+  /* Responsive blur effects */
+  .glass-blur {
+    backdrop-filter: blur(var(--blur-mobile));
+  }
+
+  @media (min-width: 640px) {
+    .glass-blur {
+      backdrop-filter: blur(var(--blur-desktop));
+    }
+  }
+
+  /* Button component base */
+  .btn-base {
+    @apply inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn-base bg-primary-600 text-white hover:bg-primary-700;
+    @apply focus:ring-primary-500 active:bg-primary-800;
+  }
+
+  .btn-secondary {
+    @apply btn-base bg-white text-primary-700 border border-primary-300;
+    @apply hover:bg-primary-50 focus:ring-primary-500;
+  }
+
+  .btn-ghost {
+    @apply btn-base text-secondary-600 hover:bg-secondary-100;
+    @apply focus:ring-secondary-500;
+  }
+
+  /* Input component base */
+  .input-base {
+    @apply block w-full rounded-lg border-secondary-300 shadow-sm;
+    @apply focus:border-primary-500 focus:ring-primary-500;
+    @apply placeholder:text-secondary-400;
+    @apply disabled:bg-secondary-50 disabled:text-secondary-500;
+  }
+
+  /* Card component base */
+  .card-base {
+    @apply glassmorphic-base glass-medium rounded-2xl p-6;
+    @apply transition-all duration-200;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite];
+  }
+
+  /* File drop zone */
+  .drop-zone {
+    @apply border-2 border-dashed border-secondary-300 rounded-xl p-6;
+    @apply transition-colors duration-200;
+    @apply hover:border-primary-400 hover:bg-primary-50/50;
+  }
+
+  .drop-zone.active {
+    @apply border-primary-500 bg-primary-100/50;
+  }
+
+  /* Processing indicator */
+  .processing-indicator {
+    @apply relative overflow-hidden rounded-lg bg-secondary-200;
+  }
+
+  .processing-indicator::after {
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent;
+    content: '';
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Performance metrics display */
+  .metric-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium;
+    @apply bg-green-100 text-green-800;
+  }
+
+  .metric-badge.warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .metric-badge.error {
+    @apply bg-red-100 text-red-800;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-smooth {
+    transition: all var(--duration-normal) var(--easing-smooth);
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn var(--duration-slow) var(--easing-bounce);
+  }
+
+  /* Glassmorphic intensity utilities */
+  .backdrop-blur-mobile {
+    backdrop-filter: blur(var(--blur-mobile));
+  }
+
+  .backdrop-blur-desktop {
+    backdrop-filter: blur(var(--blur-desktop));
+  }
+
+  /* Responsive blur utilities */
+  @media (max-width: 639px) {
+    .backdrop-blur-responsive {
+      backdrop-filter: blur(var(--blur-mobile));
+    }
+  }
+
+  @media (min-width: 640px) {
+    .backdrop-blur-responsive {
+      backdrop-filter: blur(var(--blur-desktop));
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    .glass-light,
+    .glass-medium,
+    .glass-strong {
+      background: white !important;
+      border: 1px solid #e5e7eb !important;
+      backdrop-filter: none !important;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .glass-light,
+    .glass-medium,
+    .glass-strong {
+      background: white !important;
+      border: 2px solid #000000 !important;
+    }
+  }
+
+  /* Custom scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(148 163 184);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(100 116 139);
+  }
+}

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>PDF SaaS Platform - Process PDFs 10x Faster Than Adobe</title>
+    <meta name="title" content="PDF SaaS Platform - Process PDFs 10x Faster Than Adobe" />
+    <meta name="description" content="High-performance PDF processing platform with sub-6 second processing, mobile-first design, and AI-powered intelligence. 40-60% cost savings vs Adobe Acrobat." />
+    <meta name="keywords" content="PDF processing, Adobe alternative, document management, SaaS, mobile PDF editor" />
+    <meta name="author" content="PDF SaaS Platform Team" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pdf-saas-platform.com/" />
+    <meta property="og:title" content="PDF SaaS Platform - Process PDFs 10x Faster Than Adobe" />
+    <meta property="og:description" content="High-performance PDF processing platform with sub-6 second processing, mobile-first design, and AI-powered intelligence." />
+    <meta property="og:image" content="https://pdf-saas-platform.com/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://pdf-saas-platform.com/" />
+    <meta property="twitter:title" content="PDF SaaS Platform - Process PDFs 10x Faster Than Adobe" />
+    <meta property="twitter:description" content="High-performance PDF processing platform with sub-6 second processing, mobile-first design, and AI-powered intelligence." />
+    <meta property="twitter:image" content="https://pdf-saas-platform.com/og-image.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#3b82f6" />
+
+    <!-- Preconnect to external services -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Inter font for optimal typography -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Performance and SEO optimizations -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://pdf-saas-platform.com/" />
+
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+
+    <!-- Performance optimization -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Structured data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "PDF SaaS Platform",
+      "description": "High-performance PDF processing platform with sub-6 second processing",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "19",
+        "priceCurrency": "USD",
+        "priceSpecification": {
+          "@type": "RecurringCharge",
+          "price": "19",
+          "priceCurrency": "USD",
+          "frequency": "monthly"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
+
+    <!-- Performance monitoring -->
+    <script>
+      // Basic performance monitoring
+      window.addEventListener('load', () => {
+        if ('performance' in window) {
+          const perfData = performance.getEntriesByType('navigation')[0];
+          console.log('Page load time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
+        }
+      });
+    </script>
+  </body>
+</html>
