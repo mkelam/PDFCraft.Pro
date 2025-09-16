@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Upload, FileText, Shield, Zap, CheckCircle, ArrowRight } from "lucide-react"
+import { Upload, Zap, Shield, CheckCircle } from "lucide-react"
+import { Navigation } from "@/components/Navigation"
 
 export default function PDFCraftPro() {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -30,35 +32,7 @@ export default function PDFCraftPro() {
 
   return (
     <div className="min-h-screen">
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-nav">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-                <FileText className="w-4 h-4 text-primary" />
-              </div>
-              <span className="font-semibold text-lg">PDF Craft Pro</span>
-            </div>
-
-            <div className="hidden md:flex items-center space-x-6">
-              <Button variant="ghost" size="sm" className="text-sm">
-                Features
-              </Button>
-              <Button variant="ghost" size="sm" className="text-sm">
-                Pricing
-              </Button>
-              <Button variant="ghost" size="sm" className="text-sm">
-                Sign in
-              </Button>
-            </div>
-
-            {/* Mobile menu button for smaller screens */}
-            <Button variant="ghost" size="sm" className="text-sm md:hidden">
-              Sign in
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -101,16 +75,21 @@ export default function PDFCraftPro() {
         </div>
       </section>
 
-      <section className="py-20 px-6">
+      {/* Why Choose PDF Craft Pro? */}
+      <section id="features" className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Why Choose PDF Craft Pro?</h2>
+            <p className="text-muted-foreground">Experience the difference with our premium features</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="glass text-center">
               <CardContent className="p-6">
                 <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-2">Fast</h3>
-                <p className="text-sm text-muted-foreground">Convert in seconds</p>
+                <h3 className="font-semibold mb-2">Lightning Fast</h3>
+                <p className="text-sm text-muted-foreground">Convert PDFs in under 5 seconds</p>
               </CardContent>
             </Card>
 
@@ -119,8 +98,8 @@ export default function PDFCraftPro() {
                 <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-2">Secure</h3>
-                <p className="text-sm text-muted-foreground">256-bit encryption</p>
+                <h3 className="font-semibold mb-2">Bank-Level Security</h3>
+                <p className="text-sm text-muted-foreground">256-bit encryption & validation</p>
               </CardContent>
             </Card>
 
@@ -129,25 +108,19 @@ export default function PDFCraftPro() {
                 <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-2">Quality</h3>
-                <p className="text-sm text-muted-foreground">Perfect results</p>
+                <h3 className="font-semibold mb-2">Perfect Quality</h3>
+                <p className="text-sm text-muted-foreground">100% accuracy guaranteed</p>
               </CardContent>
             </Card>
           </div>
-        </div>
-      </section>
 
-      <section className="py-20 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <Card className="glass">
-            <CardContent className="p-8">
-              <h2 className="font-bold text-3xl mb-4">Ready to start?</h2>
-              <p className="text-muted-foreground mb-6">Join thousands of users converting PDFs daily.</p>
-              <Button className="bg-primary hover:bg-primary/90">
-                Get started <ArrowRight className="ml-2 w-4 h-4" />
+          <div className="text-center mt-8">
+            <Link href="/features">
+              <Button variant="outline" size="lg">
+                View All Features
               </Button>
-            </CardContent>
-          </Card>
+            </Link>
+          </div>
         </div>
       </section>
 
