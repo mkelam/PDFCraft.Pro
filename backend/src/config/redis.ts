@@ -1,55 +1,92 @@
 import Redis from 'ioredis';
 import Queue from 'bull';
-import { RedisConfig } from '@/types';
+import { RedisConfig } from '../types';
+import { MockRedis, MockQueue } from './mock-redis';
 
-let redisClient: Redis;
-export let conversionQueue: Queue.Queue;
+let redisClient: Redis | MockRedis;
+export let conversionQueue: Queue.Queue | MockQueue;
 
-export const connectRedis = (config: RedisConfig): void => {
+const isProduction = process.env.NODE_ENV === 'production';
+
+export const connectRedis = (config?: RedisConfig): void => {
   try {
-    redisClient = new Redis({
-      host: config.host,
-      port: config.port,
-      password: config.password,
-      retryDelayOnFailover: 100,
-      enableReadyCheck: false,
-      maxRetriesPerRequest: null,
-    });
-
-    redisClient.on('connect', () => {
-      console.log('✅ Redis connected successfully');
-    });
-
-    redisClient.on('error', (err) => {
-      console.error('❌ Redis connection error:', err);
-    });
-
-    // Create Bull queue for job processing
-    conversionQueue = new Queue('pdf conversion', {
-      redis: {
+    if (isProduction && config) {
+      // Use real Redis in production
+      const redisOptions: any = {
         host: config.host,
         port: config.port,
-        password: config.password,
-      },
-      defaultJobOptions: {
-        removeOnComplete: 50, // Keep last 50 completed jobs
-        removeOnFail: 20,     // Keep last 20 failed jobs
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-      },
-    });
+        enableReadyCheck: false,
+        maxRetriesPerRequest: null,
+      };
 
-    console.log('✅ Bull queue initialized');
+      if (config.password) {
+        redisOptions.password = config.password;
+      }
+
+      redisClient = new Redis(redisOptions);
+
+      redisClient.on('connect', () => {
+        console.log('✅ Redis connected successfully');
+      });
+
+      redisClient.on('error', (err) => {
+        console.error('❌ Redis connection error:', err);
+      });
+
+      // Create Bull queue for job processing
+      const queueRedisOptions: any = {
+        host: config.host,
+        port: config.port,
+      };
+
+      if (config.password) {
+        queueRedisOptions.password = config.password;
+      }
+
+      conversionQueue = new Queue('pdf conversion', {
+        redis: queueRedisOptions,
+        defaultJobOptions: {
+          removeOnComplete: 50,
+          removeOnFail: 20,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 2000,
+          },
+        },
+      });
+
+      console.log('✅ Bull queue initialized');
+    } else {
+      // Use mock Redis for local development
+      redisClient = new MockRedis();
+
+      redisClient.on('connect', () => {
+        console.log('✅ Mock Redis connected successfully (local development)');
+      });
+
+      // Create mock queue for local development
+      conversionQueue = new MockQueue('pdf conversion', {
+        defaultJobOptions: {
+          removeOnComplete: 50,
+          removeOnFail: 20,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 2000,
+          },
+        },
+      });
+
+      console.log('✅ Mock Bull queue initialized (local development)');
+    }
   } catch (error) {
     console.error('❌ Redis initialization failed:', error);
     throw error;
   }
 };
 
-export const getRedisClient = (): Redis => {
+export const getRedisClient = (): Redis | MockRedis => {
   if (!redisClient) {
     throw new Error('Redis not connected');
   }

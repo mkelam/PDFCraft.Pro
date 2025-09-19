@@ -55,30 +55,27 @@ export interface JobStatus {
   processingTime?: number;
 }
 
-export interface AuthRequest extends Request {
-  user?: User;
-}
 
 export interface PlanLimits {
   free: {
-    conversionsPerDay: 3;
-    maxFileSize: 10 * 1024 * 1024; // 10MB
-    maxFilesPerMerge: 3;
+    conversionsPerDay: number;
+    maxFileSize: number;
+    maxFilesPerMerge: number;
   };
   starter: {
-    conversionsPerMonth: 100;
-    maxFileSize: 25 * 1024 * 1024; // 25MB
-    maxFilesPerMerge: 5;
+    conversionsPerMonth: number;
+    maxFileSize: number;
+    maxFilesPerMerge: number;
   };
   pro: {
-    conversionsPerMonth: -1; // unlimited
-    maxFileSize: 100 * 1024 * 1024; // 100MB
-    maxFilesPerMerge: 10;
+    conversionsPerMonth: number;
+    maxFileSize: number;
+    maxFilesPerMerge: number;
   };
   enterprise: {
-    conversionsPerMonth: -1; // unlimited
-    maxFileSize: 500 * 1024 * 1024; // 500MB
-    maxFilesPerMerge: 20;
+    conversionsPerMonth: number;
+    maxFileSize: number;
+    maxFilesPerMerge: number;
   };
 }
 
@@ -106,9 +103,13 @@ export interface AppConfig {
     secret: string;
     expiresIn: string;
   };
-  stripe: {
+  paystack: {
     secretKey: string;
-    webhookSecret: string;
+    publicKey: string;
+  };
+  app: {
+    frontendUrl: string;
+    apiUrl: string;
   };
   upload: {
     maxFileSize: number;

@@ -1,22 +1,34 @@
 import dotenv from 'dotenv';
-import { AppConfig } from '@/types';
+import { AppConfig } from '../types';
 
 dotenv.config();
 
 const requiredEnvVars = [
-  'PORT',
+  'JWT_SECRET'
+];
+
+// Only require essential env vars in development
+const productionEnvVars = [
   'DB_HOST',
   'DB_NAME',
   'DB_USER',
   'DB_PASSWORD',
-  'JWT_SECRET',
-  'STRIPE_SECRET_KEY'
+  'PAYSTACK_SECRET_KEY'
 ];
 
 // Validate required environment variables
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+}
+
+// Validate production environment variables only in production
+if (process.env.NODE_ENV === 'production') {
+  for (const envVar of productionEnvVars) {
+    if (!process.env[envVar]) {
+      throw new Error(`Missing required environment variable: ${envVar}`);
+    }
   }
 }
 
@@ -44,9 +56,14 @@ export const config: AppConfig = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
 
-  stripe: {
-    secretKey: process.env.STRIPE_SECRET_KEY!,
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+  paystack: {
+    secretKey: process.env.PAYSTACK_SECRET_KEY!,
+    publicKey: process.env.PAYSTACK_PUBLIC_KEY || '',
+  },
+
+  app: {
+    frontendUrl: process.env.FRONTEND_URL || 'https://pdfcraft.pro',
+    apiUrl: process.env.API_URL || 'https://api.pdfcraft.pro',
   },
 
   upload: {

@@ -16,7 +16,7 @@ export const connectDatabase = async (config?: DatabaseConfig): Promise<void> =>
         password: config.password,
         database: config.database,
         charset: 'utf8mb4',
-        timezone: 'Z',
+        timezone: 'Z'
       });
 
       console.log('✅ MySQL database connected successfully');

@@ -1,233 +1,144 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { getConnection } from '@/config/database';
-import { config, PLAN_LIMITS } from '@/config';
-import { AuthRequest, User } from '@/types';
+import { verifyToken } from '../utils/jwt';
+import { AuthenticatedRequest, User } from '../types/auth.types';
+import { findUserById } from '../services/auth.service';
 
 /**
- * JWT Authentication Middleware
+ * Authentication middleware to verify JWT tokens
+ * Attaches user object to request if token is valid
  */
 export const authenticateToken = async (
-  req: AuthRequest,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
+    // Extract token from Authorization header
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-    if (!token) {
+    if (!authHeader) {
       res.status(401).json({
         success: false,
-        message: 'Access token required'
+        error: {
+          message: 'Access token required',
+          code: 'AUTH_TOKEN_MISSING',
+        },
       });
       return;
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, config.jwt.secret) as { userId: number };
-
-    // Get user from database
-    const connection = getConnection();
-    const [rows] = await connection.execute(
-      'SELECT * FROM users WHERE id = ?',
-      [decoded.userId]
-    );
-
-    const users = rows as any[];
-    if (users.length === 0) {
+    // Check for Bearer token format
+    const tokenParts = authHeader.split(' ');
+    if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
       res.status(401).json({
         success: false,
-        message: 'Invalid token - user not found'
+        error: {
+          message: 'Invalid token format. Use Bearer <token>',
+          code: 'AUTH_TOKEN_INVALID_FORMAT',
+        },
       });
       return;
     }
 
-    // Attach user to request
-    req.user = users[0] as User;
+    const token = tokenParts[1];
+
+    // Verify token
+    const payload = verifyToken(token);
+    if (!payload) {
+      res.status(401).json({
+        success: false,
+        error: {
+          message: 'Invalid or expired token',
+          code: 'AUTH_TOKEN_INVALID',
+        },
+      });
+      return;
+    }
+
+    // Fetch user from database using payload.userId
+    const user = await findUserById(payload.userId);
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        error: {
+          message: 'User not found',
+          code: 'AUTH_USER_NOT_FOUND',
+        },
+      });
+      return;
+    }
+
+    // Attach user to request object
+    req.user = user;
     next();
-
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid token'
-      });
-      return;
-    }
-
-    console.error('Auth middleware error:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      error: {
+        message: 'Authentication error',
+        code: 'AUTH_INTERNAL_ERROR',
+      },
     });
   }
 };
 
 /**
- * Optional Authentication Middleware
- * Adds user to request if token is valid, but doesn't require it
+ * Optional authentication middleware
+ * Attaches user if token is valid, but doesn't fail if no token
  */
 export const optionalAuth = async (
-  req: AuthRequest,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers.authorization;
 
-    if (!token) {
-      next();
-      return;
-    }
-
-    // Verify JWT token
-    const decoded = jwt.verify(token, config.jwt.secret) as { userId: number };
-
-    // Get user from database
-    const connection = getConnection();
-    const [rows] = await connection.execute(
-      'SELECT * FROM users WHERE id = ?',
-      [decoded.userId]
-    );
-
-    const users = rows as any[];
-    if (users.length > 0) {
-      req.user = users[0] as User;
-    }
-
+  if (!authHeader) {
+    // No token provided, continue without user context
     next();
-
-  } catch (error) {
-    // If token is invalid, just continue without user
-    next();
+    return;
   }
+
+  // If token is provided, validate it
+  await authenticateToken(req, res, next);
 };
 
-/**
- * Check usage limits based on user plan
- */
-export const checkUsageLimits = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    // If no user (free anonymous usage), apply free tier limits
-    if (!req.user) {
-      // For anonymous users, we'll track by IP (simple implementation)
-      // In production, consider using Redis for IP-based rate limiting
-      next();
-      return;
-    }
-
-    const user = req.user;
-    const planLimits = PLAN_LIMITS[user.plan];
-
-    // Check file size limits
-    if (req.files && Array.isArray(req.files)) {
-      for (const file of req.files) {
-        if (file.size > planLimits.maxFileSize) {
-          res.status(413).json({
-            success: false,
-            message: `File size exceeds ${planLimits.maxFileSize / (1024 * 1024)}MB limit for ${user.plan} plan`,
-            upgrade: user.plan === 'free' ? 'starter' : 'pro'
-          });
-          return;
-        }
-      }
-
-      // Check merge file count limits
-      if (req.path.includes('merge') && req.files.length > planLimits.maxFilesPerMerge) {
-        res.status(413).json({
-          success: false,
-          message: `Maximum ${planLimits.maxFilesPerMerge} files allowed for ${user.plan} plan`,
-          upgrade: user.plan === 'free' ? 'starter' : 'pro'
-        });
-        return;
-      }
-    }
-
-    // Check conversion limits
-    if (user.plan === 'free') {
-      // Check daily limit for free users
-      const connection = getConnection();
-      const [rows] = await connection.execute(`
-        SELECT COUNT(*) as today_count
-        FROM conversion_jobs
-        WHERE user_id = ? AND DATE(created_at) = CURDATE()
-      `, [user.id]);
-
-      const todayCount = (rows as any[])[0].today_count;
-
-      if (todayCount >= planLimits.conversionsPerDay) {
-        res.status(429).json({
-          success: false,
-          message: `Daily limit of ${planLimits.conversionsPerDay} conversions reached`,
-          upgrade: 'starter',
-          resetTime: 'midnight'
-        });
-        return;
-      }
-    } else if (user.plan === 'starter') {
-      // Check monthly limit for starter users
-      const connection = getConnection();
-      const [rows] = await connection.execute(`
-        SELECT COUNT(*) as month_count
-        FROM conversion_jobs
-        WHERE user_id = ? AND YEAR(created_at) = YEAR(NOW()) AND MONTH(created_at) = MONTH(NOW())
-      `, [user.id]);
-
-      const monthCount = (rows as any[])[0].month_count;
-
-      if (monthCount >= planLimits.conversionsPerMonth) {
-        res.status(429).json({
-          success: false,
-          message: `Monthly limit of ${planLimits.conversionsPerMonth} conversions reached`,
-          upgrade: 'pro',
-          resetTime: 'next month'
-        });
-        return;
-      }
-    }
-    // Pro and enterprise have unlimited conversions
-
-    next();
-
-  } catch (error) {
-    console.error('Usage limits middleware error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-  }
-};
+// Note: Usage checking middleware will be implemented in Story 2.3
 
 /**
- * Require specific plan level
+ * Authorization middleware to check user permissions
+ * Requires authentication middleware to run first
  */
-export const requirePlan = (minPlan: 'free' | 'starter' | 'pro' | 'enterprise') => {
-  const planHierarchy = { free: 0, starter: 1, pro: 2, enterprise: 3 };
-
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const requirePlan = (requiredPlan: 'starter' | 'pro' | 'enterprise') => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({
         success: false,
-        message: 'Authentication required'
+        error: {
+          message: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+        },
       });
       return;
     }
 
+    const planHierarchy = {
+      free: 0,
+      starter: 1,
+      pro: 2,
+      enterprise: 3,
+    };
+
     const userPlanLevel = planHierarchy[req.user.plan];
-    const requiredPlanLevel = planHierarchy[minPlan];
+    const requiredPlanLevel = planHierarchy[requiredPlan];
 
     if (userPlanLevel < requiredPlanLevel) {
       res.status(403).json({
         success: false,
-        message: `${minPlan} plan or higher required`,
-        currentPlan: req.user.plan,
-        upgrade: minPlan
+        error: {
+          message: `${requiredPlan} plan required for this feature`,
+          code: 'AUTH_INSUFFICIENT_PLAN',
+        },
       });
       return;
     }
@@ -236,13 +147,5 @@ export const requirePlan = (minPlan: 'free' | 'starter' | 'pro' | 'enterprise') 
   };
 };
 
-/**
- * Generate JWT token for user
- */
-export const generateToken = (userId: number): string => {
-  return jwt.sign(
-    { userId },
-    config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
-  );
-};
+// Export JWT utilities for backward compatibility
+export { generateToken } from '../utils/jwt';

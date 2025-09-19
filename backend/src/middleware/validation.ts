@@ -43,6 +43,32 @@ export const loginSchema = Joi.object({
     }),
 });
 
+export const paymentInitializationSchema = Joi.object({
+  email: Joi.string()
+    .email()
+    .required()
+    .messages({
+      'string.email': 'Please provide a valid email address',
+      'any.required': 'Email is required',
+    }),
+  plan: Joi.string()
+    .valid('starter', 'pro')
+    .required()
+    .messages({
+      'any.only': 'Plan must be either "starter" or "pro"',
+      'any.required': 'Plan is required',
+    }),
+  userId: Joi.number()
+    .integer()
+    .positive()
+    .optional()
+    .messages({
+      'number.base': 'User ID must be a number',
+      'number.integer': 'User ID must be an integer',
+      'number.positive': 'User ID must be positive',
+    }),
+});
+
 /**
  * Validation middleware factory
  */
@@ -107,3 +133,8 @@ export const validateFileUpload = (req: Request, res: Response, next: NextFuncti
 
   next();
 };
+
+/**
+ * Payment initialization validation middleware
+ */
+export const validatePaymentInitialization = validate(paymentInitializationSchema);

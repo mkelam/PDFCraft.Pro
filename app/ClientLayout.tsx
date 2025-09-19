@@ -6,8 +6,6 @@ import { GeistMono } from "geist/font/mono"
 // <CHANGE> Added Montserrat for premium headings as per design brief
 import { Montserrat } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import { useSearchParams } from "next/navigation"
-import { Suspense } from "react"
 import "./globals.css"
 
 const montserrat = Montserrat({
@@ -21,14 +19,10 @@ export default function ClientLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const searchParams = useSearchParams()
-
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${montserrat.variable}`}>
-        <Suspense fallback={<div>Loading...</div>}>
-          <div className="relative z-10">{children}</div>
-        </Suspense>
+        <div className="relative z-10">{children}</div>
         <Analytics />
       </body>
     </html>

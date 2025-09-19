@@ -6,6 +6,9 @@ import { EmailQueue } from './email.worker';
 import { logger } from '../utils/logger';
 import path from 'path';
 
+// Import fs once at the top for better performance
+const fs = require('fs').promises;
+
 // Wait for queue initialization
 setTimeout(() => {
   if (!conversionQueue) {
@@ -15,26 +18,24 @@ setTimeout(() => {
 
   console.log('🚀 Starting PDF conversion workers...');
 
-  // Process PDF to PowerPoint conversion jobs
-  conversionQueue.process('convert-pdf-to-ppt', 5, async (job: Queue.Job) => {
+  // Process PDF to PowerPoint conversion jobs with optimized concurrency
+  conversionQueue.process('convert-pdf-to-ppt', 3, async (job: Queue.Job) => {
   const { jobId, inputPath, outputDir, userId, metadata } = job.data;
 
   try {
     // Update job status to processing
     await updateJobStatus(jobId, 'processing', 10);
 
-    // Create output directory if it doesn't exist
-    const fs = require('fs').promises;
-    await fs.mkdir(outputDir, { recursive: true });
-
-    // Update progress
-    await updateJobStatus(jobId, 'processing', 30);
-
-    // Convert PDF to PowerPoint
-    const outputFilename = await PDFService.convertPDFToPPT(inputPath, outputDir);
-
-    // Update progress
-    await updateJobStatus(jobId, 'processing', 80);
+    // Create output directory and start conversion in parallel
+    const [_, outputFilename] = await Promise.all([
+      fs.mkdir(outputDir, { recursive: true }),
+      (async () => {
+        await updateJobStatus(jobId, 'processing', 30);
+        const filename = await PDFService.convertPDFToPPT(inputPath, outputDir);
+        await updateJobStatus(jobId, 'processing', 80);
+        return filename;
+      })()
+    ]);
 
     // Calculate processing time
     const startTime = new Date(job.timestamp);
@@ -43,8 +44,8 @@ setTimeout(() => {
     // Update job as completed
     await updateJobStatus(jobId, 'completed', 100, outputFilename, processingTime);
 
-    // Send completion notification email
-    if (userId) {
+    // Send email and cleanup in parallel (non-blocking)
+    const emailPromise = userId ? (async () => {
       try {
         const userEmail = await getUserEmail(userId);
         if (userEmail) {
@@ -54,10 +55,12 @@ setTimeout(() => {
       } catch (error) {
         logger.warn('Failed to send completion email:', error);
       }
-    }
+    })() : Promise.resolve();
 
-    // Cleanup input file
-    await PDFService.cleanupFiles([inputPath]);
+    const cleanupPromise = PDFService.cleanupFiles([inputPath]);
+
+    // Run email and cleanup in parallel
+    await Promise.allSettled([emailPromise, cleanupPromise]);
 
     // Schedule output file cleanup (1 hour)
     setTimeout(async () => {
@@ -114,18 +117,16 @@ setTimeout(() => {
     // Update job status to processing
     await updateJobStatus(jobId, 'processing', 10);
 
-    // Create output directory if it doesn't exist
-    const fs = require('fs').promises;
-    await fs.mkdir(outputDir, { recursive: true });
-
-    // Update progress
-    await updateJobStatus(jobId, 'processing', 30);
-
-    // Merge PDFs
-    const outputFilename = await PDFService.mergePDFs(inputFiles, outputDir);
-
-    // Update progress
-    await updateJobStatus(jobId, 'processing', 80);
+    // Create output directory and start merge in parallel
+    const [_, outputFilename] = await Promise.all([
+      fs.mkdir(outputDir, { recursive: true }),
+      (async () => {
+        await updateJobStatus(jobId, 'processing', 30);
+        const filename = await PDFService.mergePDFs(inputFiles, outputDir);
+        await updateJobStatus(jobId, 'processing', 80);
+        return filename;
+      })()
+    ]);
 
     // Calculate processing time
     const startTime = new Date(job.timestamp);
@@ -197,6 +198,34 @@ setTimeout(() => {
   }
 });
 
+// Helper function to execute database queries in both MySQL and SQLite
+async function executeQuery(query: string, params: any[]): Promise<any[]> {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (isProduction) {
+    const connection = getConnection();
+    const [rows] = await connection.execute(query, params);
+    return rows as any[];
+  } else {
+    // Use SQLite in development
+    const db = getSQLite();
+    if (query.toLowerCase().includes('insert')) {
+      const stmt = db.prepare(query);
+      const result = stmt.run(...params);
+      return [{ insertId: result.lastInsertRowid, affectedRows: result.changes }];
+    } else if (query.toLowerCase().includes('update')) {
+      const stmt = db.prepare(query);
+      const result = stmt.run(...params);
+      return [{ affectedRows: result.changes }];
+    } else {
+      // SELECT query
+      const stmt = db.prepare(query);
+      const rows = stmt.all(...params);
+      return rows;
+    }
+  }
+}
+
 // Helper function to update job status in database
 async function updateJobStatus(
   jobId: string,
@@ -207,11 +236,9 @@ async function updateJobStatus(
   errorMessage?: string
 ): Promise<void> {
   try {
-    const connection = getConnection();
-
     let query = `
       UPDATE conversion_jobs
-      SET status = ?, progress = ?, updated_at = NOW()
+      SET status = ?, progress = ?
     `;
     let params: any[] = [status, progress];
 
@@ -231,13 +258,19 @@ async function updateJobStatus(
     }
 
     if (status === 'completed' || status === 'failed') {
-      query += ', completed_at = NOW()';
+      // Use different datetime function for MySQL vs SQLite
+      const isProduction = process.env.NODE_ENV === 'production';
+      if (isProduction) {
+        query += ', completed_at = NOW()';
+      } else {
+        query += ", completed_at = datetime('now')";
+      }
     }
 
     query += ' WHERE id = ?';
     params.push(jobId);
 
-    await connection.execute(query, params);
+    await executeQuery(query, params);
 
   } catch (error) {
     console.error('Failed to update job status:', error);
