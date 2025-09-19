@@ -1,26 +1,30 @@
 import mysql from 'mysql2/promise';
-import { DatabaseConfig } from '@/types';
+import { DatabaseConfig } from '../types';
+import { connectSQLite, getSQLiteConnection, getSQLite as getSQLiteDB, closeSQLite } from './sqlite';
 
 let connection: mysql.Connection;
+const isProduction = process.env.NODE_ENV === 'production';
 
-export const connectDatabase = async (config: DatabaseConfig): Promise<void> => {
+export const connectDatabase = async (config?: DatabaseConfig): Promise<void> => {
   try {
-    connection = await mysql.createConnection({
-      host: config.host,
-      port: config.port,
-      user: config.username,
-      password: config.password,
-      database: config.database,
-      charset: 'utf8mb4',
-      timezone: 'Z',
-      acquireTimeout: 60000,
-      timeout: 60000,
-    });
+    if (isProduction && config) {
+      // Use MySQL in production
+      connection = await mysql.createConnection({
+        host: config.host,
+        port: config.port,
+        user: config.username,
+        password: config.password,
+        database: config.database,
+        charset: 'utf8mb4',
+        timezone: 'Z',
+      });
 
-    console.log('✅ Database connected successfully');
-
-    // Create tables if they don't exist
-    await createTables();
+      console.log('✅ MySQL database connected successfully');
+      await createTables();
+    } else {
+      // Use SQLite for local development
+      await connectSQLite();
+    }
   } catch (error) {
     console.error('❌ Database connection failed:', error);
     throw error;
@@ -29,9 +33,13 @@ export const connectDatabase = async (config: DatabaseConfig): Promise<void> => 
 
 export const getConnection = (): mysql.Connection => {
   if (!connection) {
-    throw new Error('Database not connected');
+    throw new Error('MySQL connection not available');
   }
   return connection;
+};
+
+export const getSQLite = () => {
+  return getSQLiteDB();
 };
 
 const createTables = async (): Promise<void> => {
@@ -98,8 +106,10 @@ const createTables = async (): Promise<void> => {
 };
 
 export const closeConnection = async (): Promise<void> => {
-  if (connection) {
+  if (isProduction && connection) {
     await connection.end();
-    console.log('Database connection closed');
+    console.log('MySQL connection closed');
+  } else {
+    closeSQLite();
   }
 };
