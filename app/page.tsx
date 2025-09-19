@@ -6,28 +6,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Upload, Zap, Shield, CheckCircle } from "lucide-react"
 import { Navigation } from "@/components/Navigation"
+import { PDFUpload } from "@/components/PDFUpload"
 
 export default function PDFCraftPro() {
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [uploadResult, setUploadResult] = useState(null)
+  const [uploadError, setUploadError] = useState("")
 
-  const handleFileUpload = () => {
-    setIsProcessing(true)
-    setProgress(0)
+  const handleUploadSuccess = (result) => {
+    setUploadResult(result)
+    setUploadError("")
+  }
 
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          setTimeout(() => {
-            setIsProcessing(false)
-            setProgress(0)
-          }, 500)
-          return 100
-        }
-        return prev + 20
-      })
-    }, 1000)
+  const handleUploadError = (error) => {
+    setUploadError(error)
+    setUploadResult(null)
   }
 
   return (
@@ -35,33 +27,44 @@ export default function PDFCraftPro() {
       <Navigation />
 
       <section className="pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center">
           <h1 className="font-bold text-5xl md:text-6xl mb-6 leading-tight">
-            Convert PDFs
+            Convert & Merge PDFs
             <br />
             <span className="text-primary">instantly</span>
           </h1>
 
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
-            Fast, secure PDF conversion. No subscriptions, no limits.
+            Fast, secure PDF processing. Convert to PowerPoint or merge multiple PDFs.
           </p>
 
-          <Card className="glass max-w-2xl mx-auto mb-16">
-            <CardContent className="p-8">
-              <div className="text-center cursor-pointer py-8" onClick={handleFileUpload}>
-                <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <Upload className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-semibold text-xl mb-2">Drop your PDF here</h3>
-                <p className="text-sm text-muted-foreground">Maximum 100MB</p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Two Column Layout for Both Features */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
 
+            {/* PDF to PowerPoint Conversion */}
+            <div className="space-y-4">
+              <PDFUpload
+                mode="convert"
+                onSuccess={handleUploadSuccess}
+                onError={handleUploadError}
+              />
+            </div>
+
+            {/* PDF Merging */}
+            <div className="space-y-4">
+              <PDFUpload
+                mode="merge"
+                onSuccess={handleUploadSuccess}
+                onError={handleUploadError}
+              />
+            </div>
+          </div>
+
+          {/* Stats Section */}
           <div className="grid grid-cols-3 gap-6 max-w-lg mx-auto">
             <div className="text-center">
               <div className="font-bold text-2xl text-primary mb-1">4.8s</div>
-              <div className="text-xs text-muted-foreground">Average</div>
+              <div className="text-xs text-muted-foreground">Average Speed</div>
             </div>
             <div className="text-center">
               <div className="font-bold text-2xl text-primary mb-1">100%</div>
@@ -130,27 +133,6 @@ export default function PDFCraftPro() {
         </div>
       </footer>
 
-      {/* Processing Modal */}
-      {isProcessing && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <Card className="glass-strong max-w-sm w-full mx-4">
-            <CardContent className="p-6 text-center">
-              <div className="flex justify-center space-x-1 mb-4">
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0.4s" }} />
-              </div>
-              <h3 className="font-semibold mb-2">Converting...</h3>
-              <div className="w-full bg-muted rounded-full h-1">
-                <div
-                  className="bg-primary h-1 rounded-full transition-all duration-1000"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   )
 }
