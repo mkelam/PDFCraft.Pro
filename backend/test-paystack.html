@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFCraft.Pro - Paystack Integration Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .plan-card {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .plan-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        .plan-card.selected {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .price {
+            font-size: 2em;
+            font-weight: bold;
+            color: #059669;
+        }
+        .features {
+            list-style: none;
+            padding: 0;
+        }
+        .features li:before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
+        button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .response {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .success {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+        .api-info {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 PDFCraft.Pro - Paystack Integration Test</h1>
+
+        <div class="api-info">
+            <strong>🚀 Server Status:</strong> Running on <code>http://localhost:3002</code><br>
+            <strong>💳 Payment System:</strong> Paystack API Integration<br>
+            <strong>🔑 API Keys:</strong> Test mode (placeholder keys)
+        </div>
+
+        <h2>💰 Choose Your Plan</h2>
+
+        <div class="plan-card" data-plan="starter">
+            <h3>Starter Plan</h3>
+            <div class="price">₦25.00 <small>/month</small></div>
+            <ul class="features">
+                <li>100 conversions per month</li>
+                <li>25MB file size limit</li>
+                <li>PDF to PowerPoint</li>
+                <li>PDF merge</li>
+                <li>Priority processing</li>
+            </ul>
+        </div>
+
+        <div class="plan-card" data-plan="pro">
+            <h3>Pro Plan</h3>
+            <div class="price">₦75.00 <small>/month</small></div>
+            <ul class="features">
+                <li>Unlimited conversions</li>
+                <li>100MB file size limit</li>
+                <li>PDF to PowerPoint</li>
+                <li>PDF merge</li>
+                <li>Priority processing</li>
+                <li>API access</li>
+                <li>Advanced features</li>
+            </ul>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" placeholder="Enter your email" value="test@example.com">
+        </div>
+
+        <button id="initializePayment" disabled>Select a Plan First</button>
+
+        <div id="response" class="response" style="display: none;"></div>
+
+        <h3>🧪 Test API Endpoints</h3>
+        <button onclick="testPlans()">Get Available Plans</button>
+        <button onclick="testCurrencies()">Get Supported Currencies</button>
+        <button onclick="testHealthCheck()">Health Check</button>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        let selectedPlan = null;
+
+        // Plan selection
+        document.querySelectorAll('.plan-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove previous selection
+                document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+
+                // Select current card
+                card.classList.add('selected');
+                selectedPlan = card.dataset.plan;
+
+                // Enable payment button
+                const button = document.getElementById('initializePayment');
+                button.disabled = false;
+                button.textContent = `Subscribe to ${card.querySelector('h3').textContent} - ${card.querySelector('.price').textContent}`;
+            });
+        });
+
+        // Payment initialization
+        document.getElementById('initializePayment').addEventListener('click', async () => {
+            if (!selectedPlan) return;
+
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showResponse('Please enter your email address', 'error');
+                return;
+            }
+
+            showResponse('Initializing payment...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/paystack/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        plan: selectedPlan
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResponse('✅ Payment initialized successfully!\\n\\n' + JSON.stringify(data, null, 2), 'success');
+
+                    // In a real app, you would redirect to data.data.authorization_url
+                    setTimeout(() => {
+                        alert('In a real app, you would be redirected to Paystack checkout: ' + data.data?.authorization_url);
+                    }, 1000);
+                } else {
+                    showResponse('❌ Payment initialization failed:\\n\\n' + JSON.stringify(data, null, 2), 'error');
+                }
+            } catch (error) {
+                showResponse('❌ Network error: ' + error.message, 'error');
+            }
+        });
+
+        // Test functions
+        async function testPlans() {
+            showResponse('Fetching available plans...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/paystack/plans`);
+                const data = await response.json();
+                showResponse('📋 Available Plans:\\n\\n' + JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResponse('❌ Error fetching plans: ' + error.message, 'error');
+            }
+        }
+
+        async function testCurrencies() {
+            showResponse('Fetching supported currencies...', 'info');
+            try {
+                const response = await fetch(`${API_BASE}/paystack/currencies`);
+                const data = await response.json();
+                showResponse('💱 Supported Currencies:\\n\\n' + JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResponse('❌ Error fetching currencies: ' + error.message, 'error');
+            }
+        }
+
+        async function testHealthCheck() {
+            showResponse('Checking server health...', 'info');
+            try {
+                const response = await fetch('http://localhost:3002/health');
+                const data = await response.json();
+                showResponse('🏥 Health Check:\\n\\n' + JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResponse('❌ Health check failed: ' + error.message, 'error');
+            }
+        }
+
+        function showResponse(message, type = 'info') {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = message;
+            responseDiv.className = 'response ' + type;
+        }
+
+        // Auto-load plans on page load
+        window.addEventListener('load', () => {
+            testHealthCheck();
+        });
+    </script>
+</body>
+</html>

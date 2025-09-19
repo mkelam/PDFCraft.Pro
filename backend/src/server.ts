@@ -5,58 +5,56 @@ import compression from 'compression';
 import morgan from 'morgan';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
-import { config } from '@/config';
-import { connectDatabase } from '@/config/database';
-import { connectRedis } from '@/config/redis';
-import { ConvertController } from '@/controllers/convert.controller';
-import { authenticateToken, optionalAuth, checkUsageLimits } from '@/middleware/auth';
+import { config } from './config';
+import { connectDatabase } from './config/database';
+import { connectRedis } from './config/redis';
+import { ConvertController } from './controllers/convert.controller';
+import { AuthController } from './controllers/auth.controller';
+import { PasswordController } from './controllers/password.controller';
+import { HealthController } from './controllers/health.controller';
+import paystackRoutes from './routes/paystack.routes';
+import { authenticateToken, optionalAuth } from './middleware/auth';
+import { validate, registerSchema, loginSchema } from './middleware/validation';
+import { authRateLimit, registrationRateLimit } from './middleware/rate-limit';
+import { setupSecurityMiddleware, globalErrorHandler, requestLogger } from './middleware/production';
+import { logger } from './utils/logger';
 
-// Import worker to start background processing
-import '@/workers/conversion.worker';
+// Import type extensions
+// import '@/types/express';
+
+// Import workers to start background processing
+import './workers/conversion.worker';
+import './workers/email.worker';
 
 const app = express();
 
 // Trust proxy (important for rate limiting behind reverse proxy)
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+// Request logging
+app.use(requestLogger);
 
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://pdfcraft.pro', 'https://www.pdfcraft.pro']
+    ? (process.env.CORS_ORIGIN || 'https://pdfcraft.pro').split(',')
     : ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Compression middleware
-app.use(compression());
-
-// Logging middleware
-app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));
-
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Rate limiting
-const rateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Setup security middleware (includes helmet, compression, rate limiting)
+setupSecurityMiddleware(app);
 
-app.use('/api/', rateLimiter);
+// Legacy Morgan logging for development
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
 
 // File upload configuration
 const upload = multer({
@@ -75,15 +73,11 @@ const upload = multer({
   },
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'PDFCraft.Pro API is running',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
-});
+// Health check endpoints
+app.get('/health', HealthController.getHealth);
+app.get('/health/simple', HealthController.getSimpleHealth);
+app.get('/health/ready', HealthController.getReadiness);
+app.get('/health/live', HealthController.getLiveness);
 
 // API routes
 
@@ -91,14 +85,14 @@ app.get('/health', (req, res) => {
 app.post('/api/convert/pdf-to-ppt',
   upload.array('files', 1),
   optionalAuth,
-  checkUsageLimits,
+  // checkUsageLimits will be added in Story 2.3
   ConvertController.convertToPPT
 );
 
 app.post('/api/convert/merge',
   upload.array('files', 20),
   optionalAuth,
-  checkUsageLimits,
+  // checkUsageLimits will be added in Story 2.3
   ConvertController.mergePDFs
 );
 
@@ -106,19 +100,215 @@ app.get('/api/job/:jobId/status', ConvertController.getJobStatus);
 
 app.get('/api/download/:filename', ConvertController.downloadFile);
 
-// Authentication routes (to be implemented)
-// app.post('/api/auth/register', AuthController.register);
-// app.post('/api/auth/login', AuthController.login);
-// app.post('/api/auth/logout', AuthController.logout);
-// app.get('/api/auth/me', authenticateToken, AuthController.getMe);
+// Authentication routes
+app.post('/api/auth/register',
+  registrationRateLimit,
+  validate(registerSchema),
+  AuthController.register
+);
+
+app.post('/api/auth/login',
+  authRateLimit,
+  validate(loginSchema),
+  AuthController.login
+);
+
+app.post('/api/auth/logout', AuthController.logout);
+
+app.get('/api/auth/me', authenticateToken, AuthController.getMe);
+
+app.post('/api/auth/refresh', AuthController.refreshToken);
+
+// Password reset routes
+app.post('/api/auth/forgot-password', authRateLimit, PasswordController.requestReset);
+app.post('/api/auth/reset-password', authRateLimit, PasswordController.resetPassword);
 
 // User routes (to be implemented)
 // app.get('/api/user/usage', authenticateToken, UserController.getUsage);
 // app.get('/api/user/history', authenticateToken, UserController.getHistory);
 
-// Payment routes (to be implemented)
-// app.post('/api/stripe/create-checkout', authenticateToken, StripeController.createCheckout);
-// app.post('/api/stripe/webhook', StripeController.handleWebhook);
+// Paystack payment routes
+app.use('/api/paystack', paystackRoutes);
+
+// Root welcome page - HTML instead of JSON for better browser experience
+app.get('/', (req, res) => {
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PDFCraft.Pro API Server</title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                line-height: 1.6;
+            }
+            .container {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                padding: 40px;
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            .status-badge {
+                display: inline-block;
+                background: #10b981;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 20px;
+            }
+            .endpoints {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-top: 30px;
+            }
+            .endpoint-group {
+                background: rgba(255, 255, 255, 0.1);
+                padding: 20px;
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .endpoint-group h3 {
+                margin-top: 0;
+                color: #fbbf24;
+            }
+            .endpoint-list {
+                list-style: none;
+                padding: 0;
+            }
+            .endpoint-list li {
+                margin: 8px 0;
+                padding: 8px 12px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 6px;
+                font-family: monospace;
+                font-size: 14px;
+            }
+            .method {
+                color: #10b981;
+                font-weight: bold;
+            }
+            .quick-actions {
+                margin-top: 30px;
+                text-align: center;
+            }
+            .btn {
+                display: inline-block;
+                background: #3b82f6;
+                color: white;
+                padding: 12px 24px;
+                text-decoration: none;
+                border-radius: 8px;
+                margin: 0 10px;
+                font-weight: 600;
+                transition: background 0.2s;
+            }
+            .btn:hover {
+                background: #2563eb;
+            }
+            .btn.success {
+                background: #10b981;
+            }
+            .btn.success:hover {
+                background: #059669;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="status-badge">✅ SERVER RUNNING</div>
+                <h1>🎯 PDFCraft.Pro API Server</h1>
+                <p>Lightning-fast PDF processing with Paystack payments</p>
+                <p><strong>Version:</strong> 1.0.0 | <strong>Port:</strong> 3002 | <strong>Environment:</strong> Development</p>
+            </div>
+
+            <div class="endpoints">
+                <div class="endpoint-group">
+                    <h3>💳 Payment Endpoints</h3>
+                    <ul class="endpoint-list">
+                        <li><span class="method">GET</span> /api/paystack/plans</li>
+                        <li><span class="method">GET</span> /api/paystack/currencies</li>
+                        <li><span class="method">POST</span> /api/paystack/initialize</li>
+                        <li><span class="method">GET</span> /api/paystack/verify/:ref</li>
+                        <li><span class="method">POST</span> /api/paystack/webhook</li>
+                    </ul>
+                </div>
+
+                <div class="endpoint-group">
+                    <h3>🔄 PDF Processing</h3>
+                    <ul class="endpoint-list">
+                        <li><span class="method">POST</span> /api/convert/pdf-to-ppt</li>
+                        <li><span class="method">POST</span> /api/convert/merge</li>
+                        <li><span class="method">GET</span> /api/job/:id/status</li>
+                        <li><span class="method">GET</span> /api/download/:filename</li>
+                    </ul>
+                </div>
+
+                <div class="endpoint-group">
+                    <h3>📊 System Endpoints</h3>
+                    <ul class="endpoint-list">
+                        <li><span class="method">GET</span> /health</li>
+                        <li><span class="method">GET</span> /health/simple</li>
+                        <li><span class="method">GET</span> /health/ready</li>
+                        <li><span class="method">GET</span> /health/live</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3>🧪 Quick Actions</h3>
+                <a href="/health" class="btn success">Health Check</a>
+                <a href="/api/paystack/plans" class="btn">View Plans</a>
+                <a href="/api/paystack/currencies" class="btn">View Currencies</a>
+                <a href="test-paystack.html" class="btn">Test Interface</a>
+            </div>
+
+            <div style="margin-top: 40px; text-align: center; opacity: 0.8;">
+                <p>📖 <strong>Documentation:</strong> PAYSTACK_INTEGRATION.md</p>
+                <p>🔧 <strong>Status:</strong> Mock services active (SQLite + Mock Redis)</p>
+                <p>💡 <strong>Tip:</strong> Add real Paystack keys to .env for live payments</p>
+            </div>
+        </div>
+
+        <script>
+            // Auto-refresh status every 30 seconds
+            setInterval(() => {
+                fetch('/health')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Server health:', data);
+                    })
+                    .catch(error => {
+                        console.warn('Health check failed:', error);
+                    });
+            }, 30000);
+        </script>
+    </body>
+    </html>
+  `;
+
+  res.send(html);
+});
+
+// Serve test Paystack HTML file
+app.get('/test-paystack.html', (req, res) => {
+  res.sendFile('test-paystack.html', { root: __dirname + '/../' });
+});
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -129,88 +319,65 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Global error handler:', error);
-
-  // Multer errors
-  if (error instanceof multer.MulterError) {
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({
-        success: false,
-        message: 'File size too large'
-      });
-    }
-    if (error.code === 'LIMIT_FILE_COUNT') {
-      return res.status(413).json({
-        success: false,
-        message: 'Too many files'
-      });
-    }
-  }
-
-  // File type errors
-  if (error.message === 'Only PDF files are allowed') {
-    return res.status(400).json({
-      success: false,
-      message: 'Only PDF files are allowed'
-    });
-  }
-
-  // Default error response
-  res.status(500).json({
-    success: false,
-    message: config.nodeEnv === 'production'
-      ? 'Internal server error'
-      : error.message
-  });
-});
+app.use(globalErrorHandler);
 
 // Initialize connections and start server
 async function startServer() {
   try {
-    console.log('🚀 Starting PDFCraft.Pro API Server...');
+    logger.info('🚀 Starting PDFCraft.Pro API Server...');
 
-    // Connect to database
-    await connectDatabase(config.database);
-
-    // Connect to Redis
-    connectRedis(config.redis);
-
-    // Create upload directories
+    // Create log and upload directories
     const fs = require('fs').promises;
+    const logDir = process.env.LOG_DIR || './logs';
+    await fs.mkdir(logDir, { recursive: true });
     await fs.mkdir(config.upload.uploadDir, { recursive: true });
     await fs.mkdir(config.upload.tempDir, { recursive: true });
 
+    // Connect to database
+    await connectDatabase(config.database);
+    logger.info('✅ Database connected successfully');
+
+    // Connect to Redis
+    connectRedis(config.redis);
+    logger.info('✅ Redis connected successfully');
+
     // Start server
-    app.listen(config.port, () => {
-      console.log(`✅ Server running on port ${config.port}`);
-      console.log(`📊 Environment: ${config.nodeEnv}`);
-      console.log(`💾 Database: ${config.database.host}:${config.database.port}`);
-      console.log(`🔄 Redis: ${config.redis.host}:${config.redis.port}`);
-      console.log(`📁 Upload dir: ${config.upload.uploadDir}`);
-      console.log(`⚡ Ready to process PDFs!`);
+    const server = app.listen(config.port, () => {
+      logger.info(`✅ Server running on port ${config.port}`);
+      logger.info(`📊 Environment: ${config.nodeEnv}`);
+      logger.info(`💾 Database: ${config.database.host}:${config.database.port}`);
+      logger.info(`🔄 Redis: ${config.redis.host}:${config.redis.port}`);
+      logger.info(`📁 Upload dir: ${config.upload.uploadDir}`);
+      logger.info(`⚡ Ready to process PDFs!`);
     });
 
+    // Graceful shutdown handling
+    const gracefulShutdown = async (signal: string) => {
+      logger.info(`📴 ${signal} received, shutting down gracefully`);
+
+      server.close(() => {
+        logger.info('✅ HTTP server closed');
+        process.exit(0);
+      });
+
+      // Force close after 30 seconds
+      setTimeout(() => {
+        logger.error('⚠️ Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 30000);
+    };
+
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    logger.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
-
-// Handle graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('📴 SIGTERM received, shutting down gracefully');
-  // Add cleanup logic here
-  process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-  console.log('📴 SIGINT received, shutting down gracefully');
-  // Add cleanup logic here
-  process.exit(0);
-});
 
 // Start the server
 startServer();
 
 export default app;
+// Trigger restart
