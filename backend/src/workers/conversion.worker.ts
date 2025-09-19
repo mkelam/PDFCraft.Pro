@@ -1,11 +1,22 @@
 import Queue from 'bull';
-import { PDFService } from '@/services/pdf.service';
-import { getConnection } from '@/config/database';
-import { conversionQueue } from '@/config/redis';
+import { PDFService } from '../services/pdf.service';
+import { getConnection, getSQLite } from '../config/database';
+import { conversionQueue } from '../config/redis';
+import { EmailQueue } from './email.worker';
+import { logger } from '../utils/logger';
 import path from 'path';
 
-// Process PDF to PowerPoint conversion jobs
-conversionQueue.process('convert-pdf-to-ppt', 5, async (job: Queue.Job) => {
+// Wait for queue initialization
+setTimeout(() => {
+  if (!conversionQueue) {
+    console.error('❌ Conversion queue not initialized');
+    return;
+  }
+
+  console.log('🚀 Starting PDF conversion workers...');
+
+  // Process PDF to PowerPoint conversion jobs
+  conversionQueue.process('convert-pdf-to-ppt', 5, async (job: Queue.Job) => {
   const { jobId, inputPath, outputDir, userId, metadata } = job.data;
 
   try {
@@ -32,6 +43,19 @@ conversionQueue.process('convert-pdf-to-ppt', 5, async (job: Queue.Job) => {
     // Update job as completed
     await updateJobStatus(jobId, 'completed', 100, outputFilename, processingTime);
 
+    // Send completion notification email
+    if (userId) {
+      try {
+        const userEmail = await getUserEmail(userId);
+        if (userEmail) {
+          const downloadUrl = `${process.env.API_URL || 'https://pdfcraft.pro'}/api/download/${outputFilename}`;
+          await EmailQueue.sendConversionCompleteEmail(userEmail, jobId, 'pdf-to-ppt', downloadUrl);
+        }
+      } catch (error) {
+        logger.warn('Failed to send completion email:', error);
+      }
+    }
+
     // Cleanup input file
     await PDFService.cleanupFiles([inputPath]);
 
@@ -52,7 +76,24 @@ conversionQueue.process('convert-pdf-to-ppt', 5, async (job: Queue.Job) => {
     console.error(`❌ PDF→PPT conversion failed: ${jobId}`, error);
 
     // Update job as failed
-    await updateJobStatus(jobId, 'failed', 0, undefined, undefined, error.message);
+    await updateJobStatus(jobId, 'failed', 0, undefined, undefined, error instanceof Error ? error.message : 'Unknown error');
+
+    // Send failure notification email
+    if (userId) {
+      try {
+        const userEmail = await getUserEmail(userId);
+        if (userEmail) {
+          await EmailQueue.sendConversionFailedEmail(
+            userEmail,
+            jobId,
+            'pdf-to-ppt',
+            error instanceof Error ? error.message : 'Unknown error occurred'
+          );
+        }
+      } catch (emailError) {
+        logger.warn('Failed to send failure email:', emailError);
+      }
+    }
 
     // Cleanup input file
     try {
@@ -63,10 +104,10 @@ conversionQueue.process('convert-pdf-to-ppt', 5, async (job: Queue.Job) => {
 
     throw error;
   }
-});
+  });
 
-// Process PDF merge jobs
-conversionQueue.process('merge-pdfs', 3, async (job: Queue.Job) => {
+  // Process PDF merge jobs
+  conversionQueue.process('merge-pdfs', 3, async (job: Queue.Job) => {
   const { jobId, inputFiles, outputDir, userId } = job.data;
 
   try {
@@ -93,6 +134,19 @@ conversionQueue.process('merge-pdfs', 3, async (job: Queue.Job) => {
     // Update job as completed
     await updateJobStatus(jobId, 'completed', 100, outputFilename, processingTime);
 
+    // Send completion notification email
+    if (userId) {
+      try {
+        const userEmail = await getUserEmail(userId);
+        if (userEmail) {
+          const downloadUrl = `${process.env.API_URL || 'https://pdfcraft.pro'}/api/download/${outputFilename}`;
+          await EmailQueue.sendConversionCompleteEmail(userEmail, jobId, 'pdf-merge', downloadUrl);
+        }
+      } catch (error) {
+        logger.warn('Failed to send completion email:', error);
+      }
+    }
+
     // Cleanup input files
     await PDFService.cleanupFiles(inputFiles);
 
@@ -113,7 +167,24 @@ conversionQueue.process('merge-pdfs', 3, async (job: Queue.Job) => {
     console.error(`❌ PDF merge failed: ${jobId}`, error);
 
     // Update job as failed
-    await updateJobStatus(jobId, 'failed', 0, undefined, undefined, error.message);
+    await updateJobStatus(jobId, 'failed', 0, undefined, undefined, error instanceof Error ? error.message : 'Unknown error');
+
+    // Send failure notification email
+    if (userId) {
+      try {
+        const userEmail = await getUserEmail(userId);
+        if (userEmail) {
+          await EmailQueue.sendConversionFailedEmail(
+            userEmail,
+            jobId,
+            'pdf-merge',
+            error instanceof Error ? error.message : 'Unknown error occurred'
+          );
+        }
+      } catch (emailError) {
+        logger.warn('Failed to send failure email:', emailError);
+      }
+    }
 
     // Cleanup input files
     try {
@@ -173,21 +244,49 @@ async function updateJobStatus(
   }
 }
 
-// Queue event handlers
-conversionQueue.on('completed', (job, result) => {
-  console.log(`Job ${job.id} completed successfully`);
-});
+  // Queue event handlers
+  conversionQueue.on('completed', (job, result) => {
+    console.log(`Job ${job.id} completed successfully`);
+  });
 
-conversionQueue.on('failed', (job, err) => {
-  console.error(`Job ${job.id} failed:`, err.message);
-});
+  conversionQueue.on('failed', (job, err) => {
+    console.error(`Job ${job.id} failed:`, err.message);
+  });
 
-conversionQueue.on('stalled', (job) => {
-  console.warn(`Job ${job.id} stalled and will be retried`);
-});
+  conversionQueue.on('stalled', (job) => {
+    console.warn(`Job ${job.id} stalled and will be retried`);
+  });
 
-conversionQueue.on('progress', (job, progress) => {
-  console.log(`Job ${job.id} progress: ${progress}%`);
-});
+  conversionQueue.on('progress', (job, progress) => {
+    console.log(`Job ${job.id} progress: ${progress}%`);
+  });
+
+}, 1000); // Wait 1 second for queue initialization
+
+// Helper function to get user email for notifications
+async function getUserEmail(userId: number): Promise<string | null> {
+  try {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    if (isProduction) {
+      const connection = getConnection();
+      const [rows] = await connection.execute(
+        'SELECT email FROM users WHERE id = ?',
+        [userId]
+      );
+      const users = rows as any[];
+      return users.length > 0 ? users[0].email : null;
+    } else {
+      // Use SQLite in development
+      const db = getSQLite();
+      const stmt = db.prepare('SELECT email FROM users WHERE id = ?');
+      const user = stmt.get(userId) as any;
+      return user ? user.email : null;
+    }
+  } catch (error) {
+    logger.error('Failed to get user email:', error);
+    return null;
+  }
+}
 
 export { conversionQueue };
