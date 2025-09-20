@@ -4,6 +4,7 @@ import { getConnection, getSQLite } from '../config/database';
 import { conversionQueue } from '../config/redis';
 import { EmailQueue } from './email.worker';
 import { logger } from '../utils/logger';
+import { PPTXValidatorService } from '../services/pptx-validator.service';
 import path from 'path';
 
 // Import fs once at the top for better performance
@@ -37,11 +38,29 @@ setTimeout(() => {
       })()
     ]);
 
+    // FINAL VALIDATION: Double-check the output before marking as completed
+    const outputPath = path.join(outputDir, outputFilename);
+    console.log(`🔍 [WORKER] Final validation of: ${outputFilename}`);
+
+    const finalValidation = await PPTXValidatorService.validatePowerPointFile(outputPath);
+
+    if (!finalValidation.isValid || !finalValidation.hasContent) {
+      // Critical failure - output is invalid
+      const issues = finalValidation.issues.join(', ');
+      throw new Error(`Final validation failed: ${issues}. Output file is invalid.`);
+    }
+
     // Calculate processing time
     const startTime = new Date(job.timestamp);
     const processingTime = Date.now() - startTime.getTime();
 
-    // Update job as completed
+    // Log quality metrics
+    console.log(`📊 [WORKER] Quality metrics: ${finalValidation.slideCount} slides, ` +
+      `${finalValidation.quality.hasText ? 'with text, ' : ''}` +
+      `${finalValidation.quality.hasImages ? 'with images, ' : ''}` +
+      `${Math.round(finalValidation.quality.avgContentPerSlide * 100)}% content density`);
+
+    // Update job as completed with quality info
     await updateJobStatus(jobId, 'completed', 100, outputFilename, processingTime);
 
     // Send email and cleanup in parallel (non-blocking)

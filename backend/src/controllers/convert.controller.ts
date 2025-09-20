@@ -8,6 +8,7 @@ import { getConnection, getSQLite } from '../config/database';
 import { ConversionJob } from '../types';
 import { config } from '../config';
 import { EmailQueue } from '../workers/email.worker';
+import { PPTXValidatorService } from '../services/pptx-validator.service';
 
 // Helper function to execute database queries in both MySQL and SQLite
 async function executeQuery(query: string, params: any[]): Promise<any[]> {
@@ -384,6 +385,28 @@ export class ConvertController {
       if (job.status === 'completed' && job.output_file) {
         response.job.downloadUrl = `/api/download/${job.output_file}`;
         response.job.outputFile = job.output_file;
+
+        // Add quality validation for completed jobs
+        try {
+          const outputPath = path.join(config.upload.uploadDir, job.output_file);
+          const validation = await PPTXValidatorService.validatePowerPointFile(outputPath);
+
+          response.job.quality = {
+            isValid: validation.isValid,
+            hasContent: validation.hasContent,
+            slideCount: validation.slideCount,
+            fileSize: validation.fileSize,
+            contentMetrics: {
+              hasText: validation.quality.hasText,
+              hasImages: validation.quality.hasImages,
+              hasNotes: validation.quality.hasNotes,
+              contentDensity: Math.round(validation.quality.avgContentPerSlide * 100)
+            },
+            warnings: validation.warnings
+          };
+        } catch (validationError) {
+          console.warn('Failed to validate completed file:', validationError);
+        }
       }
 
       if (job.status === 'failed' && job.error_message) {

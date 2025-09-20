@@ -9,6 +9,7 @@ import PptxGenJS from 'pptxgenjs';
 import { fromBuffer } from 'pdf2pic';
 import pdf from 'pdf-parse';
 import sharp from 'sharp';
+import { LibreOfficeWrapper } from './libreoffice-wrapper.service';
 
 /**
  * Enterprise-Grade PDF Processing Service
@@ -44,24 +45,14 @@ export class EnterprisePDFService {
   }
 
   /**
-   * LibreOffice conversion engine (Primary)
+   * LibreOffice conversion engine (Primary) - Windows Native
    */
   private static async convertWithLibreOffice(inputPath: string, outputDir: string, jobId: string): Promise<string> {
     try {
       console.log(`🔄 [LIBREOFFICE] Converting: ${path.basename(inputPath)}`);
 
-      // Use libreoffice-convert for real conversion
-      const libre = await import('libreoffice-convert');
-      const { promisify } = require('util');
-      const libreConvert = promisify(libre.default || libre.convert || libre);
-
-      const pdfBuffer = await fs.readFile(inputPath);
-      const pptBuffer = await libreConvert(pdfBuffer, '.pptx', undefined);
-
-      const outputFilename = `converted_${jobId}.pptx`;
-      const outputPath = path.join(outputDir, outputFilename);
-
-      await fs.writeFile(outputPath, pptBuffer);
+      // Use our Windows-native LibreOffice wrapper
+      const outputFilename = await LibreOfficeWrapper.convertPDFToPPT(inputPath, outputDir);
 
       console.log(`✅ [LIBREOFFICE] Conversion completed: ${outputFilename}`);
       return outputFilename;
@@ -119,11 +110,20 @@ export class EnterprisePDFService {
           });
         }
 
-        // Extract and add text overlay if possible
+        // ENHANCED: Extract and preserve text content for functionality
         const textContent = await this.extractTextFromPage(pdfDoc, i);
         if (textContent && textContent.trim().length > 0) {
-          // Store text in slide notes for searchability
-          slide.addNotes(textContent);
+          // Store text in slide notes for PowerPoint search functionality
+          slide.addNotes(`Page ${i + 1} Content:\n\n${textContent.trim()}\n\n--- Extracted from PDF ---`);
+
+          // Add invisible searchable text element for enhanced accessibility
+          slide.addText(`Page content: ${textContent.substring(0, 100)}${textContent.length > 100 ? '...' : ''}`, {
+            x: 0, y: 0, w: 0.01, h: 0.01,
+            fontSize: 1,
+            color: 'FFFFFF' // White text - invisible but searchable
+          });
+
+          console.log(`📝 [ENTERPRISE] Preserved ${textContent.length} characters of text for page ${i + 1}`);
         }
       }
 
@@ -328,9 +328,8 @@ export class EnterprisePDFService {
    */
   private static async isLibreOfficeAvailable(): Promise<boolean> {
     try {
-      // Check if libreoffice-convert is available
-      await import('libreoffice-convert');
-      return process.env.LIBREOFFICE_AVAILABLE === 'true';
+      // Use our LibreOffice wrapper to check availability
+      return await LibreOfficeWrapper.isAvailable();
     } catch {
       return false;
     }
