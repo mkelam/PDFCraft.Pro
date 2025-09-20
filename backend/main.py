@@ -48,16 +48,29 @@ app.include_router(health.router, prefix="/api/health", tags=["health"])
 from api.routes import auth
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 
-# Include benchmark routes
-from api.routes import benchmark
-app.include_router(benchmark.router, prefix="/api/benchmark", tags=["performance"])
+# Include benchmark routes (temporarily disabled due to emoji encoding issues)
+# from api.routes import benchmark
+# app.include_router(benchmark.router, prefix="/api/benchmark", tags=["performance"])
+
+# Include conversion routes
+from api.routes import conversion
+app.include_router(conversion.router, prefix="/api/conversion", tags=["conversion"])
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services and create required directories"""
     await pdf_processor.initialize()
     await file_manager.initialize()
-    print("🚀 PDF SaaS Platform API started - Ready for sub-6 second processing!")
+
+    # Initialize LibreOffice processor
+    from services.libreoffice_processor import libreoffice_processor
+    libreoffice_success = await libreoffice_processor.initialize()
+
+    if libreoffice_success:
+        print("🚀 PDF SaaS Platform API started - Ready for sub-6 second PDF→PPT conversion!")
+    else:
+        print("⚠️ PDF SaaS Platform API started - LibreOffice conversion unavailable")
+        print("💡 Install LibreOffice for PDF→PPT conversion support")
 
 @app.on_event("shutdown")
 async def shutdown_event():
