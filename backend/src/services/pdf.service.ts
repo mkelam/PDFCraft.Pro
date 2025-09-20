@@ -8,9 +8,24 @@ import { EnterprisePDFService } from './enterprise-pdf.service';
 import { HighQualityPDFService } from './high-quality-pdf.service';
 import { PuppeteerPDFService } from './puppeteer-pdf.service';
 import { ImprovedPDFService } from './improved-pdf.service';
+import { PositionAwarePDFService } from './position-aware-pdf.service';
+import { EnhancedSpacingPDFService } from './enhanced-spacing-pdf.service';
+import { LayoutAwarePDFService } from './layout-aware-pdf.service';
+import { VisualFidelityPDFService } from './visual-fidelity-pdf.service';
+import { SemanticValidationPDFService } from './semantic-validation-pdf.service';
+import { OptimizedEngineSelectionService } from './optimized-engine-selection.service';
 import { WorkingPDFService } from './working-pdf.service';
-import { PPTXValidatorService, ValidationResult } from './pptx-validator.service';
+import { EnhancedPDFQualityService } from './enhanced-pdf-quality.service';
+import { FixedEnhancedPDFService } from './fixed-enhanced-pdf.service';
+import { EnhancedFallbackPDFService } from './enhanced-fallback-pdf.service';
+import { CanvasPDFService } from './canvas-pdf.service';
+// import { FixedCanvasPDFService } from './fixed-canvas-pdf.service';
+import { SimplifiedExpertPDFService } from './simplified-expert-pdf.service';
+import { ExpertEnhancedPDFService } from './expert-enhanced-pdf.service';
+// import { FixedImageExpertPDFService } from './fixed-image-expert-pdf.service'; // Temporarily disabled due to TypeScript issues
+import { PPTXValidatorService, ValidationResult, TrueQualityValidationResult } from './pptx-validator.service';
 import { GhostscriptWrapper } from './ghostscript-wrapper.service';
+import { ImageMagickWrapper } from './imagemagick-wrapper.service';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -29,35 +44,119 @@ export class PDFService {
    * Convert PDF to PowerPoint with Maximum Quality
    * Priority: Content Accuracy > Visual Quality > Speed
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
-    // Try engines in order of functionality and reliability
-    // Priority: Pixel-perfect visual fidelity → Editable content → Fallback
+  static async convertPDFToPPT(inputPath: string, outputDir: string, originalFilename?: string): Promise<string> {
+    // Check available rendering capabilities
+    const imageMagickAvailable = await ImageMagickWrapper.isAvailable();
+    const canvasAvailable = await PDFService.checkCanvasAvailability();
+    console.log(`🔍 [PDF-SERVICE] ImageMagick available: ${imageMagickAvailable}`);
+    console.log(`🔍 [PDF-SERVICE] Canvas rendering available: ${canvasAvailable}`);
+
+    // Try engines in order of EXPERT RECOMMENDATIONS and proven stability
+    // Priority: OPTIMIZED ENGINE SELECTION → SEMANTIC VALIDATION → VISUAL FIDELITY → LAYOUT AWARENESS → ENHANCED SPACING → Verified Foundation → Fallback options
     const engines = [
       {
-        name: 'Working PDF Engine (REAL Content Extraction)',
-        emoji: '💎',
-        convert: () => WorkingPDFService.convertPDFToPPT(inputPath, outputDir),
-        description: 'GUARANTEED content preservation - extracts and preserves ALL PDF text content'
+        name: 'Optimized Engine Selection (EXPERT PRIORITY 5 - FINAL)',
+        emoji: '🎯',
+        convert: () => OptimizedEngineSelectionService.convertPDFToPPT(inputPath, outputDir),
+        description: 'EXPERT PRIORITY 5: Advanced engine prioritization, uncertainty resolution, performance-quality optimization matrix, and complete expert implementation with working image processing',
+        available: true
       },
+      {
+        name: 'Semantic Validation PDF Engine (EXPERT PRIORITY 4)',
+        emoji: '🧠',
+        convert: () => SemanticValidationPDFService.convertPDFToPPT(inputPath, outputDir),
+        description: 'EXPERT PRIORITY 4: OCR baseline validation, semantic content analysis, intelligent engine selection, and quality metrics with Priority 1+2+3 foundation',
+        available: true
+      },
+      {
+        name: 'Visual Fidelity PDF Engine (EXPERT PRIORITY 3)',
+        emoji: '🎨',
+        convert: () => VisualFidelityPDFService.convertPDFToPPT(inputPath, outputDir),
+        description: 'EXPERT PRIORITY 3: Enhanced image extraction, QR code/logo preservation, and visual element integration with Priority 1+2 foundation',
+        available: true
+      },
+      {
+        name: 'Layout-Aware PDF Engine (EXPERT PRIORITY 2)',
+        emoji: '🏗️',
+        convert: () => LayoutAwarePDFService.convertPDFToPPT(inputPath, outputDir),
+        description: 'EXPERT PRIORITY 2: Coordinate-based PPTX layout mapping with form structure preservation and key-value pair detection',
+        available: true
+      },
+      {
+        name: 'Enhanced Spacing PDF Engine (EXPERT PRIORITY 1)',
+        emoji: '🎯',
+        convert: () => EnhancedSpacingPDFService.convertPDFToPPT(inputPath, outputDir),
+        description: 'EXPERT PRIORITY 1: Addresses text concatenation problems (MalibongweMkela → Malibongwe Mkela) with intelligent spacing algorithms',
+        available: true
+      },
+      {
+        name: 'Improved PDF Engine (VERIFIED STABLE FOUNDATION)',
+        emoji: '✨',
+        convert: () => ImprovedPDFService.convertPDFToPPT(inputPath, outputDir),
+        description: 'VERIFIED STABLE with robust error handling, graceful degradation, and multiple fallback strategies',
+        available: true
+      },
+      // TEMPORARILY DEPRIORITIZED - Expert Enhanced has critical issues per QA assessment
+      // {
+      //   name: 'Expert Enhanced PDF Engine (TRUE LAYOUT PRESERVATION)',
+      //   emoji: '🎯',
+      //   convert: () => ExpertEnhancedPDFService.convertPDFToPPT(inputPath, outputDir, originalFilename),
+      //   description: 'WORLD-CLASS layout preservation with position-aware text extraction, coordinate mapping, and structure detection using pdf.js',
+      //   available: true
+      // },
+      // TEMPORARILY DISABLED - Fixed Canvas Engine has compilation issues
+      // ...(canvasAvailable ? [{
+      //   name: 'Fixed Canvas PDF Engine (ACTUAL HIGH-QUALITY RENDERING)',
+      //   emoji: '🎨',
+      //   convert: () => FixedCanvasPDFService.convertPDFToPPT(inputPath, outputDir, originalFilename),
+      //   description: 'ACTUAL HIGH-QUALITY rendering with 300 DPI PDF content conversion (NOT placeholder)',
+      //   available: true
+      // }] : []),
+      {
+        name: 'Enhanced Fallback PDF Engine (NO DEPENDENCIES)',
+        emoji: '🛡️',
+        convert: () => EnhancedFallbackPDFService.convertPDFToPPT(inputPath, outputDir, originalFilename),
+        description: 'RELIABLE conversion with intelligent structure detection, no external dependencies required',
+        available: true
+      },
+      ...(imageMagickAvailable ? [
+        {
+          name: 'Fixed Enhanced PDF Engine (HIGH-QUALITY IMAGES)',
+          emoji: '🔧',
+          convert: () => FixedEnhancedPDFService.convertPDFToPPTEnhanced(inputPath, outputDir, originalFilename),
+          description: 'HIGH-QUALITY with pdf2pic, original filename preservation, and guaranteed image inclusion',
+          available: true
+        },
+        {
+          name: 'Enhanced PDF Quality Engine (PUBLICATION GRADE)',
+          emoji: '🏆',
+          convert: () => EnhancedPDFQualityService.convertPDFToPPTEnhanced(inputPath, outputDir),
+          description: 'PUBLICATION QUALITY with 300-600 DPI, content-aware processing, and visual fidelity preservation',
+          available: true
+        },
+        {
+          name: 'Working PDF Engine (VISUAL + CONTENT)',
+          emoji: '💎',
+          convert: () => WorkingPDFService.convertPDFToPPT(inputPath, outputDir),
+          description: 'GUARANTEED content preservation with visual structure extraction',
+          available: true
+        }
+      ] : []),
       {
         name: 'Enterprise Engine (LibreOffice + High-Quality)',
         emoji: '🚀',
         convert: () => EnterprisePDFService.convertPDFToPPT(inputPath, outputDir),
-        description: 'Attempts editable content conversion with LibreOffice, falls back to image-based'
+        description: 'Attempts editable content conversion with LibreOffice, falls back to image-based',
+        available: isLibreOfficeAvailable()
       },
       {
-        name: 'Improved PDF Engine (Enhanced Content-First)',
-        emoji: '✨',
-        convert: () => ImprovedPDFService.convertPDFToPPT(inputPath, outputDir),
-        description: 'Content extraction with pdf2pic rendering for real PDF content'
-      },
-      {
-        name: 'Mock Service (Reliable Fallback)',
+        name: 'Mock Service (Always Reliable)',
         emoji: '🔄',
         convert: () => MockPDFService.convertPDFToPPT(inputPath, outputDir),
-        description: 'Always works - creates functional presentation structure'
+        description: 'Always works - creates functional presentation structure',
+        available: true
       }
-    ];
+    ].filter(engine => engine.available);
 
     let lastError: Error | null = null;
 
@@ -65,7 +164,10 @@ export class PDFService {
       try {
         console.log(`${engine.emoji} Trying ${engine.name}...`);
         console.log(`📋 Strategy: ${engine.description}`);
-        const outputFilename = await engine.convert();
+        const result = await engine.convert();
+
+        // Handle both string and object returns
+        const outputFilename = typeof result === 'string' ? result : result.filename;
 
         // VALIDATION: Verify the generated PowerPoint file
         const outputPath = path.join(outputDir, outputFilename);
@@ -259,6 +361,157 @@ export class PDFService {
         recommendedEngine: 'image',
         estimatedQuality: 'low'
       };
+    }
+  }
+
+  /**
+   * WORLD-CLASS QUALITY VALIDATION
+   * Perform true visual fidelity assessment after conversion
+   */
+  static async validateConversionQuality(
+    originalPdfPath: string,
+    convertedPptxPath: string,
+    outputDir: string,
+    options: {
+      strictMode?: boolean;
+      enableVisualValidation?: boolean;
+      qualityThreshold?: number;
+    } = {}
+  ): Promise<{
+    conversionSuccess: boolean;
+    qualityResult: TrueQualityValidationResult | ValidationResult;
+    meetsQualityStandards: boolean;
+    actionRequired: string[];
+  }> {
+    const {
+      strictMode = false,
+      enableVisualValidation = true,
+      qualityThreshold = strictMode ? 85 : 70
+    } = options;
+
+    console.log(`🏆 [WORLD-CLASS-QUALITY] Starting comprehensive quality validation...`);
+    console.log(`   📄 Original: ${path.basename(originalPdfPath)}`);
+    console.log(`   📊 Converted: ${path.basename(convertedPptxPath)}`);
+    console.log(`   🎯 Standards: ${strictMode ? 'STRICT' : 'PRODUCTION'} mode (${qualityThreshold}%+ required)`);
+
+    try {
+      let qualityResult: TrueQualityValidationResult | ValidationResult;
+      let actionRequired: string[] = [];
+
+      if (enableVisualValidation) {
+        console.log(`   🔬 Performing TRUE VISUAL FIDELITY validation...`);
+
+        // Use true visual fidelity validation
+        qualityResult = await PPTXValidatorService.validateTrueVisualFidelity(
+          originalPdfPath,
+          convertedPptxPath,
+          {
+            strictMode,
+            tempDir: path.join(outputDir, 'visual-validation'),
+            maxPages: 10
+          }
+        );
+
+        console.log(`   📊 VISUAL QUALITY RESULTS:`);
+        console.log(`      Overall Score: ${qualityResult.overallScore}%`);
+        console.log(`      Grade: ${qualityResult.grade}`);
+        console.log(`      Standards: ${qualityResult.overallScore >= qualityThreshold ? 'MET ✅' : 'NOT MET ❌'}`);
+
+        // Add specific action items based on visual validation
+        if (qualityResult.visualFidelity) {
+          const vf = qualityResult.visualFidelity;
+
+          if (vf.visualSimilarity < 80) {
+            actionRequired.push('CRITICAL: Visual similarity below standards - review layout preservation engine');
+          }
+
+          if (vf.layoutAccuracy < 75) {
+            actionRequired.push('HIGH: Layout accuracy issues - check coordinate mapping in ExpertEnhancedPDFService');
+          }
+
+          if (vf.colorFidelity < 85) {
+            actionRequired.push('MEDIUM: Color consistency issues - verify color space handling');
+          }
+        }
+
+      } else {
+        console.log(`   ✅ Performing BASIC validation only...`);
+
+        // Use basic validation only
+        qualityResult = await PPTXValidatorService.validatePowerPointFile(convertedPptxPath);
+
+        console.log(`   📊 BASIC VALIDATION RESULTS:`);
+        console.log(`      Valid: ${qualityResult.isValid}`);
+        console.log(`      Content: ${qualityResult.hasContent}`);
+        console.log(`      Slides: ${qualityResult.slideCount}`);
+      }
+
+      // Determine if quality standards are met
+      const meetsQualityStandards = enableVisualValidation
+        ? (qualityResult as TrueQualityValidationResult).overallScore >= qualityThreshold
+        : qualityResult.isValid && ('hasContent' in qualityResult ? qualityResult.hasContent : true);
+
+      const conversionSuccess = qualityResult.isValid ||
+        (enableVisualValidation && (qualityResult as TrueQualityValidationResult).overallScore > 0);
+
+      // Add general action items
+      if (!meetsQualityStandards) {
+        actionRequired.push('Quality standards not met - review conversion engine selection');
+
+        if (enableVisualValidation) {
+          actionRequired.push('Consider using ExpertEnhancedPDFService as primary engine');
+          actionRequired.push('Review visual fidelity recommendations');
+        }
+      }
+
+      // Add recommendations from validation
+      if ('recommendations' in qualityResult && qualityResult.recommendations) {
+        actionRequired.push(...qualityResult.recommendations.map(rec => `RECOMMENDATION: ${rec}`));
+      }
+
+      console.log(`   🎯 FINAL ASSESSMENT:`);
+      console.log(`      Conversion Success: ${conversionSuccess ? 'YES' : 'NO'}`);
+      console.log(`      Quality Standards: ${meetsQualityStandards ? 'MET ✅' : 'NOT MET ❌'}`);
+      console.log(`      Action Items: ${actionRequired.length}`);
+
+      return {
+        conversionSuccess,
+        qualityResult,
+        meetsQualityStandards,
+        actionRequired: actionRequired.length > 0 ? actionRequired : ['Excellent quality achieved! 🏆']
+      };
+
+    } catch (error) {
+      console.error(`❌ [WORLD-CLASS-QUALITY] Quality validation failed:`, error);
+
+      return {
+        conversionSuccess: false,
+        qualityResult: {
+          isValid: false,
+          hasContent: false,
+          slideCount: 0,
+          fileSize: 0,
+          issues: [`Quality validation error: ${error instanceof Error ? error.message : 'Unknown error'}`],
+          warnings: [],
+          quality: { hasImages: false, hasText: false, hasNotes: false, avgContentPerSlide: 0 },
+          validationTime: 0
+        },
+        meetsQualityStandards: false,
+        actionRequired: ['Quality validation system error - check configuration']
+      };
+    }
+  }
+
+  /**
+   * Check if Canvas API is available for image rendering
+   */
+  private static async checkCanvasAvailability(): Promise<boolean> {
+    try {
+      require('canvas');
+      return true;
+    } catch (error) {
+      console.warn('⚠️ Canvas package not available:', error instanceof Error ? error.message : error);
+      return false;
     }
   }
 }
