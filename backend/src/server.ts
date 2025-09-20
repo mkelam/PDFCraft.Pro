@@ -38,10 +38,11 @@ app.use(requestLogger);
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? (process.env.CORS_ORIGIN || 'https://pdfcraft.pro').split(',')
-    : ['http://localhost:3000', 'http://localhost:3001'],
+    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
 }));
 
 // Body parsing middleware
@@ -72,6 +73,46 @@ const upload = multer({
     }
   },
 });
+
+// Multer error handling middleware
+const handleMulterError = (err: any, req: any, res: any, next: any) => {
+  if (err instanceof multer.MulterError || err.name === 'MulterError') {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: 'File size exceeds limit',
+        error: {
+          code: 'FILE_TOO_LARGE',
+          limit: config.upload.maxFileSize
+        }
+      });
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({
+        success: false,
+        message: 'Unexpected file field',
+        error: {
+          code: 'UNEXPECTED_FILE_FIELD'
+        }
+      });
+    }
+  }
+
+  // Handle empty form submission
+  if (err.message && err.message.includes('Unexpected end of form')) {
+    return res.status(400).json({
+      success: false,
+      message: 'No files were uploaded',
+      error: {
+        code: 'NO_FILES_UPLOADED'
+      }
+    });
+  }
+
+  next(err);
+};
+
+app.use(handleMulterError);
 
 // Health check endpoints
 app.get('/health', HealthController.getHealth);
@@ -281,6 +322,7 @@ app.get('/', (req, res) => {
             <div style="margin-top: 40px; text-align: center; opacity: 0.8;">
                 <p>📖 <strong>Documentation:</strong> PAYSTACK_INTEGRATION.md</p>
                 <p>🔧 <strong>Status:</strong> Mock services active (SQLite + Mock Redis)</p>
+                <p>🔐 <strong>JWT Tokens:</strong> Expire after 7 days - users get 24hr warnings</p>
                 <p>💡 <strong>Tip:</strong> Add real Paystack keys to .env for live payments</p>
             </div>
         </div>

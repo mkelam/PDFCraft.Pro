@@ -1,6 +1,6 @@
 // API utilities for PDFCraft.Pro backend communication
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010';
 
 export interface ConversionResponse {
   success: boolean;
@@ -28,13 +28,65 @@ export interface HealthResponse {
   uptime?: number;
 }
 
+// Global token expiration warning handler
+let onTokenWarning: ((warning: any) => void) | null = null;
+
 export class PDFCraftAPI {
+  /**
+   * Set global token warning handler
+   */
+  static setTokenWarningHandler(handler: (warning: any) => void): void {
+    onTokenWarning = handler;
+  }
+
+  /**
+   * Make authenticated API request with token warning detection
+   */
+  private static async makeAuthenticatedRequest(url: string, options: RequestInit = {}): Promise<Response> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    // Check for token expiration warning in response headers
+    const tokenWarning = response.headers.get('X-Token-Warning');
+    if (tokenWarning && onTokenWarning) {
+      try {
+        const warning = JSON.parse(tokenWarning);
+        onTokenWarning(warning);
+      } catch (e) {
+        console.warn('Failed to parse token warning:', e);
+      }
+    }
+
+    // Handle expired token
+    if (response.status === 401) {
+      const errorData = await response.json();
+      if (errorData.error?.code === 'AUTH_TOKEN_EXPIRED') {
+        // Clear stored token and redirect to login
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          // You can customize this based on your routing setup
+          window.location.href = '/login';
+        }
+        throw new Error(errorData.error.message);
+      }
+    }
+
+    return response;
+  }
   /**
    * Check API health status
    */
   static async checkHealth(): Promise<HealthResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/health`);
+      const response = await fetch(`${API_BASE_URL}/health`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }

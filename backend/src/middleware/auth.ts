@@ -48,11 +48,26 @@ export const authenticateToken = async (
       res.status(401).json({
         success: false,
         error: {
-          message: 'Invalid or expired token',
-          code: 'AUTH_TOKEN_INVALID',
+          message: 'Your session has expired. Please login again to continue.',
+          code: 'AUTH_TOKEN_EXPIRED',
+          action: 'LOGIN_REQUIRED'
         },
       });
       return;
+    }
+
+    // Check token expiration time and add warning if expires soon
+    const currentTime = Math.floor(Date.now() / 1000);
+    const timeUntilExpiry = payload.exp - currentTime;
+    const hoursUntilExpiry = timeUntilExpiry / 3600;
+
+    let expiryWarning = null;
+    if (hoursUntilExpiry <= 24) {
+      expiryWarning = {
+        message: `Your session will expire in ${Math.round(hoursUntilExpiry)} hours. Please save your work and login again soon.`,
+        expiresIn: timeUntilExpiry,
+        action: 'LOGIN_SOON'
+      };
     }
 
     // Fetch user from database using payload.userId
@@ -70,6 +85,12 @@ export const authenticateToken = async (
 
     // Attach user to request object
     req.user = user;
+
+    // Add expiry warning to response headers if token expires soon
+    if (expiryWarning) {
+      res.setHeader('X-Token-Warning', JSON.stringify(expiryWarning));
+    }
+
     next();
   } catch (error) {
     res.status(500).json({

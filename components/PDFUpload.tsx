@@ -162,8 +162,9 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
         <CardContent className="p-8">
           <div
             {...getRootProps()}
+            data-testid={`pdf-dropzone-${mode}`}
             className={`
-              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all
+              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all dropzone pdf-upload-zone
               ${isDragActive ? "border-primary bg-primary/5" : "border-border"}
               ${processing.isProcessing ? "opacity-50 cursor-not-allowed" : "hover:border-primary hover:bg-primary/5"}
             `}
@@ -318,6 +319,7 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
             onClick={processFiles}
             disabled={!canProcess}
             className="bg-primary hover:bg-primary/90"
+            data-testid={`process-button-${mode}`}
           >
             {mode === "convert" ? (
               <>
