@@ -19,9 +19,10 @@ setTimeout(() => {
 
   console.log('🚀 Starting PDF conversion workers...');
 
-  // Process PDF to PowerPoint conversion jobs with optimized concurrency
-  conversionQueue.process('convert-pdf-to-ppt', 3, async (job: Queue.Job) => {
-  const { jobId, inputPath, outputDir, userId, metadata } = job.data;
+  // Process PDF to PowerPoint conversion jobs with resource-optimized concurrency
+  // Limited to 2 concurrent jobs with Puppeteer instance pooling for optimal performance
+  conversionQueue.process('convert-pdf-to-ppt', 2, async (job: Queue.Job) => {
+  const { jobId, inputPath, outputDir, userId, metadata, originalFilename } = job.data;
 
   try {
     // Update job status to processing
@@ -32,7 +33,7 @@ setTimeout(() => {
       fs.mkdir(outputDir, { recursive: true }),
       (async () => {
         await updateJobStatus(jobId, 'processing', 30);
-        const filename = await PDFService.convertPDFToPPT(inputPath, outputDir);
+        const filename = await PDFService.convertPDFToPPT(inputPath, outputDir, originalFilename);
         await updateJobStatus(jobId, 'processing', 80);
         return filename;
       })()
@@ -128,8 +129,9 @@ setTimeout(() => {
   }
   });
 
-  // Process PDF merge jobs
-  conversionQueue.process('merge-pdfs', 3, async (job: Queue.Job) => {
+  // Process PDF merge jobs with balanced concurrency
+  // Limited to 2 concurrent jobs as merging is less resource-intensive than conversion
+  conversionQueue.process('merge-pdfs', 2, async (job: Queue.Job) => {
   const { jobId, inputFiles, outputDir, userId } = job.data;
 
   try {

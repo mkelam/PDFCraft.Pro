@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import { config } from './config';
+import { CONFIG as SHARED_CONFIG } from '../../config/shared.config';
 import { connectDatabase } from './config/database';
 import { connectRedis } from './config/redis';
 import { ConvertController } from './controllers/convert.controller';
@@ -13,6 +14,7 @@ import { AuthController } from './controllers/auth.controller';
 import { PasswordController } from './controllers/password.controller';
 import { HealthController } from './controllers/health.controller';
 import paystackRoutes from './routes/paystack.routes';
+import debugRoutes from './routes/debug.routes';
 import { authenticateToken, optionalAuth } from './middleware/auth';
 import { validate, registerSchema, loginSchema } from './middleware/validation';
 import { authRateLimit, registrationRateLimit } from './middleware/rate-limit';
@@ -34,16 +36,17 @@ app.set('trust proxy', 1);
 // Request logging
 app.use(requestLogger);
 
-// CORS configuration
+// CORS configuration using BMAD shared config
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? (process.env.CORS_ORIGIN || 'https://pdfcraft.pro').split(',')
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:3006', 'http://localhost:3007'],
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : SHARED_CONFIG.CORS_ORIGINS,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 }));
+
+// Log CORS configuration for debugging
+console.log('🔧 BMAD CORS Origins:', SHARED_CONFIG.CORS_ORIGINS);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -170,6 +173,9 @@ app.post('/api/auth/reset-password', authRateLimit, PasswordController.resetPass
 
 // Paystack payment routes
 app.use('/api/paystack', paystackRoutes);
+
+// Debug routes for image processing (Phase 1)
+app.use('/api/debug', debugRoutes);
 
 // Root welcome page - HTML instead of JSON for better browser experience
 app.get('/', (req, res) => {
@@ -423,3 +429,4 @@ startServer();
 
 export default app;
 // Trigger restart
+

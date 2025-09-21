@@ -1,6 +1,11 @@
 // API utilities for PDFCraft.Pro backend communication
+import { CONFIG } from '@/config/shared.config'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010';
+// Use BMAD shared configuration to prevent endpoint drift
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || CONFIG.API_BASE_URL;
+
+// Validate configuration on startup
+console.log(`🔧 BMAD API Config: ${API_BASE_URL}`);
 
 export interface ConversionResponse {
   success: boolean;

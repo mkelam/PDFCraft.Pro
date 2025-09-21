@@ -49,7 +49,7 @@ export class PuppeteerPDFService {
     let page: Page | null = null;
 
     try {
-      // Load PDF to get page count
+      // Load PDF to get page count and prepare data
       const pdfBuffer = await fs.readFile(inputPath);
       const pdfDoc = await PDFDocument.load(pdfBuffer);
       const pageCount = pdfDoc.getPageCount();
@@ -78,20 +78,22 @@ export class PuppeteerPDFService {
         deviceScaleFactor: 2 // 2x resolution for quality
       });
 
-      // Convert file path to file:// URL
-      const fileUrl = `file:///${inputPath.replace(/\\/g, '/')}`;
+      console.log('📄 Loading PDF data into browser...');
 
-      console.log('📄 Loading PDF in browser...');
+      // Convert PDF buffer to base64 data URL for direct loading (avoids file:// CORS issues)
+      const pdfBase64 = pdfBuffer.toString('base64');
+      const pdfDataUrl = `data:application/pdf;base64,${pdfBase64}`;
 
-      // Create HTML to display PDF
+      // Create HTML to display PDF using data URL instead of file URL
       const htmlContent = `
         <!DOCTYPE html>
         <html>
         <head>
           <style>
-            body { margin: 0; padding: 0; overflow: hidden; }
-            #pdf-container { width: 100vw; height: 100vh; }
-            canvas { display: block; margin: 0 auto; }
+            body { margin: 0; padding: 0; overflow: hidden; background: white; }
+            #pdf-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+            canvas { display: block; margin: 0 auto; border: 1px solid #eee; }
+            #error-display { color: red; font-family: Arial; text-align: center; padding: 20px; }
           </style>
         </head>
         <body>
@@ -100,31 +102,79 @@ export class PuppeteerPDFService {
           <script>
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+            window.pdfData = '${pdfDataUrl}';
+            window.currentPdf = null;
+
             async function renderPage(pageNum) {
-              const loadingTask = pdfjsLib.getDocument('${fileUrl}');
-              const pdf = await loadingTask.promise;
-              const page = await pdf.getPage(pageNum);
+              try {
+                console.log('Loading PDF data...');
 
-              const scale = 2.0; // High quality scale
-              const viewport = page.getViewport({ scale });
+                // Load PDF once and cache it
+                if (!window.currentPdf) {
+                  const loadingTask = pdfjsLib.getDocument(window.pdfData);
+                  window.currentPdf = await loadingTask.promise;
+                  console.log('PDF loaded successfully, pages:', window.currentPdf.numPages);
+                }
 
-              const canvas = document.createElement('canvas');
-              const context = canvas.getContext('2d');
-              canvas.width = viewport.width;
-              canvas.height = viewport.height;
+                console.log('Rendering page', pageNum);
+                const page = await window.currentPdf.getPage(pageNum);
 
-              document.getElementById('pdf-container').innerHTML = '';
-              document.getElementById('pdf-container').appendChild(canvas);
+                const scale = 2.0; // High quality scale for better resolution
+                const viewport = page.getViewport({ scale });
 
-              await page.render({
-                canvasContext: context,
-                viewport: viewport
-              }).promise;
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
 
-              return { width: viewport.width, height: viewport.height };
+                // Clear container and add canvas
+                const container = document.getElementById('pdf-container');
+                container.innerHTML = '';
+                container.appendChild(canvas);
+
+                console.log('Starting page render...');
+
+                // Render the page
+                const renderContext = {
+                  canvasContext: context,
+                  viewport: viewport
+                };
+
+                await page.render(renderContext).promise;
+
+                console.log('Page rendered successfully');
+                return {
+                  width: viewport.width,
+                  height: viewport.height,
+                  success: true
+                };
+
+              } catch (error) {
+                console.error('PDF rendering error:', error);
+
+                // Show error in the page
+                const container = document.getElementById('pdf-container');
+                container.innerHTML = '<div id="error-display">PDF Rendering Error: ' + error.message + '</div>';
+
+                throw error;
+              }
             }
 
             window.renderPage = renderPage;
+
+            // Test PDF loading on page load
+            window.addEventListener('load', async () => {
+              try {
+                console.log('Testing PDF loading...');
+                const loadingTask = pdfjsLib.getDocument(window.pdfData);
+                const pdf = await loadingTask.promise;
+                console.log('PDF test successful, pages:', pdf.numPages);
+                window.currentPdf = pdf;
+              } catch (error) {
+                console.error('PDF loading test failed:', error);
+                document.getElementById('pdf-container').innerHTML = '<div id="error-display">Failed to load PDF: ' + error.message + '</div>';
+              }
+            });
           </script>
         </body>
         </html>
@@ -132,6 +182,13 @@ export class PuppeteerPDFService {
 
       // Load the HTML content
       await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+      // Track conversion quality
+      const pageResults = {
+        successful: 0,
+        failed: 0,
+        errors: [] as string[]
+      };
 
       // Process each PDF page
       for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
@@ -153,6 +210,11 @@ export class PuppeteerPDFService {
             fullPage: false,
             captureBeyondViewport: false
           });
+
+          // Verify screenshot has content (not blank)
+          if (!screenshotBuffer || screenshotBuffer.length < 1000) {
+            throw new Error('Screenshot buffer is empty or too small');
+          }
 
           // Optimize the image with sharp
           const optimizedBuffer = await sharp(screenshotBuffer)
@@ -195,36 +257,43 @@ export class PuppeteerPDFService {
             align: 'center'
           });
 
+          pageResults.successful++;
           console.log(`✅ Page ${pageNum} rendered successfully`);
 
         } catch (pageError) {
-          console.warn(`⚠️ Failed to render page ${pageNum}, adding placeholder`);
+          const errorMessage = pageError instanceof Error ? pageError.message : 'Unknown error';
+          pageResults.failed++;
+          pageResults.errors.push(`Page ${pageNum}: ${errorMessage}`);
 
-          // Add placeholder slide for failed pages
-          const slide = pptx.addSlide();
-          slide.background = { color: 'FAFAFA' };
+          console.error(`❌ Failed to render page ${pageNum}: ${errorMessage}`);
 
-          slide.addText(`Page ${pageNum}`, {
-            x: 0,
-            y: 2,
-            w: '100%',
-            h: 1,
-            fontSize: 48,
-            bold: true,
-            color: '666666',
-            align: 'center'
-          });
-
-          slide.addText('Page rendering failed\nContent preserved in original PDF', {
-            x: 0,
-            y: 3,
-            w: '100%',
-            h: 1,
-            fontSize: 18,
-            color: '999999',
-            align: 'center'
-          });
+          // Don't add placeholder slides - fail the job instead
+          // This ensures users get actual errors instead of false success
         }
+      }
+
+      // Check conversion quality and fail if too many pages failed
+      const successRate = (pageResults.successful / pageCount) * 100;
+      const minimumSuccessRate = 80; // Require at least 80% of pages to render successfully
+
+      if (successRate < minimumSuccessRate) {
+        const errorDetails = {
+          totalPages: pageCount,
+          successfulPages: pageResults.successful,
+          failedPages: pageResults.failed,
+          successRate: Math.round(successRate),
+          errors: pageResults.errors
+        };
+
+        console.error(`❌ [PUPPETEER] Conversion quality too low: ${Math.round(successRate)}% success rate`);
+        console.error(`📊 Details:`, errorDetails);
+
+        throw new Error(`PDF conversion failed: Only ${pageResults.successful}/${pageCount} pages rendered successfully (${Math.round(successRate)}%). Errors: ${pageResults.errors.join('; ')}`);
+      }
+
+      if (pageResults.failed > 0) {
+        console.warn(`⚠️ [PUPPETEER] Partial success: ${pageResults.successful}/${pageCount} pages rendered (${Math.round(successRate)}%)`);
+        console.warn(`🔍 Failed page errors:`, pageResults.errors);
       }
 
       // Add metadata slide
@@ -311,9 +380,9 @@ export class PuppeteerPDFService {
     const images: string[] = [];
 
     try {
-      // Load PDF
-      const pdfBuffer = await fs.readFile(inputPath);
-      const pdfDoc = await PDFDocument.load(pdfBuffer);
+      // Load PDF for image conversion
+      const pdfImageBuffer = await fs.readFile(inputPath);
+      const pdfDoc = await PDFDocument.load(pdfImageBuffer);
       const pageCount = pdfDoc.getPageCount();
 
       // Set high-quality viewport
