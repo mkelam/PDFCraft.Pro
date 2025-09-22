@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Development Database (MySQL)
+  mysql-dev:
+    image: mysql:8.0
+    container_name: pdfcraft-mysql-dev
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=devpassword
+      - MYSQL_DATABASE=pdfcraft_dev
+      - MYSQL_USER=pdfcraft_dev
+      - MYSQL_PASSWORD=devpassword
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - pdfcraft-dev-network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Development Redis
+  redis-dev:
+    image: redis:7-alpine
+    container_name: pdfcraft-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - pdfcraft-dev-network
+
+  # Development Application (for testing Docker build)
+  pdfcraft-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: pdfcraft-app-dev
+    restart: unless-stopped
+    ports:
+      - "3002:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=mysql://pdfcraft_dev:devpassword@mysql-dev:3306/pdfcraft_dev
+      - REDIS_URL=redis://redis-dev:6379
+      - JWT_SECRET=development_jwt_secret_not_for_production
+      - PAYSTACK_SECRET_KEY=sk_test_your_test_key
+      - PAYSTACK_PUBLIC_KEY=pk_test_your_test_key
+    volumes:
+      - ./backend:/app/backend
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - /app/backend/node_modules
+    depends_on:
+      - mysql-dev
+      - redis-dev
+    networks:
+      - pdfcraft-dev-network
+
+volumes:
+  mysql_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  pdfcraft-dev-network:
+    driver: bridge

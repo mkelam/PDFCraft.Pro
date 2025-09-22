@@ -8,6 +8,7 @@ export interface User {
   conversions_used: number;
   conversions_limit: number;
   stripe_customer_id?: string;
+  stripe_subscription_id?: string;
   subscription_status?: 'active' | 'canceled' | 'past_due';
   created_at: Date;
   updated_at: Date;

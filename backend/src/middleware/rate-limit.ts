@@ -77,3 +77,44 @@ export const apiRateLimit = rateLimit({
   // Skip failed requests
   skipFailedRequests: false,
 });
+
+/**
+ * Strict rate limiting for sensitive operations (Stripe payments)
+ * Used for: payment operations, subscription changes, account modifications
+ */
+export const rateLimitStrict = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per window
+  message: {
+    success: false,
+    message: 'Too many requests for this operation. Please try again in 15 minutes.',
+    code: 'RATE_LIMIT_STRICT'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Use user ID if authenticated, otherwise IP
+    const user = (req as any).user;
+    return user ? `strict_${user.id}` : `strict_ip_${req.ip}`;
+  }
+});
+
+/**
+ * Moderate rate limiting for general API operations (Stripe)
+ * Used for: user management, subscription queries, billing portal
+ */
+export const rateLimitModerate = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 requests per window
+  message: {
+    success: false,
+    message: 'Too many requests. Please try again in 15 minutes.',
+    code: 'RATE_LIMIT_MODERATE'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    const user = (req as any).user;
+    return user ? `moderate_${user.id}` : `moderate_ip_${req.ip}`;
+  }
+});

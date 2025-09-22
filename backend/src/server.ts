@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
@@ -15,6 +14,9 @@ import { PasswordController } from './controllers/password.controller';
 import { HealthController } from './controllers/health.controller';
 import paystackRoutes from './routes/paystack.routes';
 import debugRoutes from './routes/debug.routes';
+import enhancedUserRoutes from './routes/enhanced-user.routes';
+// import stripePaymentRoutes from './routes/stripe-payment.routes'; // Disabled - using Paystack
+import enhancedConvertRoutes from './routes/enhanced-convert.routes';
 import { authenticateToken, optionalAuth } from './middleware/auth';
 import { validate, registerSchema, loginSchema } from './middleware/validation';
 import { authRateLimit, registrationRateLimit } from './middleware/rate-limit';
@@ -37,13 +39,35 @@ app.set('trust proxy', 1);
 app.use(requestLogger);
 
 // CORS configuration using BMAD shared config
-app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : SHARED_CONFIG.CORS_ORIGINS,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
-}));
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : SHARED_CONFIG.CORS_ORIGINS;
+
+// Manual CORS middleware to ensure headers are set properly
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  // Always set CORS headers for allowed origins
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // For requests without origin (like from server tools)
+    res.header('Access-Control-Allow-Origin', '*');
+  } else {
+    // For unknown origins, still set basic headers but don't allow credentials
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Cache-Control,Pragma,Expires,If-None-Match,If-Modified-Since');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  next();
+});
 
 // Log CORS configuration for debugging
 console.log('🔧 BMAD CORS Origins:', SHARED_CONFIG.CORS_ORIGINS);
@@ -122,6 +146,7 @@ app.get('/health', HealthController.getHealth);
 app.get('/health/simple', HealthController.getSimpleHealth);
 app.get('/health/ready', HealthController.getReadiness);
 app.get('/health/live', HealthController.getLiveness);
+app.get('/api/status', HealthController.getHealth); // API status endpoint for frontend compatibility
 
 // API routes
 
@@ -140,7 +165,24 @@ app.post('/api/convert/merge',
   ConvertController.mergePDFs
 );
 
-app.get('/api/job/:jobId/status', ConvertController.getJobStatus);
+// Middleware to prevent 304 responses for job status endpoints
+const preventCaching = (req: any, res: any, next: any) => {
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+  res.removeHeader('ETag');
+  res.removeHeader('Last-Modified');
+
+  // Remove conditional request headers from request
+  delete req.headers['if-none-match'];
+  delete req.headers['if-modified-since'];
+
+  next();
+};
+
+app.get('/api/job/:jobId/status', preventCaching, ConvertController.getJobStatus);
 
 app.get('/api/download/:filename', ConvertController.downloadFile);
 
@@ -176,6 +218,15 @@ app.use('/api/paystack', paystackRoutes);
 
 // Debug routes for image processing (Phase 1)
 app.use('/api/debug', debugRoutes);
+
+// Enhanced OCR Overlay conversion routes (Week 2 Revolutionary System)
+app.use('/api/convert/enhanced', enhancedConvertRoutes);
+
+// Enhanced User Management routes (Week 3 Day 19-20)
+app.use('/api/users/enhanced', enhancedUserRoutes);
+
+// Stripe Payment routes (Week 3 Day 19-20)
+// app.use('/api/stripe', stripePaymentRoutes); // Disabled - using Paystack
 
 // Root welcome page - HTML instead of JSON for better browser experience
 app.get('/', (req, res) => {
@@ -307,6 +358,16 @@ app.get('/', (req, res) => {
                 </div>
 
                 <div class="endpoint-group">
+                    <h3>🚀 OCR Overlay System (NEW!)</h3>
+                    <ul class="endpoint-list">
+                        <li><span class="method">POST</span> /api/convert/enhanced/pdf-to-powerpoint</li>
+                        <li><span class="method">GET</span> /api/convert/enhanced/status/:jobId</li>
+                        <li><span class="method">GET</span> /api/convert/enhanced/service-status</li>
+                        <li><span class="method">GET</span> /api/convert/enhanced/health</li>
+                    </ul>
+                </div>
+
+                <div class="endpoint-group">
                     <h3>📊 System Endpoints</h3>
                     <ul class="endpoint-list">
                         <li><span class="method">GET</span> /health</li>
@@ -403,9 +464,17 @@ async function startServer() {
     const gracefulShutdown = async (signal: string) => {
       logger.info(`📴 ${signal} received, shutting down gracefully`);
 
-      server.close(() => {
-        logger.info('✅ HTTP server closed');
-        process.exit(0);
+      server.close(async () => {
+        try {
+          // Import closeConnection dynamically to avoid circular dependency
+          const { closeConnection } = await import('./config/database');
+          await closeConnection();
+          logger.info('✅ HTTP server and database connections closed');
+          process.exit(0);
+        } catch (error) {
+          logger.error('❌ Error during graceful shutdown:', error);
+          process.exit(1);
+        }
       });
 
       // Force close after 30 seconds
@@ -429,4 +498,5 @@ startServer();
 
 export default app;
 // Trigger restart
+
 

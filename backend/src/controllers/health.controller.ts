@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getConnection, getSQLite } from '../config/database';
+import { getConnection, getSQLite, getOptimizedConnection } from '../config/database';
 import { conversionQueue } from '../config/redis';
 import { logger } from '../utils/logger';
 import os from 'os';
@@ -33,9 +33,24 @@ export class HealthController {
     // Check database connection
     try {
       if (process.env.NODE_ENV === 'production') {
-        const connection = getConnection();
-        await connection.execute('SELECT 1');
-        checks.services.database = 'healthy';
+        // Use optimized database service for production
+        const optimizedDb = getOptimizedConnection();
+        const healthCheck = await optimizedDb.healthCheck();
+
+        if (healthCheck.status === 'healthy') {
+          checks.services.database = 'healthy';
+          checks.database = {
+            status: healthCheck.status,
+            poolStats: healthCheck.details
+          };
+        } else {
+          checks.services.database = 'degraded';
+          checks.status = 'degraded';
+          checks.database = {
+            status: healthCheck.status,
+            details: healthCheck.details
+          };
+        }
       } else {
         const db = getSQLite();
         db.prepare('SELECT 1').get();
@@ -157,8 +172,12 @@ export class HealthController {
     try {
       // Check critical services only
       if (process.env.NODE_ENV === 'production') {
-        const connection = getConnection();
-        await connection.execute('SELECT 1');
+        const optimizedDb = getOptimizedConnection();
+        const healthCheck = await optimizedDb.healthCheck();
+
+        if (healthCheck.status === 'unhealthy') {
+          throw new Error(`Database not ready: ${JSON.stringify(healthCheck.details)}`);
+        }
       } else {
         const db = getSQLite();
         db.prepare('SELECT 1').get();
@@ -175,6 +194,7 @@ export class HealthController {
         success: false,
         status: 'not-ready',
         timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   }

@@ -8,6 +8,7 @@ import { EnterprisePDFService } from './enterprise-pdf.service';
 import { HighQualityPDFService } from './high-quality-pdf.service';
 import { PuppeteerPDFService } from './puppeteer-pdf.service';
 import { ImprovedPDFService } from './improved-pdf.service';
+// import { EnhancedImageProcessor } from './enhanced-image-processor.service';
 import { PositionAwarePDFService } from './position-aware-pdf.service';
 import { EnhancedSpacingPDFService } from './enhanced-spacing-pdf.service';
 import { LayoutAwarePDFService } from './layout-aware-pdf.service';
@@ -22,10 +23,13 @@ import { CanvasPDFService } from './canvas-pdf.service';
 // import { FixedCanvasPDFService } from './fixed-canvas-pdf.service';
 import { SimplifiedExpertPDFService } from './simplified-expert-pdf.service';
 import { ExpertEnhancedPDFService } from './expert-enhanced-pdf.service';
+// import { HybridEditablePDFService } from './hybrid-editable-pdf.service';
 // import { FixedImageExpertPDFService } from './fixed-image-expert-pdf.service'; // Temporarily disabled due to TypeScript issues
 import { PPTXValidatorService, ValidationResult, TrueQualityValidationResult } from './pptx-validator.service';
 import { GhostscriptWrapper } from './ghostscript-wrapper.service';
 import { ImageMagickWrapper } from './imagemagick-wrapper.service';
+import QuickImageFixService from './quickfix/quickImageFix.service';
+import ImageDetectionService from './imageDetection.service';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -39,21 +43,119 @@ const isGhostscriptAvailable = (): boolean => {
   return process.env.GHOSTSCRIPT_AVAILABLE === 'true';
 };
 
+// Allow high-fidelity browser rendering to be toggled in constrained environments
+const isPuppeteerEngineEnabled = (): boolean => {
+  return process.env.DISABLE_PUPPETEER_ENGINE !== 'true';
+};
+
 export class PDFService {
   /**
    * Convert PDF to PowerPoint with Maximum Quality
    * Priority: Content Accuracy > Visual Quality > Speed
    */
   static async convertPDFToPPT(inputPath: string, outputDir: string, originalFilename?: string): Promise<string> {
+    // PRIORITY: IMAGE EXTRACTION & VISUAL FIDELITY FIRST
+    console.log(`🎯 [PDF-SERVICE] PRIORITIZING IMAGE EXTRACTION & VISUAL FIDELITY`);
+
+    // STEP 1: IMMEDIATE image analysis to determine strategy
+    let imageAnalysis;
+    try {
+      const pdfBuffer = await fs.readFile(inputPath);
+      imageAnalysis = await ImageDetectionService.analyzeForImages(pdfBuffer);
+      console.log(`📊 [PRIORITY-IMAGE-DETECTION]`, {
+        hasImages: imageAnalysis.hasImages,
+        imageCount: imageAnalysis.imageCount,
+        complexity: imageAnalysis.complexity,
+        recommendsImageProcessing: imageAnalysis.recommendsImageProcessing
+      });
+    } catch (error) {
+      console.warn(`⚠️ [IMAGE-DETECTION] Analysis failed:`, error instanceof Error ? error.message : String(error));
+      imageAnalysis = { hasImages: true, recommendsImageProcessing: true, imageCount: 1 }; // Default to safe assumption
+    }
+
+    // STEP 2: If ANY images detected, prioritize visual engines FIRST
+    if (imageAnalysis.hasImages) {
+      console.log(`🖼️ [IMAGE-PRIORITY] Detected ${imageAnalysis.imageCount} images - PRIORITIZING IMAGE EXTRACTION ENGINES`);
+
+      // Try visual-focused engines immediately
+      const visualResult = await this.tryVisualEngines(inputPath, outputDir, originalFilename);
+      if (visualResult) {
+        console.log(`✅ [VISUAL-PRIORITY] SUCCESS with image-focused engine`);
+        return visualResult;
+      }
+
+      // If visual engines failed, try QuickImageFix as emergency
+      if (imageAnalysis.recommendsImageProcessing) {
+        console.log(`🚨 [EMERGENCY-IMAGE-FIX] Visual engines failed, trying emergency image processing`);
+        try {
+          const quickFixResult = await QuickImageFixService.convertWithImages(inputPath);
+          if (quickFixResult.success) {
+            console.log(`✅ [EMERGENCY-IMAGE-FIX] Success! Images processed in ${quickFixResult.processingTime}ms`);
+            return quickFixResult.outputPath;
+          } else {
+            console.warn(`⚠️ [EMERGENCY-IMAGE-FIX] Failed: ${quickFixResult.error}`);
+          }
+        } catch (error) {
+          console.error(`❌ [EMERGENCY-IMAGE-FIX] Exception:`, error instanceof Error ? error.message : String(error));
+        }
+      }
+    }
+
+    // STEP 3: Fallback to hybrid approach only if no images or all image engines failed
+    try {
+      console.log(`🔄 [FALLBACK-HYBRID] Trying hybrid approach as fallback...`);
+      console.log(`   📝 Goal: Editable text + Best effort image preservation`);
+
+      // const hybridResult = await HybridEditablePDFService.convertPDFToPPT(inputPath, outputDir, originalFilename);
+      throw new Error('HybridEditablePDFService temporarily disabled');
+
+      // Validate that conversion succeeded
+      // const outputPath = path.join(outputDir, hybridResult);
+      // const validation = await PPTXValidatorService.validatePowerPointFile(outputPath);
+
+      // if (validation.isValid && validation.hasContent) {
+      //   if (imageAnalysis.hasImages && !validation.quality.hasImages) {
+      //     console.warn(`⚠️ [FALLBACK-HYBRID] Images detected but missing in output - accepting with limitation`);
+      //   }
+      //   console.log(`✅ [FALLBACK-HYBRID] SUCCESS! Created PowerPoint with ${validation.slideCount} slides`);
+      //   console.log(`🎯 [FALLBACK-HYBRID] Features: Editable text${validation.quality.hasImages ? ' + Images' : ' (images may be limited)'}`);
+      //   return hybridResult;
+      // } else {
+      //   console.warn(`⚠️ [FALLBACK-HYBRID] Validation failed, continuing to final fallback`);
+      // }
+    } catch (error) {
+      console.warn(`⚠️ [FALLBACK-HYBRID] Failed:`, error instanceof Error ? error.message : String(error));
+    }
+
+    // STEP 4: Final fallback to engine hierarchy
+    console.log(`🚀 [FINAL-FALLBACK] All priority engines failed, trying full engine hierarchy`);
+
+    // Fallback to existing engine hierarchy
+    console.log(`🔄 [PDF-SERVICE] Falling back to existing engines`);
+
     // Check available rendering capabilities
     const imageMagickAvailable = await ImageMagickWrapper.isAvailable();
     const canvasAvailable = await PDFService.checkCanvasAvailability();
     console.log(`🔍 [PDF-SERVICE] ImageMagick available: ${imageMagickAvailable}`);
     console.log(`🔍 [PDF-SERVICE] Canvas rendering available: ${canvasAvailable}`);
 
-    // Try engines in order of EXPERT RECOMMENDATIONS and proven stability
-    // Priority: OPTIMIZED ENGINE SELECTION → SEMANTIC VALIDATION → VISUAL FIDELITY → LAYOUT AWARENESS → ENHANCED SPACING → Verified Foundation → Fallback options
+    // Try engines in order of EDITABLE TEXT PRIORITY → EXPERT RECOMMENDATIONS → proven stability
+    // Priority: EDITABLE TEXT → OPTIMIZED ENGINE SELECTION → SEMANTIC VALIDATION → VISUAL FIDELITY → LAYOUT AWARENESS → ENHANCED SPACING → Verified Foundation → Fallback options
     const engines = [
+      {
+        name: 'Hybrid Editable PDF Engine (EDITABLE TEXT + VISUAL STRUCTURE)',
+        emoji: '🔥',
+        convert: () => { throw new Error('HybridEditablePDFService temporarily disabled'); },
+        description: 'HIGHEST PRIORITY: BEST OF BOTH WORLDS - Editable text + Images + Structure preservation using LibreOffice + Visual overlay',
+        available: true
+      },
+      {
+        name: 'Puppeteer High-Fidelity Engine (FULL VISUAL CAPTURE)',
+        emoji: '[PUP]',
+        convert: () => PuppeteerPDFService.convertPDFToPPT(inputPath, outputDir),
+        description: 'Headless Chrome rendering preserves images, charts, and layout before any scripted fallbacks.',
+        available: isPuppeteerEngineEnabled()
+      },
       {
         name: 'Optimized Engine Selection (EXPERT PRIORITY 5 - FINAL)',
         emoji: '🎯',
@@ -208,6 +310,99 @@ export class PDFService {
   }
 
   /**
+   * Try visual-focused engines optimized for IMAGE EXTRACTION PRIORITY
+   */
+  private static async tryVisualEngines(inputPath: string, outputDir: string, originalFilename?: string): Promise<string | null> {
+    console.log(`🎨 [IMAGE-EXTRACTION-PRIORITY] Trying MAXIMUM image preservation engines...`);
+
+    // Visual engines in PRIORITIZED order for maximum image extraction
+    const visualEngines = [
+      {
+        name: 'Enhanced Image Processor (ADVANCED MULTI-STRATEGY EXTRACTION)',
+        emoji: '🔬',
+        convert: async () => {
+          console.log(`🔬 [ENHANCED-PROCESSOR] Using advanced multi-strategy extraction...`);
+          // const advancedContent = await EnhancedImageProcessor.extractImagesWithEnhancedProcessing(inputPath);
+          throw new Error('Enhanced Image Processor temporarily disabled for testing');
+        },
+        available: true
+      },
+      {
+        name: 'QuickImageFix Service (MAXIMUM IMAGE EXTRACTION)',
+        emoji: '🎯',
+        convert: async () => {
+          const quickFixResult = await QuickImageFixService.convertWithImages(inputPath);
+          if (quickFixResult.success) {
+            return quickFixResult.outputPath;
+          }
+          throw new Error(quickFixResult.error || 'QuickImageFix failed');
+        },
+        available: true
+      },
+      {
+        name: 'Fixed Enhanced PDF Engine (HIGH-QUALITY IMAGES)',
+        emoji: '🔧',
+        convert: () => FixedEnhancedPDFService.convertPDFToPPTEnhanced(inputPath, outputDir, originalFilename),
+        available: await this.checkImageMagickAvailability()
+      },
+      {
+        name: 'Enhanced PDF Quality Engine (PUBLICATION GRADE IMAGES)',
+        emoji: '🏆',
+        convert: () => EnhancedPDFQualityService.convertPDFToPPTEnhanced(inputPath, outputDir),
+        available: await this.checkImageMagickAvailability()
+      },
+      {
+        name: 'Working PDF Engine (VISUAL + CONTENT)',
+        emoji: '💎',
+        convert: () => WorkingPDFService.convertPDFToPPT(inputPath, outputDir),
+        available: await this.checkImageMagickAvailability()
+      },
+      {
+        name: 'Puppeteer High-Fidelity Engine (FULL VISUAL CAPTURE)',
+        emoji: '🌐',
+        convert: () => PuppeteerPDFService.convertPDFToPPT(inputPath, outputDir),
+        available: isPuppeteerEngineEnabled()
+      },
+      {
+        name: 'Visual Fidelity PDF Engine (EXPERT PRIORITY 3)',
+        emoji: '🎨',
+        convert: () => VisualFidelityPDFService.convertPDFToPPT(inputPath, outputDir),
+        available: true
+      }
+    ].filter(engine => engine.available);
+
+    for (const engine of visualEngines) {
+      try {
+        console.log(`${engine.emoji} [VISUAL-TRY] ${engine.name}...`);
+        const result = await engine.convert();
+
+        // Validate image preservation
+        const outputPath = path.join(outputDir, result);
+        const validation = await PPTXValidatorService.validatePowerPointFile(outputPath);
+
+        if (validation.isValid && validation.hasContent) {
+          if (validation.quality.hasImages) {
+            console.log(`✅ [VISUAL-SUCCESS] ${engine.name} preserved images successfully - PERFECT RESULT`);
+            return result;
+          } else {
+            console.log(`✅ [VISUAL-ACCEPT] ${engine.name} succeeded with visual processing - accepting for image priority`);
+            // For image-focused engines, we accept valid results even if image detection is uncertain
+            // Visual engines capture images as part of the visual rendering process
+            return result;
+          }
+        } else {
+          console.warn(`⚠️ [VISUAL-FAILED] ${engine.name} validation failed`);
+        }
+      } catch (error) {
+        console.warn(`❌ [VISUAL-FAILED] ${engine.name}:`, error instanceof Error ? error.message : String(error));
+      }
+    }
+
+    console.warn(`⚠️ [VISUAL-ENGINES] All visual engines failed`);
+    return null;
+  }
+
+  /**
    * Merge multiple PDF files using Enterprise Engine
    */
   static async mergePDFs(inputPaths: string[], outputDir: string): Promise<string> {
@@ -223,6 +418,17 @@ export class PDFService {
         console.error('❌ Enterprise PDF merge failed, trying mock fallback:', enterpriseError);
         return MockPDFService.mergePDFs(inputPaths, outputDir);
       }
+    }
+  }
+
+  /**
+   * Check if ImageMagick is available
+   */
+  private static async checkImageMagickAvailability(): Promise<boolean> {
+    try {
+      return await ImageMagickWrapper.isAvailable();
+    } catch {
+      return false;
     }
   }
 

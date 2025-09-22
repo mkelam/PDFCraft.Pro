@@ -34,6 +34,7 @@
       "@/config/*": ["src/config/*"],
       "@/controllers/*": ["src/controllers/*"],
       "@/services/*": ["src/services/*"],
+      "@/services/ocr-overlay/*": ["src/services/ocr-overlay/*"],
       "@/middleware/*": ["src/middleware/*"],
       "@/utils/*": ["src/utils/*"],
       "@/types/*": ["src/types/*"]
