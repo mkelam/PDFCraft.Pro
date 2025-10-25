@@ -1,14 +1,24 @@
 # Use Node.js 18 LTS Alpine image for smaller size
 FROM node:18-alpine
 
-# Install LibreOffice and other dependencies
+# Install LibreOffice, ImageMagick, Tesseract OCR, Ghostscript and other dependencies
 RUN apk update && apk add --no-cache \
     libreoffice \
+    imagemagick \
+    imagemagick-dev \
+    ghostscript \
+    tesseract-ocr \
+    tesseract-ocr-data-eng \
     font-liberation \
     font-noto \
     font-noto-cjk \
     font-noto-extra \
+    font-noto-emoji \
     ttf-dejavu \
+    cairo \
+    pango \
+    pixman \
+    giflib \
     curl \
     bash \
     && rm -rf /var/cache/apk/*
