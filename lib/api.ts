@@ -2,6 +2,7 @@
 import { CONFIG } from '@/config/shared.config'
 
 // Use BMAD shared configuration to prevent endpoint drift
+// UPDATED: Use correct backend port for quality preservation system
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || CONFIG.API_BASE_URL;
 
 // Validate configuration on startup
@@ -102,9 +103,9 @@ export class PDFCraftAPI {
   }
 
   /**
-   * Convert PDF to PowerPoint with job polling
+   * Convert PDF to Office format (PowerPoint, Word, or Excel) with job polling
    */
-  static async convertPDFToPPT(file: File): Promise<ConversionResponse> {
+  static async convertPDFToOffice(file: File, format: 'pptx' | 'docx' | 'xlsx' = 'pptx'): Promise<ConversionResponse> {
     try {
       // Validate file type
       if (file.type !== 'application/pdf') {
@@ -119,6 +120,13 @@ export class PDFCraftAPI {
 
       const formData = new FormData();
       formData.append('files', file);
+      formData.append('outputFormat', format);
+
+      // OCR-Enhanced conversion options
+      formData.append('ocrEnabled', 'true');
+      formData.append('preserveImages', 'true');
+      formData.append('textOverlays', 'true');
+      formData.append('ocrAccuracy', 'high');
 
       // Submit conversion job
       const response = await fetch(`${API_BASE_URL}/api/convert/pdf-to-ppt`, {
@@ -136,27 +144,70 @@ export class PDFCraftAPI {
       return await this.pollJobCompletion(jobResponse.jobId);
 
     } catch (error) {
-      throw new Error(`PDF conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const formatName = format === 'pptx' ? 'PowerPoint' : format === 'docx' ? 'Word' : 'Excel';
+      throw new Error(`PDF to ${formatName} conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  /**
+   * Convert PDF to PowerPoint (legacy method for backwards compatibility)
+   */
+  static async convertPDFToPPT(file: File): Promise<ConversionResponse> {
+    return this.convertPDFToOffice(file, 'pptx');
   }
 
   /**
    * Poll job status until completion
    */
   private static async pollJobCompletion(jobId: string): Promise<ConversionResponse> {
-    const maxAttempts = 60; // 60 attempts = 60 seconds max
+    const maxAttempts = 120; // 120 attempts = 2 minutes max for large PDFs
     let attempts = 0;
 
     while (attempts < maxAttempts) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/job/${jobId}/status`);
-        const statusData = await response.json();
+        // Add random timestamp to force fresh response and avoid 304 caching
+        const timestamp = Date.now() + Math.random();
+        const statusUrl = `${API_BASE_URL}/api/job/${jobId}/status?t=${timestamp}&_cache_bust=${attempts}`;
+        console.log(`Poll ${attempts + 1}: Requesting ${statusUrl}`);
+
+        const response = await fetch(statusUrl, {
+          cache: 'no-store', // More aggressive than no-cache
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'If-None-Match': '*', // Prevent conditional requests
+            'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT' // Prevent conditional requests
+          }
+        });
+
+        console.log(`Poll ${attempts + 1}: Response status ${response.status}`);
+
+        // Handle HTTP 304 responses gracefully
+        if (response.status === 304) {
+          console.log(`Poll ${attempts + 1}: Received 304 Not Modified, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          attempts++;
+          continue;
+        }
 
         if (!response.ok) {
           throw new Error(`Status check failed: ${response.status}`);
         }
 
+        // Only try to parse JSON if we have a response body
+        const contentLength = response.headers.get('content-length');
+        if (contentLength === '0' || response.status === 204) {
+          console.log(`Poll ${attempts + 1}: Empty response, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          attempts++;
+          continue;
+        }
+
+        const statusData = await response.json();
         const job = statusData.job;
+
+        console.log(`Poll ${attempts + 1}: ${job.status} (${job.progress || 0}%)`);
 
         if (job.status === 'completed') {
           return {
@@ -179,6 +230,7 @@ export class PDFCraftAPI {
         attempts++;
 
       } catch (error) {
+        console.error(`Poll ${attempts + 1} error:`, error.message);
         if (attempts >= maxAttempts - 1) {
           throw error;
         }
@@ -243,6 +295,45 @@ export class PDFCraftAPI {
 
     } catch (error) {
       throw new Error(`PDF merge failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Convert PDF to images with job polling
+   */
+  static async convertPDFToImages(file: File): Promise<ConversionResponse> {
+    try {
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        throw new Error('Only PDF files are allowed');
+      }
+
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        throw new Error('File size exceeds 10MB limit');
+      }
+
+      const formData = new FormData();
+      formData.append('files', file);
+
+      // Submit image extraction job
+      const response = await fetch(`${API_BASE_URL}/api/convert/pdf-to-images`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const jobResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(jobResponse.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Poll for job completion
+      return await this.pollJobCompletion(jobResponse.jobId);
+
+    } catch (error) {
+      throw new Error(`PDF to images conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -323,8 +414,10 @@ export class PDFCraftAPI {
 // Export individual functions for convenience
 export const {
   checkHealth,
+  convertPDFToOffice,
   convertPDFToPPT,
   mergePDFs,
+  convertPDFToImages,
   getDownloadUrl,
   downloadFile,
   formatFileSize,

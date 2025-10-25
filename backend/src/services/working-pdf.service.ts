@@ -5,6 +5,7 @@ import PptxGenJS from 'pptxgenjs';
 import { PDFDocument } from 'pdf-lib';
 import pdf from 'pdf-parse';
 import { config } from '../config';
+import { ImageMagickWrapper } from './imagemagick-wrapper.service';
 
 /**
  * WORKING PDF to PowerPoint Service
@@ -14,15 +15,19 @@ import { config } from '../config';
 export class WorkingPDFService {
 
   /**
-   * Convert PDF to PowerPoint with REAL content extraction
+   * Convert PDF to PowerPoint with REAL content and visual extraction
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  static async convertPDFToOffice(inputPath: string, outputDir: string): Promise<string> {
     const startTime = Date.now();
     const jobId = uuidv4();
 
-    console.log(`🚀 [WORKING] Starting REAL PDF→PPT conversion: ${path.basename(inputPath)}`);
+    console.log(`🚀 [WORKING] Starting ENHANCED PDF→PPT conversion: ${path.basename(inputPath)}`);
 
     try {
+      // Create temporary directory for image extraction
+      const tempDir = path.join(outputDir, `temp_${jobId}`);
+      await fs.mkdir(tempDir, { recursive: true });
+
       // Step 1: Extract ALL content from PDF
       const pdfBuffer = await fs.readFile(inputPath);
 
@@ -49,127 +54,195 @@ export class WorkingPDFService {
       const pageCount = pdfDoc.getPageCount();
       const totalText = pdfTextData.text;
 
-      // Validate we have actual content
-      if (!totalText || totalText.trim().length === 0) {
-        throw new Error('PDF contains no readable text content');
+      // Step 2: Extract images from each PDF page using ImageMagick
+      const pageImages: { [pageNum: number]: string } = {};
+      const imageMagickAvailable = await ImageMagickWrapper.isAvailable();
+
+      if (imageMagickAvailable) {
+        console.log(`🖼️ [WORKING] Extracting page images using ImageMagick...`);
+
+        for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+          const pageNum = pageIndex + 1;
+          try {
+            const imageFilename = await ImageMagickWrapper.extractPDFPageAsImage(
+              inputPath,
+              tempDir,
+              pageNum,
+              {
+                format: 'png',
+                density: 200, // Good balance of quality and performance
+                quality: 95,
+                maxWidth: 1280,
+                maxHeight: 720
+              }
+            );
+            pageImages[pageNum] = path.join(tempDir, imageFilename);
+            console.log(`✅ [WORKING] Extracted image for page ${pageNum}: ${imageFilename}`);
+          } catch (imageError) {
+            console.warn(`⚠️ [WORKING] Failed to extract image for page ${pageNum}:`, imageError);
+          }
+        }
+
+        console.log(`🖼️ [WORKING] Successfully extracted ${Object.keys(pageImages).length}/${pageCount} page images`);
+      } else {
+        console.warn(`⚠️ [WORKING] ImageMagick not available - proceeding with text-only conversion`);
       }
 
-      // Step 2: Create HIGH-QUALITY PowerPoint with REAL content
+      // Validate we have content (text or images)
+      if ((!totalText || totalText.trim().length === 0) && Object.keys(pageImages).length === 0) {
+        throw new Error('PDF contains no readable content or extractable images');
+      }
+
+      // Step 3: Create HIGH-QUALITY PowerPoint with REAL content
       const pptx = new PptxGenJS();
       pptx.author = 'PDFCraft.Pro';
-      pptx.company = 'PDFCraft.Pro - Premium Conversion';
+      pptx.company = 'PDFCraft.Pro - Enhanced Conversion';
       pptx.title = path.basename(inputPath, '.pdf');
-      pptx.subject = 'Converted from PDF with full content preservation';
+      pptx.subject = 'Converted from PDF with visual structure and content preservation';
 
       // Use professional 16:9 layout
       pptx.layout = 'LAYOUT_16x9';
 
-      // Step 3: Intelligently distribute content across slides
+      // Step 4: Create slides with visual structure preservation
       const contentPerPage = Math.ceil(totalText.length / pageCount);
 
       for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
         const pageNum = pageIndex + 1;
-        console.log(`🔄 [WORKING] Processing page ${pageNum}/${pageCount} with REAL content...`);
+        console.log(`🔄 [WORKING] Processing page ${pageNum}/${pageCount} with VISUAL content...`);
 
-        // Extract text for this page
-        const startIdx = pageIndex * contentPerPage;
-        const endIdx = Math.min(startIdx + contentPerPage, totalText.length);
-        const pageText = totalText.substring(startIdx, endIdx).trim();
-
-        if (pageText.length === 0) {
-          console.warn(`⚠️ Page ${pageNum} has no text content, skipping...`);
-          continue;
-        }
-
-        // Create slide with REAL content
+        // Create slide for this page
         const slide = pptx.addSlide();
-        slide.background = { color: 'FFFFFF' };
 
-        // Add page title
-        slide.addText(`Page ${pageNum}`, {
-          x: 0.5,
-          y: 0.3,
-          w: 9,
-          h: 0.8,
-          fontSize: 24,
-          bold: true,
-          color: '2C3E50',
-          align: 'left'
-        });
+        // Check if we have an image for this page
+        const pageImagePath = pageImages[pageNum];
+        const hasImage = pageImagePath && await fs.access(pageImagePath).then(() => true).catch(() => false);
 
-        // Process and add the actual content
-        const processedContent = this.processTextContent(pageText);
+        if (hasImage) {
+          // Use the extracted page image as background/main content
+          try {
+            slide.addImage({
+              path: pageImagePath,
+              x: 0.3,
+              y: 0.3,
+              w: 9.4,
+              h: 5.3,
+              sizing: { type: 'contain', w: 9.4, h: 5.3 }
+            });
+            console.log(`🖼️ [WORKING] Added full page image for page ${pageNum}`);
+          } catch (imageError) {
+            console.warn(`⚠️ [WORKING] Failed to add image for page ${pageNum}:`, imageError);
+            // Fallback to white background
+            slide.background = { color: 'FFFFFF' };
+          }
+        } else {
+          // Fallback: Create text-based slide with clean design
+          slide.background = { color: 'FFFFFF' };
 
-        // Add main content in readable chunks
-        let yPosition = 1.2;
-        const chunks = this.splitIntoReadableChunks(processedContent, 800); // 800 chars per chunk
+          // Extract and add text for this page
+          const startIdx = pageIndex * contentPerPage;
+          const endIdx = Math.min(startIdx + contentPerPage, totalText.length);
+          const pageText = totalText.substring(startIdx, endIdx).trim();
 
-        for (let chunkIndex = 0; chunkIndex < Math.min(chunks.length, 3); chunkIndex++) {
-          const chunk = chunks[chunkIndex];
+          if (pageText.length > 0) {
+            // Add page title
+            slide.addText(`Page ${pageNum}`, {
+              x: 0.5,
+              y: 0.3,
+              w: 9,
+              h: 0.8,
+              fontSize: 20,
+              bold: true,
+              color: '2C3E50',
+              align: 'left'
+            });
 
-          slide.addText(chunk, {
-            x: 0.5,
-            y: yPosition,
-            w: 9,
-            h: 1.5,
-            fontSize: 12,
-            color: '34495E',
-            wrap: true,
-            lineSpacing: 18,
-            valign: 'top'
-          });
+            // Process and add the actual content
+            const processedContent = this.processTextContent(pageText);
 
-          yPosition += 1.7;
+            // Add main content in readable chunks
+            let yPosition = 1.1;
+            const chunks = this.splitIntoReadableChunks(processedContent, 700); // Slightly smaller chunks
+
+            for (let chunkIndex = 0; chunkIndex < Math.min(chunks.length, 4); chunkIndex++) {
+              const chunk = chunks[chunkIndex];
+
+              slide.addText(chunk, {
+                x: 0.5,
+                y: yPosition,
+                w: 9,
+                h: 1.3,
+                fontSize: 11,
+                color: '34495E',
+                wrap: true,
+                lineSpacing: 16,
+                valign: 'top'
+              });
+
+              yPosition += 1.4;
+            }
+
+            // If there's more content, add continuation indicator
+            if (chunks.length > 4) {
+              slide.addText(`... (${chunks.length - 4} more sections - see slide notes)`, {
+                x: 0.5,
+                y: yPosition,
+                w: 9,
+                h: 0.4,
+                fontSize: 9,
+                color: '7F8C8D',
+                italic: true
+              });
+            }
+
+            // Add ALL text to slide notes for full searchability
+            slide.addNotes(`Page ${pageNum} - Complete Content:\n\n${pageText}\n\n--- Full text preserved for searchability ---`);
+          }
         }
 
-        // If there's more content, add continuation indicator
-        if (chunks.length > 3) {
-          slide.addText(`... (${processedContent.length} total characters, ${chunks.length - 3} more sections)`, {
-            x: 0.5,
-            y: yPosition,
-            w: 9,
-            h: 0.5,
-            fontSize: 10,
-            color: '7F8C8D',
-            italic: true
-          });
-        }
-
-        // CRITICAL: Add ALL text to slide notes for full searchability
-        slide.addNotes(`Page ${pageNum} - Complete Content:\n\n${pageText}\n\n--- Full text preserved for searchability ---`);
-
-        // Add page number
+        // Add page number indicator
         slide.addText(`${pageNum}`, {
           x: 9.2,
           y: 5.3,
           w: 0.5,
           h: 0.3,
           fontSize: 10,
-          color: 'CCCCCC',
-          align: 'center'
+          color: hasImage ? 'FFFFFF' : 'CCCCCC',
+          align: 'center',
+          bold: hasImage
         });
 
-        console.log(`✅ [WORKING] Page ${pageNum} converted with ${pageText.length} characters`);
+        console.log(`✅ [WORKING] Page ${pageNum} converted with ${hasImage ? 'visual structure' : 'text content'}`);
       }
 
-      // Step 4: Add comprehensive summary slide
-      this.addContentSummarySlide(pptx, inputPath, pageCount, pdfTextData, totalText);
+      // Step 5: Add comprehensive summary slide with visual statistics
+      this.addEnhancedContentSummarySlide(pptx, inputPath, pageCount, pdfTextData, totalText, Object.keys(pageImages).length);
 
-      // Step 5: Save PowerPoint with verification
-      const outputFilename = `converted_${jobId}.pptx`;
+      // Step 6: Save PowerPoint with original filename
+      const originalPdfName = path.basename(inputPath, '.pdf');
+      const outputFilename = `${originalPdfName}.pptx`;
       const outputPath = path.join(outputDir, outputFilename);
 
       await pptx.writeFile({ fileName: outputPath });
 
+      // Step 7: Clean up temporary files
+      try {
+        await this.cleanupTempDirectory(tempDir);
+      } catch (cleanupError) {
+        console.warn(`⚠️ [WORKING] Failed to cleanup temp directory: ${cleanupError}`);
+      }
+
       // Verify the output file was created and has content
       const outputStats = await fs.stat(outputPath);
-      if (outputStats.size < 10000) { // Less than 10KB indicates a problem
+      if (outputStats.size < 15000) { // Increased threshold for image-enhanced presentations
         throw new Error('Generated PowerPoint file is too small - conversion may have failed');
       }
 
       const processingTime = Date.now() - startTime;
-      console.log(`✅ [WORKING] REAL conversion completed: ${outputFilename}`);
-      console.log(`📊 [WORKING] Stats: ${pageCount} pages, ${totalText.length} chars, ${processingTime}ms`);
+      const visualContent = Object.keys(pageImages).length;
+
+      console.log(`✅ [WORKING] ENHANCED conversion completed: ${outputFilename}`);
+      console.log(`📊 [WORKING] Stats: ${pageCount} pages, ${totalText.length} chars, ${visualContent} images, ${processingTime}ms`);
+      console.log(`🎯 [WORKING] Visual preservation: ${visualContent > 0 ? 'ENABLED' : 'TEXT-ONLY'}`);
 
       return outputFilename;
 
@@ -224,7 +297,89 @@ export class WorkingPDFService {
   }
 
   /**
-   * Add comprehensive summary slide with real metrics
+   * Clean up temporary directory and files
+   */
+  private static async cleanupTempDirectory(tempDir: string): Promise<void> {
+    try {
+      const files = await fs.readdir(tempDir);
+      for (const file of files) {
+        await fs.unlink(path.join(tempDir, file));
+      }
+      await fs.rmdir(tempDir);
+      console.log(`🧹 [WORKING] Cleaned up temp directory: ${tempDir}`);
+    } catch (error) {
+      console.warn(`⚠️ [WORKING] Cleanup failed: ${error}`);
+    }
+  }
+
+  /**
+   * Add enhanced summary slide with visual preservation metrics
+   */
+  private static addEnhancedContentSummarySlide(
+    pptx: any,
+    inputPath: string,
+    pageCount: number,
+    pdfData: any,
+    totalText: string,
+    visualContentCount: number
+  ): void {
+    const slide = pptx.addSlide();
+    slide.background = { color: 'F8F9FA' };
+
+    slide.addText('Enhanced Conversion Summary', {
+      x: 0.5,
+      y: 0.4,
+      w: 9,
+      h: 0.8,
+      fontSize: 26,
+      bold: true,
+      color: '2C3E50'
+    });
+
+    const conversionType = visualContentCount > 0 ? 'Visual + Text Preservation' : 'Text Preservation';
+    const visualPercentage = Math.round((visualContentCount / pageCount) * 100);
+
+    const stats = [
+      `📄 Source File: ${path.basename(inputPath)}`,
+      `📊 PDF Pages: ${pageCount}`,
+      `🖼️ Visual Content: ${visualContentCount}/${pageCount} pages (${visualPercentage}%)`,
+      `📝 Text Content: ${totalText.length.toLocaleString()} characters`,
+      `📈 Content Density: ${Math.round(totalText.length / pageCount)} chars/page`,
+      `🎯 Conversion Type: ${conversionType}`,
+      `🕒 Converted: ${new Date().toLocaleString()}`,
+      `✅ Engine: Enhanced WorkingPDFService v2.0`,
+      `🏆 Structure Preservation: ${visualContentCount > 0 ? 'ENABLED' : 'TEXT-BASED'}`
+    ].join('\n\n');
+
+    slide.addText(stats, {
+      x: 0.5,
+      y: 1.6,
+      w: 9,
+      h: 3.2,
+      fontSize: 13,
+      color: '495057',
+      lineSpacing: 20
+    });
+
+    const qualityIndicator = visualContentCount > 0
+      ? '🎨 High-Fidelity Visual Conversion\n📱 Original layout and images preserved\n🔍 Text content fully searchable in slide notes'
+      : '📝 Text-Based Conversion\n📱 Content preserved and searchable\n💡 Install ImageMagick for visual preservation';
+
+    slide.addText(qualityIndicator, {
+      x: 0.5,
+      y: 4.3,
+      w: 9,
+      h: 1.2,
+      fontSize: 12,
+      color: visualContentCount > 0 ? '27AE60' : '3498DB',
+      align: 'center',
+      bold: true,
+      lineSpacing: 18
+    });
+  }
+
+  /**
+   * Legacy summary slide method for compatibility
    */
   private static addContentSummarySlide(
     pptx: any,

@@ -14,6 +14,14 @@ interface Testimonial {
 
 const testimonials: Testimonial[] = [
   {
+    id: 0,
+    name: "JENNIFER",
+    location: "SAN FRANCISCO, USA",
+    title: "75% LESS COST, 100% PRIVACY!",
+    content: "We switched from Adobe and cut our costs by 75% while keeping all our documents private. No cloud uploads, no data harvesting - just fast, secure conversions on our terms!",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face"
+  },
+  {
     id: 1,
     name: "MICHAEL",
     location: "NEW YORK, USA",

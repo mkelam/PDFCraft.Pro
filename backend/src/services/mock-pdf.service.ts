@@ -11,7 +11,7 @@ export class MockPDFService {
   /**
    * Mock PDF to PowerPoint conversion
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  static async convertPDFToOffice(inputPath: string, outputDir: string): Promise<string> {
     try {
       const startTime = Date.now();
       console.log(`🔄 [MOCK] Starting PDF→PPT conversion: ${path.basename(inputPath)}`);

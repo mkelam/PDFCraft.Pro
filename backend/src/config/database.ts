@@ -94,7 +94,7 @@ const createTables = async (): Promise<void> => {
     CREATE TABLE IF NOT EXISTS conversion_jobs (
       id VARCHAR(36) PRIMARY KEY,
       user_id INT,
-      type ENUM('pdf-to-ppt', 'pdf-merge') NOT NULL,
+      type ENUM('pdf-to-ppt', 'pdf-merge', 'pdf-to-images') NOT NULL,
       status ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
       progress INT DEFAULT 0,
       input_files JSON NOT NULL,
@@ -129,19 +129,26 @@ const createTables = async (): Promise<void> => {
   const createPaymentTransactionsTable = `
     CREATE TABLE IF NOT EXISTS payment_transactions (
       id INT PRIMARY KEY AUTO_INCREMENT,
-      reference VARCHAR(255) UNIQUE NOT NULL,
+      reference VARCHAR(255) UNIQUE NULL,
+      payment_id VARCHAR(255) UNIQUE NULL,
+      payfast_payment_id VARCHAR(255) NULL,
       user_id INT,
       email VARCHAR(255) NOT NULL,
       plan ENUM('starter', 'pro', 'enterprise') NOT NULL,
-      amount INT NOT NULL,
-      currency VARCHAR(3) DEFAULT 'NGN',
-      status ENUM('pending', 'success', 'failed', 'abandoned') DEFAULT 'pending',
+      amount DECIMAL(10,2) NOT NULL,
+      currency VARCHAR(3) DEFAULT 'ZAR',
+      payment_provider ENUM('payfast') DEFAULT 'payfast',
+      status ENUM('pending', 'success', 'failed', 'abandoned', 'cancelled', 'COMPLETE', 'FAILED', 'CANCELLED') DEFAULT 'pending',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       verified_at TIMESTAMP NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
       INDEX idx_reference (reference),
+      INDEX idx_payment_id (payment_id),
+      INDEX idx_payfast_payment_id (payfast_payment_id),
       INDEX idx_user_id (user_id),
       INDEX idx_status (status),
+      INDEX idx_payment_provider (payment_provider),
       INDEX idx_created_at (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `;

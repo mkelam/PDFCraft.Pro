@@ -8,16 +8,33 @@ import { createCanvas, loadImage } from 'canvas';
 import pdf from 'pdf-parse';
 import { config } from '../config';
 
+// Import quality validation and unified types
+import {
+  QualityValidationEngine,
+  validateOutputQuality,
+  QualityValidationRequest,
+  QualityValidationResult
+} from '../middleware/quality-validation.middleware';
+import {
+  ConversionResult,
+  ConversionOptions,
+  PDFConversionService
+} from '../types/pdf-conversion.types';
+
 /**
  * Improved PDF to PowerPoint Service
  * Focuses on actual content extraction and rendering
  */
-export class ImprovedPDFService {
+export class ImprovedPDFService implements PDFConversionService {
 
   /**
-   * Convert PDF to PowerPoint with real content extraction
+   * Convert PDF to PowerPoint with real content extraction and quality validation
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  async convertPDFToOffice(
+    inputPath: string,
+    outputDir: string,
+    options?: ConversionOptions
+  ): Promise<ConversionResult> {
     const startTime = Date.now();
     const jobId = uuidv4();
 
@@ -168,18 +185,75 @@ export class ImprovedPDFService {
       // Add document summary slide
       this.addSummarySlide(pptx, inputPath, pageCount, textData);
 
-      // Save PowerPoint file
-      const outputFilename = `converted_${jobId}.pptx`;
+      // Save PowerPoint file with exact original filename (just change extension)
+      const originalPdfName = path.basename(inputPath, '.pdf');
+      const outputFilename = `${originalPdfName}.pptx`;
       const outputPath = path.join(outputDir, outputFilename);
 
       await pptx.writeFile({ fileName: outputPath });
 
       const processingTime = Date.now() - startTime;
+
+      // Quality validation integration
+      let qualityResult: QualityValidationResult | undefined;
+
+      if (options?.validateQuality !== false) {
+        console.log('🔍 [QUALITY] Validating improved conversion output...');
+
+        // Prepare quality validation request
+        const qualityRequest: QualityValidationRequest = {
+          targetDPI: options?.targetDPI || 200,
+          targetQuality: options?.targetQuality || 85,
+          outputFormat: options?.outputFormat || 'png',
+          qualityLevel: options?.qualityLevel || 'good',
+          validateMetrics: true
+        };
+
+        // Create a buffer from the saved file for validation
+        const outputBuffer = await fs.readFile(outputPath);
+
+        // Validate output quality
+        qualityResult = validateOutputQuality(outputBuffer, qualityRequest, processingTime);
+
+        console.log('📊 [QUALITY] Improved conversion validation results:', {
+          score: qualityResult.score,
+          valid: qualityResult.valid,
+          issues: qualityResult.issues.length
+        });
+
+        // Log quality insights
+        if (qualityResult.issues.length > 0) {
+          console.warn('⚠️ [QUALITY] Quality issues detected:');
+          qualityResult.issues.forEach(issue => {
+            console.warn(`   - ${issue.type}: ${issue.message}`);
+          });
+        } else {
+          console.log('✅ [QUALITY] All quality metrics passed!');
+        }
+      }
+
       console.log(`✅ [IMPROVED] Conversion completed!`);
       console.log(`⏱️  Time: ${processingTime}ms`);
       console.log(`📁 Output: ${outputFilename}`);
+      console.log(`🎯 Quality Score: ${qualityResult?.score || 'N/A'}`);
 
-      return outputFilename;
+      // Return standardized ConversionResult
+      const result: ConversionResult = {
+        filename: outputFilename,
+        qualityResult,
+        processingTime,
+        success: true,
+        metadata: {
+          originalFilename: path.basename(inputPath),
+          inputSize: (await fs.stat(inputPath)).size,
+          outputSize: (await fs.stat(outputPath)).size,
+          pageCount,
+          timestamp: new Date().toISOString(),
+          engineVersion: 'improved-v2.1'
+        }
+      };
+
+      return result;
 
     } catch (error) {
       console.error('❌ [IMPROVED] Conversion failed:', error);
@@ -187,10 +261,11 @@ export class ImprovedPDFService {
     }
   }
 
+
   /**
    * Extract page as actual image using pdf2pic for real PDF content
    */
-  private static async extractPageAsImage(pdfDoc: PDFDocument, pageIndex: number, jobId: string): Promise<string | null> {
+  private async extractPageAsImage(pdfDoc: PDFDocument, pageIndex: number, jobId: string): Promise<string | null> {
     try {
       // First try to render actual PDF content using pdf2pic
       const pdfBytes = await pdfDoc.save();
@@ -273,7 +348,7 @@ export class ImprovedPDFService {
   /**
    * Create content-based slide with extracted text
    */
-  private static async createContentSlide(
+  private async createContentSlide(
     slide: any,
     pageNum: number,
     textData: any,
@@ -362,7 +437,7 @@ export class ImprovedPDFService {
   /**
    * Extract text for specific page
    */
-  private static extractPageText(textData: any, pageIndex: number, totalPages: number): string {
+  private extractPageText(textData: any, pageIndex: number, totalPages: number): string {
     if (!textData || !textData.text) return '';
 
     const totalText = textData.text;
@@ -376,7 +451,7 @@ export class ImprovedPDFService {
   /**
    * Add summary slide
    */
-  private static addSummarySlide(pptx: any, inputPath: string, pageCount: number, textData: any): void {
+  private addSummarySlide(pptx: any, inputPath: string, pageCount: number, textData: any): void {
     const slide = pptx.addSlide();
     slide.background = { color: 'F8F9FA' };
 

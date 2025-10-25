@@ -3,10 +3,13 @@ import { generateTokenPair } from '../utils/jwt';
 import { User, LoginData } from '../types/auth.types';
 import { getOptimizedConnection } from '../config/database';
 import { logger } from '../utils/logger';
+import crypto from 'crypto';
+import { EmailService } from './email.service';
 
 export interface CreateUserData {
   email: string;
   password: string;
+  full_name?: string;
   plan?: 'free' | 'starter' | 'pro' | 'enterprise';
 }
 
@@ -17,10 +20,10 @@ export interface AuthResult {
 }
 
 /**
- * Create a new user account
+ * Create a new user account with email verification
  */
 export const createUser = async (userData: CreateUserData): Promise<AuthResult> => {
-  const { email, password, plan = 'free' } = userData;
+  const { email, password, full_name, plan = 'free' } = userData;
   const db = getOptimizedConnection();
 
   try {
@@ -37,13 +40,43 @@ export const createUser = async (userData: CreateUserData): Promise<AuthResult> 
     // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Set conversion limits based on plan
-    const conversionsLimit = plan === 'free' ? 3 : plan === 'starter' ? 100 : -1;
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create user in database
+    // Set conversion limits based on plan
+    const conversionsLimit = plan === 'free' ? 3 : plan === 'starter' ? 100 : 999999;
+
+    // Calculate usage reset date (30 days from now)
+    const usageResetDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    // Set file size limit based on plan
+    const fileSizeLimit = plan === 'free' ? 10485760 : plan === 'starter' ? 26214400 : 104857600; // 10MB, 25MB, 100MB
+
+    // Create user in database with all auth fields
     const result = await db.executeQuery(
-      'INSERT INTO users (email, password, plan, conversions_used, conversions_limit) VALUES (?, ?, ?, ?, ?)',
-      [email, hashedPassword, plan, 0, conversionsLimit]
+      `INSERT INTO users (
+        email, password, full_name,
+        email_verified, verification_token, verification_token_expires,
+        plan, conversions_used, conversions_limit,
+        registration_date, usage_reset_date, file_size_limit,
+        login_attempts
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        email,
+        hashedPassword,
+        full_name || null,
+        0, // email_verified = false (0 in SQLite)
+        verificationToken,
+        verificationExpires.toISOString(),
+        plan,
+        0, // conversions_used
+        conversionsLimit,
+        new Date().toISOString(), // registration_date
+        usageResetDate.toISOString(),
+        fileSizeLimit,
+        0 // login_attempts
+      ]
     );
 
     // Handle different return types for SQLite vs MySQL
@@ -63,6 +96,18 @@ export const createUser = async (userData: CreateUserData): Promise<AuthResult> 
       userId = createdUsers[0]?.id || 1;
     }
 
+    // Send verification email
+    try {
+      await EmailService.sendVerificationEmail(
+        { email, full_name },
+        verificationToken
+      );
+      logger.info(`📧 Verification email sent to: ${email}`);
+    } catch (emailError) {
+      logger.error('Failed to send verification email:', emailError);
+      // Don't fail registration if email fails
+    }
+
     // Generate JWT tokens
     const tokens = generateTokenPair(userId, email);
 
@@ -70,17 +115,22 @@ export const createUser = async (userData: CreateUserData): Promise<AuthResult> 
     const userWithoutPassword = {
       id: userId,
       email,
+      full_name,
+      email_verified: false,
       plan,
       conversions_used: 0,
       conversions_limit: conversionsLimit,
+      file_size_limit: fileSizeLimit,
+      registration_date: new Date(),
+      usage_reset_date: usageResetDate,
       created_at: new Date(),
       updated_at: new Date(),
     };
 
-    logger.info(`New user created: ${email} with plan: ${plan}`);
+    logger.info(`✅ New user created: ${email} with plan: ${plan} (email verification required)`);
 
     return {
-      user: userWithoutPassword,
+      user: userWithoutPassword as any,
       token: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };

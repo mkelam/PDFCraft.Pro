@@ -7,6 +7,8 @@ import { GeistMono } from "geist/font/mono"
 import { Montserrat } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { TokenExpirationWarning } from "@/components/TokenExpirationWarning"
+import { AuthProvider } from "@/contexts/AuthContext"
+import { SessionProvider } from "@/contexts/SessionContext"
 import "./globals.css"
 
 const montserrat = Montserrat({
@@ -23,8 +25,12 @@ export default function ClientLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${montserrat.variable}`}>
-        <div className="relative z-10">{children}</div>
-        <TokenExpirationWarning />
+        <SessionProvider>
+          <AuthProvider>
+            <div className="relative z-10">{children}</div>
+            <TokenExpirationWarning />
+          </AuthProvider>
+        </SessionProvider>
         <Analytics />
       </body>
     </html>

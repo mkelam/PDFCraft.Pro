@@ -566,4 +566,107 @@ PDFCraft.Pro Security Team`,
       text: template.text,
     });
   }
+
+  /**
+   * Send email verification
+   */
+  static async sendVerificationEmail(user: { email: string; full_name?: string | null }, token: string): Promise<boolean> {
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3020'}/verify-email?token=${token}`;
+    const userName = user.full_name || user.email.split('@')[0];
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-top: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center; color: white; }
+          .content { padding: 40px 30px; }
+          .button { display: inline-block; background: #667eea; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; font-size: 16px; }
+          .footer { background: #f8fafc; padding: 30px; text-align: center; color: #64748b; font-size: 14px; }
+          .badge { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 4px; font-size: 14px; font-weight: 600; margin: 5px; display: inline-block; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0; font-size: 32px;">Welcome to PDFLab.Pro! 🎉</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">Verify your email to start converting</p>
+          </div>
+
+          <div class="content">
+            <h2 style="color: #1e293b; margin-bottom: 20px;">Hi ${userName}!</h2>
+
+            <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+              Thanks for signing up! We're excited to have you on board.
+            </p>
+
+            <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+              Click the button below to verify your email address and unlock your free conversions:
+            </p>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationUrl}" class="button">Verify Email Address</a>
+            </div>
+
+            <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 4px; margin: 30px 0;">
+              <p style="margin: 0; color: #047857; font-weight: 600; margin-bottom: 10px;">Once verified, you'll get:</p>
+              <div>
+                <span class="badge">3 free conversions/month</span>
+                <span class="badge">PowerPoint, Word, Excel</span>
+                <span class="badge">96% OCR accuracy</span>
+                <span class="badge">Privacy-first</span>
+              </div>
+            </div>
+
+            <p style="color: #475569; line-height: 1.6; font-size: 14px;">
+              <strong>Link expires in 24 hours.</strong><br>
+              If the button doesn't work, copy and paste this URL into your browser:<br>
+              <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
+            </p>
+
+            <p style="margin-top: 30px; color: #64748b; font-size: 14px;">
+              If you didn't create an account, you can safely ignore this email.
+            </p>
+          </div>
+
+          <div class="footer">
+            <p>© 2024 PDFLab.Pro. All rights reserved.</p>
+            <p>Privacy-First PDF Conversion</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `Welcome to PDFLab.Pro!
+
+Hi ${userName}!
+
+Thanks for signing up! We're excited to have you on board.
+
+Verify your email address to unlock your free conversions:
+${verificationUrl}
+
+Once verified, you'll get:
+• 3 free conversions/month
+• Convert to PowerPoint, Word, Excel
+• 96% OCR accuracy
+• Privacy-first processing
+
+Link expires in 24 hours.
+
+If you didn't create an account, you can safely ignore this email.
+
+© 2024 PDFLab.Pro - Privacy-First PDF Conversion`;
+
+    return this.sendEmail({
+      to: user.email,
+      subject: 'Verify your email - Start converting PDFs!',
+      html,
+      text,
+    });
+  }
 }

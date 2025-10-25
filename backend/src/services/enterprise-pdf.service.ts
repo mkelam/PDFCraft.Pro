@@ -10,6 +10,7 @@ import { fromBuffer } from 'pdf2pic';
 import pdf from 'pdf-parse';
 import sharp from 'sharp';
 import { LibreOfficeWrapper } from './libreoffice-wrapper.service';
+import { QualityValidatorService } from './quality-validator.service';
 
 /**
  * Enterprise-Grade PDF Processing Service
@@ -21,22 +22,108 @@ export class EnterprisePDFService {
   private static readonly CLEANUP_DELAY = 30 * 60 * 1000; // 30 minutes
 
   /**
-   * Convert PDF to PowerPoint with multiple engine fallback
+   * Convert PDF to PowerPoint with quality validation and multiple engine fallback
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  static async convertPDFToOffice(
+    inputPath: string,
+    outputDir: string,
+    options: {
+      validateQuality?: boolean;
+      qualityThreshold?: number;
+      monitorPerformance?: boolean;
+    } = {}
+  ): Promise<{
+    filename: string;
+    processingTime: number;
+    qualityReport?: any;
+    performanceGrade?: string;
+  }> {
+    const {
+      validateQuality = true,
+      qualityThreshold = 80,
+      monitorPerformance = true
+    } = options;
+
     const startTime = Date.now();
     const jobId = uuidv4();
 
     console.log(`🚀 [ENTERPRISE] Starting PDF→PPT conversion: ${path.basename(inputPath)}`);
+    console.log(`   🔍 Quality validation: ${validateQuality ? 'ENABLED' : 'DISABLED'}`);
+    console.log(`   📊 Quality threshold: ${qualityThreshold}%`);
 
     try {
+      let outputFilename: string;
+
       // First, try LibreOffice if available
       if (await this.isLibreOfficeAvailable()) {
-        return await this.convertWithLibreOffice(inputPath, outputDir, jobId);
+        outputFilename = await this.convertWithLibreOffice(inputPath, outputDir, jobId);
+      } else {
+        // Fallback 1: PDF to Images + PowerPoint creation
+        outputFilename = await this.convertWithImageEngine(inputPath, outputDir, jobId);
       }
 
-      // Fallback 1: PDF to Images + PowerPoint creation
-      return await this.convertWithImageEngine(inputPath, outputDir, jobId);
+      const processingTime = Date.now() - startTime;
+      const outputPath = path.join(outputDir, outputFilename);
+
+      // Quality validation if enabled
+      let qualityReport;
+      if (validateQuality) {
+        console.log(`🔍 [ENTERPRISE] Running quality validation...`);
+
+        // Quick quality check first
+        const quickCheck = await QualityValidatorService.quickQualityCheck(inputPath, outputPath);
+        console.log(`   ⚡ Quick check: ${quickCheck.message}`);
+
+        if (quickCheck.passed) {
+          // Full quality analysis
+          qualityReport = await QualityValidatorService.validateConversionQuality(
+            inputPath,
+            outputPath,
+            { qualityThreshold }
+          );
+
+          console.log(`   📋 Quality score: ${qualityReport.overallQuality}%`);
+          console.log(`   🎯 Quality check: ${qualityReport.passed ? '✅ PASSED' : '❌ FAILED'}`);
+
+          if (!qualityReport.passed) {
+            console.warn(`⚠️ [ENTERPRISE] Quality below threshold (${qualityReport.overallQuality}% < ${qualityThreshold}%)`);
+            console.warn(`   📝 Recommendations:`, qualityReport.recommendations);
+          }
+        } else {
+          qualityReport = {
+            overallQuality: quickCheck.score,
+            passed: false,
+            error: quickCheck.message
+          };
+        }
+      }
+
+      // Performance monitoring
+      let performanceGrade;
+      if (monitorPerformance) {
+        const monitoring = await QualityValidatorService.monitorProcessingQuality(
+          inputPath,
+          outputPath,
+          processingTime
+        );
+
+        performanceGrade = monitoring.performanceGrade;
+        console.log(`   🏆 Performance grade: ${performanceGrade}`);
+
+        if (monitoring.qualityFlags.length > 0) {
+          console.log(`   🏁 Quality flags:`, monitoring.qualityFlags);
+        }
+      }
+
+      const result = {
+        filename: outputFilename,
+        processingTime,
+        qualityReport,
+        performanceGrade
+      };
+
+      console.log(`✅ [ENTERPRISE] Conversion completed with quality validation`);
+      return result;
 
     } catch (error) {
       console.error('❌ [ENTERPRISE] All conversion engines failed:', error);

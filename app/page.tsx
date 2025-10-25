@@ -31,25 +31,25 @@ export default function PDFCraftPro() {
       <section className="pt-24 pb-12 px-6">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="font-bold text-3xl md:text-4xl mb-4 leading-tight">
-            Turn Any PDF Into Editable PowerPoint
+            Convert & Merge PDFs Into Editable Office Files
             <br />
-            <span className="text-primary">in 5 seconds</span>
+            <span className="text-primary text-lg md:text-2xl">PowerPoint • Word • Excel | Under 5 Seconds</span>
           </h1>
 
 
           {/* Performance Guarantees & Trust Signals */}
           <div className="flex justify-center gap-3 lg:gap-6 mb-6 text-xs lg:text-sm">
             <div className="flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+              <Shield className="w-3 h-3 lg:w-4 lg:h-4 text-white" />
+              <span className="text-white font-medium whitespace-nowrap">Privacy First</span>
+            </div>
+            <div className="flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <Zap className="w-3 h-3 lg:w-4 lg:h-4 text-white" />
-              <span className="text-white font-medium whitespace-nowrap">4.7x times faster than Adobe</span>
+              <span className="text-white font-medium whitespace-nowrap">4.7x faster than Adobe</span>
             </div>
             <div className="flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <CheckCircle className="w-3 h-3 lg:w-4 lg:h-4 text-white" />
               <span className="text-white font-medium whitespace-nowrap">96% OCR accuracy</span>
-            </div>
-            <div className="flex items-center gap-1 lg:gap-2 px-2 lg:px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <Shield className="w-3 h-3 lg:w-4 lg:h-4 text-white" />
-              <span className="text-white font-medium whitespace-nowrap">75% less cost</span>
             </div>
           </div>
 

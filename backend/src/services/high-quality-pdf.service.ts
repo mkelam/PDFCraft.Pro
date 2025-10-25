@@ -19,7 +19,7 @@ export class HighQualityPDFService {
   /**
    * Convert PDF to PowerPoint with maximum quality
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  static async convertPDFToOffice(inputPath: string, outputDir: string): Promise<string> {
     const startTime = Date.now();
     const jobId = uuidv4();
 

@@ -39,7 +39,7 @@ export class PuppeteerPDFService {
   /**
    * Convert PDF to PowerPoint using Puppeteer for perfect rendering
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  static async convertPDFToOffice(inputPath: string, outputDir: string): Promise<string> {
     const startTime = Date.now();
     const jobId = uuidv4();
 
@@ -49,12 +49,20 @@ export class PuppeteerPDFService {
     let page: Page | null = null;
 
     try {
-      // Load PDF to get page count and prepare data
+      // Load PDF to get page count and detect orientation
       const pdfBuffer = await fs.readFile(inputPath);
       const pdfDoc = await PDFDocument.load(pdfBuffer);
       const pageCount = pdfDoc.getPageCount();
 
+      // Detect PDF orientation from first page to set appropriate layout
+      const firstPage = pdfDoc.getPage(0);
+      const { width: pdfWidth, height: pdfHeight } = firstPage.getSize();
+      const isPortrait = pdfHeight > pdfWidth;
+      const aspectRatio = pdfWidth / pdfHeight;
+
       console.log(`📊 Document has ${pageCount} pages`);
+
+      console.log(`📐 PDF Dimensions: ${pdfWidth.toFixed(0)}x${pdfHeight.toFixed(0)} (${isPortrait ? 'Portrait' : 'Landscape'})`);
 
       // Create PowerPoint presentation
       const pptx = new PptxGenJS();
@@ -65,18 +73,57 @@ export class PuppeteerPDFService {
       pptx.revision = '1.0';
       pptx.subject = 'High-Fidelity PDF Conversion';
       pptx.title = path.basename(inputPath, '.pdf');
-      pptx.layout = 'LAYOUT_16x9'; // Use standard 16:9 layout
+
+      // Set layout based on PDF orientation
+      if (isPortrait) {
+        // Define custom portrait layout maintaining PDF aspect ratio
+        const portraitWidth = 7.5; // Standard height becomes width for portrait
+        const portraitHeight = portraitWidth / aspectRatio;
+
+        pptx.defineLayout({
+          name: 'PORTRAIT_CUSTOM',
+          width: portraitWidth,
+          height: portraitHeight
+        });
+        pptx.layout = 'PORTRAIT_CUSTOM';
+        console.log(`📱 Using portrait layout: ${portraitWidth.toFixed(2)}" x ${portraitHeight.toFixed(2)}"`);
+      } else {
+        // Use landscape layout based on aspect ratio
+        if (aspectRatio >= 1.7) {
+          pptx.layout = 'LAYOUT_16x9'; // Wide format
+        } else if (aspectRatio >= 1.5) {
+          pptx.layout = 'LAYOUT_16x10'; // Standard wide
+        } else {
+          pptx.layout = 'LAYOUT_4x3'; // Traditional format
+        }
+        console.log(`🖥️  Using landscape layout: ${pptx.layout}`);
+      }
 
       // Get browser instance
       const browser = await this.getBrowser();
       page = await browser.newPage();
 
-      // Set viewport for high-quality rendering
+      // Set viewport based on orientation and PDF dimensions
+      const baseWidth = isPortrait ? 1080 : 1920;
+      const baseHeight = isPortrait ? 1920 : 1080;
+
+      // Adjust viewport to match PDF aspect ratio while maintaining quality
+      let viewportWidth, viewportHeight;
+      if (isPortrait) {
+        viewportHeight = baseHeight;
+        viewportWidth = Math.round(baseHeight * aspectRatio);
+      } else {
+        viewportWidth = baseWidth;
+        viewportHeight = Math.round(baseWidth / aspectRatio);
+      }
+
       await page.setViewport({
-        width: 1920,
-        height: 1080,
+        width: viewportWidth,
+        height: viewportHeight,
         deviceScaleFactor: 2 // 2x resolution for quality
       });
+
+      console.log(`📺 Viewport: ${viewportWidth}x${viewportHeight} (${isPortrait ? 'Portrait' : 'Landscape'})`);
 
       console.log('📄 Loading PDF data into browser...');
 
@@ -216,9 +263,12 @@ export class PuppeteerPDFService {
             throw new Error('Screenshot buffer is empty or too small');
           }
 
-          // Optimize the image with sharp
+          // Optimize the image with sharp - orientation-aware sizing
+          const targetWidth = isPortrait ? 2160 : 3840;  // Swap dimensions for portrait
+          const targetHeight = isPortrait ? 3840 : 2160;
+
           const optimizedBuffer = await sharp(screenshotBuffer)
-            .resize(3840, 2160, { // 4K resolution
+            .resize(targetWidth, targetHeight, {
               fit: 'inside',
               withoutEnlargement: true,
               background: { r: 255, g: 255, b: 255, alpha: 1 }
@@ -246,10 +296,13 @@ export class PuppeteerPDFService {
             sizing: { type: 'contain', w: '100%', h: '100%' }
           });
 
-          // Add subtle page number
+          // Add subtle page number - positioned based on orientation
+          const pageNumX = isPortrait ? 6.8 : 9.4;  // Adjust for portrait width
+          const pageNumY = isPortrait ? 10.2 : 5.2; // Adjust for portrait height
+
           slide.addText(`${pageNum}`, {
-            x: 9.4,
-            y: 5.2,
+            x: pageNumX,
+            y: pageNumY,
             w: 0.4,
             h: 0.3,
             fontSize: 10,
@@ -375,39 +428,124 @@ export class PuppeteerPDFService {
    * Convert PDF to images (alternative method)
    */
   static async convertPDFToImages(inputPath: string): Promise<string[]> {
-    const browser = await this.getBrowser();
-    const page = await browser.newPage();
     const images: string[] = [];
 
     try {
-      // Load PDF for image conversion
-      const pdfImageBuffer = await fs.readFile(inputPath);
-      const pdfDoc = await PDFDocument.load(pdfImageBuffer);
-      const pageCount = pdfDoc.getPageCount();
+      console.log('🖼️ [PDF-TO-IMAGES] Converting PDF to images:', path.basename(inputPath));
 
-      // Set high-quality viewport
-      await page.setViewport({
-        width: 2560,
-        height: 1440,
-        deviceScaleFactor: 2
-      });
+      // Use ImageMagick directly for reliable PDF to image conversion
+      const { exec } = require('child_process');
+      const { promisify } = require('util');
+      const execAsync = promisify(exec);
 
-      for (let i = 1; i <= pageCount; i++) {
-        // Render each page and capture as image
-        const imageBuffer = await page.screenshot({
-          type: 'png',
-          fullPage: true
-        });
+      console.log(`   🔧 Starting PDF to images conversion...`);
 
-        const imagePath = path.join(config.upload.tempDir, `page_${i}.png`);
-        await fs.writeFile(imagePath, imageBuffer);
-        images.push(imagePath);
+      // CRITICAL FIX: Clean up old page_*.jpg files before starting new conversion
+      try {
+        const existingFiles = await fs.readdir(config.upload.tempDir);
+        const oldPageFiles = existingFiles.filter(f => f.startsWith('page_') && f.endsWith('.jpg'));
+        for (const oldFile of oldPageFiles) {
+          await fs.unlink(path.join(config.upload.tempDir, oldFile));
+          console.log(`   🗑️ Cleaned up old file: ${oldFile}`);
+        }
+        if (oldPageFiles.length > 0) {
+          console.log(`   ✅ Cleaned ${oldPageFiles.length} old image files`);
+        }
+      } catch (cleanupError: any) {
+        console.log(`   ⚠️ Cleanup warning: ${cleanupError.message}`);
       }
+
+      // Use ImageMagick with BLACK SCREEN FIX
+      const outputPattern = path.join(config.upload.tempDir, 'page_%03d.jpg');
+      // CRITICAL FIX: Enhanced ImageMagick command to prevent black screen/partial rendering + MULTI-PAGE SUPPORT
+      const magickCommand = `magick "${inputPath}" -density 300 -background white -alpha remove -define pdf:use-cropbox=false -define pdf:use-trimbox=false -colorspace sRGB -quality 95 "${outputPattern}"`;
+
+      console.log(`   🔧 Running ENHANCED ImageMagick (BLACK SCREEN FIX): ${magickCommand}`);
+      await execAsync(magickCommand);
+
+      // Find all generated images
+      const files = await fs.readdir(config.upload.tempDir);
+      const imageFiles = files.filter(f => f.startsWith('page_') && f.endsWith('.jpg'));
+
+      for (const file of imageFiles.sort()) {
+        const imagePath = path.join(config.upload.tempDir, file);
+        images.push(imagePath);
+        console.log(`   📄 Generated image: ${file}`);
+      }
+
+      // FIXED: Use actual generated image count instead of predicted count
+      const actualPages = images.length;
+      console.log(`✅ [PDF-TO-IMAGES] Successfully converted PDF to ${actualPages} image${actualPages > 1 ? 's' : ''}`);
 
       return images;
 
-    } finally {
-      await page.close();
+    } catch (error) {
+      console.error('❌ [PDF-TO-IMAGES] Conversion failed:', error);
+
+      // Fallback: Try to use Puppeteer with PDF.js viewer
+      console.log('🔄 [PDF-TO-IMAGES] Trying fallback method with PDF.js...');
+
+      const browser = await this.getBrowser();
+      const page = await browser.newPage();
+
+      try {
+        // Convert PDF to base64 for PDF.js viewer
+        const pdfBuffer = await fs.readFile(inputPath);
+        const pdfBase64 = pdfBuffer.toString('base64');
+
+        // Create a simple HTML with PDF.js viewer
+        const pdfViewerHTML = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+          </head>
+          <body style="margin:0; padding:20px; background:white;">
+            <canvas id="pdf-canvas"></canvas>
+            <script>
+              pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+              const pdfData = 'data:application/pdf;base64,${pdfBase64}';
+
+              pdfjsLib.getDocument(pdfData).promise.then(function(pdf) {
+                pdf.getPage(1).then(function(page) {
+                  const viewport = page.getViewport({scale: 2.0});
+                  const canvas = document.getElementById('pdf-canvas');
+                  const context = canvas.getContext('2d');
+
+                  canvas.height = viewport.height;
+                  canvas.width = viewport.width;
+
+                  page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                  });
+                });
+              });
+            </script>
+          </body>
+          </html>
+        `;
+
+        await page.setContent(pdfViewerHTML);
+        await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for PDF to render
+
+        const imageBuffer = await page.screenshot({
+          type: 'jpeg',
+          quality: 95,
+          fullPage: true
+        });
+
+        const imagePath = path.join(config.upload.tempDir, `fallback_page_1.jpg`);
+        await fs.writeFile(imagePath, imageBuffer);
+        images.push(imagePath);
+
+        console.log('✅ [PDF-TO-IMAGES] Fallback conversion completed');
+        return images;
+
+      } finally {
+        await page.close();
+      }
     }
   }
 }

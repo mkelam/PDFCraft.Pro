@@ -14,7 +14,7 @@ export class ImageMagickWrapper {
     'C:\\Program Files\\ImageMagick\\magick.exe'
   ].filter(Boolean);
 
-  private static readonly TIMEOUT = 120000; // 2 minutes
+  private static readonly TIMEOUT = 30000; // 30 seconds - more reasonable for simple operations
 
   /**
    * Check if ImageMagick is available
@@ -143,7 +143,7 @@ export class ImageMagickWrapper {
   }
 
   /**
-   * Create optimized image from PDF page
+   * Create optimized high-DPI image from PDF page with advanced settings
    */
   static async extractPDFPageAsImage(
     inputPath: string,
@@ -155,6 +155,9 @@ export class ImageMagickWrapper {
       quality?: number;
       maxWidth?: number;
       maxHeight?: number;
+      colorSpace?: string;
+      antialiasing?: boolean;
+      sharpening?: boolean;
     } = {}
   ): Promise<string> {
     const {
@@ -162,7 +165,10 @@ export class ImageMagickWrapper {
       density = 300,
       quality = 95,
       maxWidth = 1920,
-      maxHeight = 1080
+      maxHeight = 1080,
+      colorSpace = 'sRGB',
+      antialiasing = true,
+      sharpening = false
     } = options;
 
     const magickPath = await this.findImageMagick();
@@ -177,26 +183,241 @@ export class ImageMagickWrapper {
     const outputFilename = `${outputBasename}_page_${pageNumber}.${format}`;
     const outputPath = path.join(outputDir, outputFilename);
 
-    // Build command for PDF page extraction
+    // Build enhanced command for publication-quality PDF page extraction
     const args = [
       '-density', density.toString(),
+      '-colorspace', colorSpace,
       `${inputPath}[${pageNumber - 1}]`, // ImageMagick uses 0-based page indexing
       '-background', 'white',
-      '-alpha', 'remove',
-      '-resize', `${maxWidth}x${maxHeight}>`, // Maintain aspect ratio, don't upscale
-      '-quality', quality.toString(),
-      outputPath
+      '-alpha', 'remove'
     ];
 
-    console.log(`🔧 [IMAGEMAGICK] Extracting PDF page ${pageNumber} as ${format.toUpperCase()}...`);
+    // Add anti-aliasing for crisp text
+    if (antialiasing) {
+      args.push('-antialias');
+    }
+
+    // Add sharpening for enhanced detail
+    if (sharpening) {
+      args.push('-unsharp', '0x1+1.0+0.05');
+    }
+
+    // High-quality resize with aspect ratio preservation
+    args.push('-resize', `${maxWidth}x${maxHeight}>`);
+
+    // Format-specific optimizations
+    if (format === 'png') {
+      // PNG optimization for publication quality
+      args.push('-define', 'png:compression-filter=5');
+      args.push('-define', 'png:compression-level=9');
+      args.push('-define', 'png:compression-strategy=1');
+      args.push('-strip'); // Remove metadata for smaller file size
+    } else if (format === 'jpeg') {
+      // JPEG optimization
+      args.push('-strip');
+      args.push('-interlace', 'Plane'); // Progressive JPEG
+    }
+
+    args.push('-quality', quality.toString());
+    args.push(outputPath);
+
+    console.log(`🔧 [IMAGEMAGICK] Extracting HIGH-DPI PDF page ${pageNumber} @ ${density}DPI (${format.toUpperCase()}, ${colorSpace})...`);
 
     try {
       await this.executeImageMagick(magickPath, args);
-      console.log(`✅ [IMAGEMAGICK] Page extraction completed: ${outputFilename}`);
+      console.log(`✅ [IMAGEMAGICK] High-DPI extraction completed: ${outputFilename} (${density}DPI)`);
       return outputFilename;
     } catch (error) {
-      console.error(`❌ [IMAGEMAGICK] Page extraction failed:`, error);
+      console.error(`❌ [IMAGEMAGICK] High-DPI extraction failed:`, error);
       throw new Error(`PDF page extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * PARALLEL PROCESSING: Extract ALL pages from PDF simultaneously
+   * Processes 4-8 pages concurrently for maximum performance
+   */
+  static async extractAllPDFPagesParallel(
+    inputPath: string,
+    outputDir: string,
+    options: {
+      format?: 'png' | 'jpeg';
+      density?: number;
+      quality?: number;
+      maxWidth?: number;
+      maxHeight?: number;
+      concurrency?: number;
+      ocrOptimized?: boolean;
+    } = {}
+  ): Promise<{
+    imagePaths: string[];
+    totalPages: number;
+    processingTime: number;
+    concurrencyUsed: number;
+    averagePageTime: number;
+  }> {
+    const startTime = Date.now();
+    const {
+      format = 'png',
+      density = 200, // Reduced from 450 for faster processing - still good for OCR
+      quality = 85,  // Reduced from 98 for faster processing - adequate quality
+      maxWidth = 2000, // Reduced from 3000 for faster processing
+      maxHeight = 2000, // Reduced from 3000 for faster processing
+      concurrency = 4, // Process 4 pages simultaneously
+      ocrOptimized = true
+    } = options;
+
+    const magickPath = await this.findImageMagick();
+    if (!magickPath) {
+      throw new Error('ImageMagick not available');
+    }
+
+    await fs.mkdir(outputDir, { recursive: true });
+
+    console.log(`🚀 [PARALLEL-IMAGEMAGICK] Starting parallel PDF page extraction @ ${density}DPI (${concurrency} concurrent)...`);
+
+    try {
+      // Step 1: Get total page count efficiently
+      const pageCountResult = await this.executeImageMagick(magickPath, [
+        '-ping',
+        inputPath,
+        '-format', '%n\n',
+        'info:'
+      ]);
+
+      const totalPages = parseInt(pageCountResult.stdout.trim()) || 1;
+      console.log(`📄 [PARALLEL] Detected ${totalPages} pages - processing with ${concurrency} concurrent workers`);
+
+      const outputBasename = path.basename(inputPath, '.pdf');
+      const imagePaths: string[] = [];
+
+      // Step 2: Create page processing chunks for parallel execution
+      const pageChunks: number[][] = [];
+      for (let i = 0; i < totalPages; i += concurrency) {
+        const chunk = Array.from(
+          { length: Math.min(concurrency, totalPages - i) },
+          (_, index) => i + index + 1 // 1-based page numbers
+        );
+        pageChunks.push(chunk);
+      }
+
+      console.log(`🔀 [PARALLEL] Processing ${pageChunks.length} chunks of ${concurrency} pages each`);
+
+      // Step 3: Process chunks in parallel
+      const chunkPromises = pageChunks.map(async (chunk, chunkIndex) => {
+        const chunkStartTime = Date.now();
+        console.log(`📦 [CHUNK-${chunkIndex + 1}] Processing pages: ${chunk.join(', ')}`);
+
+        const chunkImagePaths: string[] = [];
+
+        // Process each page in the chunk concurrently
+        const pagePromises = chunk.map(async (pageNum) => {
+          const pageStartTime = Date.now();
+          const outputFilename = `${outputBasename}_page_${pageNum}.${format}`;
+          const outputPath = path.join(outputDir, outputFilename);
+
+          // Build optimized command for single page with memory limits
+          const args = [
+            '-limit', 'memory', '256MB', // Limit memory usage
+            '-limit', 'map', '512MB',    // Limit memory map
+            '-density', density.toString(),
+            '-colorspace', 'sRGB',
+            `${inputPath}[${pageNum - 1}]`, // 0-based indexing for ImageMagick
+            '-background', 'white',
+            '-alpha', 'remove',
+            '-flatten'
+          ];
+
+          if (ocrOptimized) {
+            args.push('-contrast-stretch', '0.15x0.05%');
+            args.push('-sharpen', '0x1');
+          }
+
+          args.push('-antialias');
+          args.push('-resize', `${maxWidth}x${maxHeight}>`);
+
+          if (format === 'png') {
+            args.push('-define', 'png:compression-filter=5');
+            args.push('-define', 'png:compression-level=9');
+            args.push('-strip');
+          } else {
+            args.push('-quality', quality.toString());
+            args.push('-strip');
+          }
+
+          args.push(outputPath);
+
+          try {
+            await this.executeImageMagick(magickPath, args);
+            const pageTime = Date.now() - pageStartTime;
+            console.log(`  ✅ [PAGE-${pageNum}] Completed in ${pageTime}ms`);
+            return outputFilename;
+          } catch (error) {
+            console.error(`  ❌ [PAGE-${pageNum}] Failed:`, error);
+            throw new Error(`Page ${pageNum} extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+        });
+
+        // Wait for all pages in chunk to complete with error handling
+        const chunkResults = await Promise.allSettled(pagePromises);
+        const successfulPaths: string[] = [];
+
+        chunkResults.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            successfulPaths.push((result as PromiseFulfilledResult<string>).value);
+          } else {
+            const pageNum = chunk[index];
+            console.error(`❌ [CHUNK-${chunkIndex + 1}] Page ${pageNum} failed:`, result.reason?.message);
+          }
+        });
+
+        chunkImagePaths.push(...successfulPaths);
+
+        const chunkTime = Date.now() - chunkStartTime;
+        console.log(`✅ [CHUNK-${chunkIndex + 1}] Completed ${successfulPaths.length}/${chunk.length} pages in ${chunkTime}ms (${Math.round(chunkTime / Math.max(chunk.length, 1))}ms/page)`);
+
+        return chunkImagePaths;
+      });
+
+      // Wait for all chunks to complete with error handling
+      const allChunkResults = await Promise.allSettled(chunkPromises);
+      allChunkResults.forEach(result => {
+        if (result.status === 'fulfilled') {
+          imagePaths.push(...(result as PromiseFulfilledResult<string[]>).value);
+        } else {
+          console.error(`❌ [PARALLEL] Chunk failed:`, result.reason?.message);
+        }
+      });
+
+      // Step 4: Verify all images were created
+      const verifiedPaths: string[] = [];
+      for (const imagePath of imagePaths) {
+        const fullPath = path.join(outputDir, imagePath);
+        try {
+          await fs.access(fullPath);
+          verifiedPaths.push(imagePath);
+        } catch {
+          console.warn(`⚠️ [VERIFICATION] Missing: ${imagePath}`);
+        }
+      }
+
+      const totalProcessingTime = Date.now() - startTime;
+      const averagePageTime = Math.round(totalProcessingTime / totalPages);
+
+      console.log(`🏆 [PARALLEL-COMPLETE] Extracted ${verifiedPaths.length}/${totalPages} pages in ${totalProcessingTime}ms`);
+      console.log(`⚡ [PERFORMANCE] Average: ${averagePageTime}ms/page with ${concurrency}x parallelization`);
+
+      return {
+        imagePaths: verifiedPaths,
+        totalPages,
+        processingTime: totalProcessingTime,
+        concurrencyUsed: concurrency,
+        averagePageTime
+      };
+
+    } catch (error) {
+      console.error(`❌ [PARALLEL-IMAGEMAGICK] Failed:`, error);
+      throw new Error(`Parallel PDF extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -303,12 +524,41 @@ export class ImageMagickWrapper {
   /**
    * Execute ImageMagick command
    */
-  private static async executeImageMagick(
+  static async executeImageMagick(
     magickPath: string,
     args: string[],
     timeout: number = this.TIMEOUT
   ): Promise<{ stdout: string; stderr: string }> {
     return new Promise((resolve, reject) => {
+      let isResolved = false;
+      let timeoutId: NodeJS.Timeout | null = null;
+
+      const cleanup = () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+      };
+
+      const safeResolve = (result: { stdout: string; stderr: string }) => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          resolve(result);
+        }
+      };
+
+      const safeReject = (error: Error) => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          reject(error);
+        }
+      };
+
+      console.log(`🔧 [IMAGEMAGICK] Executing: ${magickPath} ${args.join(' ')}`);
+      console.log(`⏰ [IMAGEMAGICK] Process timeout: ${timeout}ms`);
+
       const process = spawn(magickPath, args, {
         stdio: ['pipe', 'pipe', 'pipe'],
         windowsHide: true,
@@ -327,25 +577,44 @@ export class ImageMagickWrapper {
       });
 
       process.on('close', (code) => {
+        console.log(`🔧 [IMAGEMAGICK] Process closed with code: ${code}`);
         if (code === 0) {
-          resolve({ stdout, stderr });
+          safeResolve({ stdout, stderr });
         } else {
-          reject(new Error(`ImageMagick process failed with code ${code}: ${stderr}`));
+          safeReject(new Error(`ImageMagick process failed with code ${code}: ${stderr || 'No stderr output'}`));
         }
       });
 
       process.on('error', (error) => {
-        reject(new Error(`ImageMagick process error: ${error.message}`));
+        console.error(`❌ [IMAGEMAGICK] Process error:`, error.message);
+        safeReject(new Error(`ImageMagick process error: ${error.message}`));
       });
 
-      // Set timeout
-      const timeoutId = setTimeout(() => {
+      process.on('exit', (code, signal) => {
+        console.log(`🔧 [IMAGEMAGICK] Process exited with code: ${code}, signal: ${signal}`);
+      });
+
+      // Set timeout with forced cleanup
+      timeoutId = setTimeout(() => {
+        console.warn(`⏰ [IMAGEMAGICK] Process timeout after ${timeout}ms, killing...`);
+
+        // First try graceful termination
         process.kill('SIGTERM');
-        reject(new Error(`ImageMagick process timeout after ${timeout}ms`));
+
+        // Force kill after 5 seconds if still running
+        setTimeout(() => {
+          if (!process.killed) {
+            console.warn(`🔪 [IMAGEMAGICK] Force killing process...`);
+            process.kill('SIGKILL');
+          }
+        }, 5000);
+
+        safeReject(new Error(`ImageMagick process timeout after ${timeout}ms`));
       }, timeout);
 
-      process.on('close', () => {
-        clearTimeout(timeoutId);
+      // Handle early process termination
+      process.on('spawn', () => {
+        console.log(`🚀 [IMAGEMAGICK] Process spawned successfully`);
       });
     });
   }

@@ -11,20 +11,20 @@
   --card-foreground: oklch(0.95 0 0);
   --popover: oklch(0.08 0 0 / 0.8);
   --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.7 0.1 240); /* Subtle blue accent */
+  --primary: oklch(0.6 0.1 180); /* Teal accent RGB(0,153,153) */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.15 0 0); /* Dark secondary */
   --secondary-foreground: oklch(0.9 0 0);
   --muted: oklch(0.1 0 0); /* Very dark muted */
   --muted-foreground: oklch(0.6 0 0); /* Muted text */
-  --accent: oklch(0.7 0.1 240);
+  --accent: oklch(0.6 0.1 180);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.65 0.2 25);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(1 0 0 / 0.08); /* Very subtle borders */
   --input: oklch(0.1 0 0);
   --ring: oklch(1 0 0 / 0.1);
-  --chart-1: oklch(0.7 0.1 240);
+  --chart-1: oklch(0.6 0.1 180);
   --chart-2: oklch(0.6 0.1 200);
   --chart-3: oklch(0.5 0.1 160);
   --chart-4: oklch(0.4 0.1 120);
@@ -32,7 +32,7 @@
   --radius: 0.5rem; /* Reduced radius for cleaner look */
   --sidebar: oklch(0.08 0 0 / 0.8);
   --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.7 0.1 240);
+  --sidebar-primary: oklch(0.6 0.1 180);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.15 0 0);
   --sidebar-accent-foreground: oklch(0.9 0 0);
@@ -87,8 +87,8 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Increased background overlay opacity to 90% for even more subtle circuit board visibility */
-    background: linear-gradient(oklch(0.05 0 0 / 0.9), oklch(0.05 0 0 / 0.9)), url("/images/circuit-board-bg.png")
+    /* Reduced overlay opacity to 50% for better circuit board visibility */
+    background: linear-gradient(oklch(0.05 0 0 / 0.5), oklch(0.05 0 0 / 0.5)), url("/images/circuit-board-bg.png")
       center / cover no-repeat fixed, oklch(0.05 0 0);
     min-height: 100vh;
     position: relative;
@@ -132,6 +132,21 @@
   }
 
   .text-gradient-primary {
-    @apply bg-gradient-to-r from-primary via-blue-400 to-blue-300 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-teal-400 to-teal-300 bg-clip-text text-transparent;
+  }
+
+  /* Conveyor belt animation for testimonials */
+  .animate-scroll-left {
+    animation: scroll-left 30s linear infinite;
+  }
+}
+
+/* Keyframes for smooth scrolling animation */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }

@@ -23,9 +23,12 @@ import bmadAgentRoutes from './routes/bmad-agent.routes';
 import monitoringRoutes from './routes/monitoring.routes';
 import cloudconvertRoutes from './routes/cloudconvert.routes';
 import formatMetricsRoutes from './routes/format-metrics.routes';
+import userManagementRoutes from './routes/user-management.routes';
 // import stripePaymentRoutes from './routes/stripe-payment.routes'; // Disabled - using Paystack
 // import enhancedConvertRoutes from './routes/enhanced-convert.routes'; // Disabled for now
 import { authenticateToken, optionalAuth } from './middleware/auth';
+import { requireEmailVerified } from './middleware/emailVerified.middleware';
+import { checkUsageLimitsAtomic } from './middleware/usage-limit.middleware';
 import { validate, registerSchema, loginSchema } from './middleware/validation';
 import { authRateLimit, registrationRateLimit } from './middleware/rate-limit';
 import { setupSecurityMiddleware, globalErrorHandler, requestLogger } from './middleware/production';
@@ -231,19 +234,22 @@ app.get('/api/status', HealthController.getHealth); // API status endpoint for f
 
 // API routes
 
-// Conversion routes
+// Conversion routes (PROTECTED - Authentication + Email Verification + Usage Limits REQUIRED)
 app.post('/api/convert/pdf-to-ppt',
   upload.array('files', 1),
-  optionalAuth,
+  authenticateToken,
+  requireEmailVerified,
+  checkUsageLimitsAtomic,
   conversionMonitoringMiddleware('pdf-to-ppt'),
-  // checkUsageLimits will be added in Story 2.3
   ConvertController.convertToPPT
 );
 
 // PDF to Word conversion (uses same pipeline as PPT with different output format)
 app.post('/api/convert/pdf-to-word',
   upload.array('files', 1),
-  optionalAuth,
+  authenticateToken,
+  requireEmailVerified,
+  checkUsageLimitsAtomic,
   conversionMonitoringMiddleware('pdf-to-word'),
   ConvertController.convertToWord
 );
@@ -251,7 +257,9 @@ app.post('/api/convert/pdf-to-word',
 // PDF to Excel conversion (uses same pipeline as PPT with different output format)
 app.post('/api/convert/pdf-to-excel',
   upload.array('files', 1),
-  optionalAuth,
+  authenticateToken,
+  requireEmailVerified,
+  checkUsageLimitsAtomic,
   conversionMonitoringMiddleware('pdf-to-excel'),
   ConvertController.convertToExcel
 );
@@ -259,23 +267,27 @@ app.post('/api/convert/pdf-to-excel',
 // Generic PDF to Office conversion with format parameter
 app.post('/api/convert/pdf-to-office',
   upload.array('files', 1),
-  optionalAuth,
+  authenticateToken,
+  requireEmailVerified,
+  checkUsageLimitsAtomic,
   conversionMonitoringMiddleware('pdf-to-office'),
   ConvertController.convertToOffice
 );
 
 app.post('/api/convert/merge',
   upload.array('files', 20),
-  optionalAuth,
+  authenticateToken,
+  requireEmailVerified,
+  checkUsageLimitsAtomic,
   conversionMonitoringMiddleware('pdf-merge'),
-  // checkUsageLimits will be added in Story 2.3
   ConvertController.mergePDFs
 );
 
 app.post('/api/convert/pdf-to-images',
   upload.array('files', 1),
-  optionalAuth,
-  // checkUsageLimits will be added in Story 2.3
+  authenticateToken,
+  requireEmailVerified,
+  checkUsageLimitsAtomic,
   ConvertController.convertToImages
 );
 
@@ -319,9 +331,14 @@ app.get('/api/auth/me', authenticateToken, AuthController.getMe);
 
 app.post('/api/auth/refresh', AuthController.refreshToken);
 
-// Password reset routes
-app.post('/api/auth/forgot-password', authRateLimit, PasswordController.requestReset);
-app.post('/api/auth/reset-password', authRateLimit, PasswordController.resetPassword);
+// Email verification routes (NEW - Phase 1)
+app.get('/api/auth/verify-email/:token', AuthController.verifyEmail);
+app.post('/api/auth/resend-verification', authRateLimit, AuthController.resendVerification);
+
+// Password reset routes (UPDATED - now in AuthController)
+app.post('/api/auth/forgot-password', authRateLimit, AuthController.forgotPassword);
+app.post('/api/auth/reset-password', authRateLimit, AuthController.resetPassword);
+app.post('/api/auth/update-password', authenticateToken, AuthController.updatePassword);
 
 // User routes (to be implemented)
 // app.get('/api/user/usage', authenticateToken, UserController.getUsage);
@@ -354,6 +371,9 @@ app.use('/api/monitoring', monitoringRoutes);
 
 // Format-specific metrics and dashboard routes
 app.use('/api/metrics', formatMetricsRoutes);
+
+// User Management routes (Admin)
+app.use('/api/admin', userManagementRoutes);
 
 // Week 4 Fix: Automated alerting endpoint
 app.get('/api/alerts/status', (req, res) => {

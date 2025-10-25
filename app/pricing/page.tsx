@@ -1,19 +1,21 @@
 "use client"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Check, Zap, Shield, Infinity } from "lucide-react"
 import { Navigation } from "@/components/Navigation"
+// Using PayFast for payments instead of Stripe
 
 const pricingPlans = [
   {
-    name: "Starter",
+    name: "Free",
     price: "Free",
     description: "Perfect for occasional PDF tasks",
     icon: <Zap className="w-6 h-6" />,
     features: [
-      "5 conversions per month",
-      "Basic file formats",
+      "3 conversions per month",
+      "Basic PDF-to-PowerPoint",
       "Standard processing speed",
       "Email support",
       "10MB file size limit",
@@ -21,49 +23,112 @@ const pricingPlans = [
     buttonText: "Get Started",
     buttonVariant: "outline" as const,
     popular: false,
+    planId: "free",
   },
   {
-    name: "Professional",
-    price: "$9.99",
+    name: "Starter",
+    price: "$5.99",
     period: "/month",
     description: "Ideal for professionals and small teams",
     icon: <Shield className="w-6 h-6" />,
     features: [
-      "Unlimited conversions",
-      "All file formats",
+      "100 conversions per month",
+      "OCR-Enhanced PDF conversion",
       "Priority processing",
       "Priority support",
-      "100MB file size limit",
+      "25MB file size limit",
+      "PDF merging",
       "Batch processing",
-      "API access",
     ],
-    buttonText: "Start Free Trial",
+    buttonText: "Choose Starter",
     buttonVariant: "default" as const,
     popular: true,
+    planId: "starter",
   },
   {
-    name: "Enterprise",
+    name: "Pro",
     price: "$29.99",
     period: "/month",
-    description: "Advanced features for large organizations",
+    description: "Advanced features for power users",
     icon: <Infinity className="w-6 h-6" />,
     features: [
-      "Everything in Professional",
-      "Custom integrations",
+      "Unlimited conversions",
+      "All premium features",
+      "API access",
       "Dedicated support",
-      "SLA guarantee",
-      "1GB file size limit",
+      "100MB file size limit",
       "White-label options",
       "Advanced analytics",
       "Team management",
     ],
-    buttonText: "Contact Sales",
+    buttonText: "Choose Pro",
     buttonVariant: "outline" as const,
     popular: false,
+    planId: "pro",
   },
 ]
 
 export default function PricingPage() {
+  const [isLoading, setIsLoading] = useState<string | null>(null)
+
+  const handlePlanSelection = async (planId: string) => {
+    if (planId === "free") {
+      // For free plan, redirect to signup
+      window.location.href = "/signup"
+      return
+    }
+
+    setIsLoading(planId)
+
+    try {
+      // Collect basic user information for PayFast
+      const email = prompt("Please enter your email address:")
+      if (!email) {
+        setIsLoading(null)
+        return
+      }
+
+      const firstName = prompt("Please enter your first name:")
+      if (!firstName) {
+        setIsLoading(null)
+        return
+      }
+
+      const lastName = prompt("Please enter your last name:")
+      if (!lastName) {
+        setIsLoading(null)
+        return
+      }
+
+      // Initialize PayFast payment
+      const response = await fetch('/api/payfast/initialize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          firstName,
+          lastName,
+          plan: planId
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success && result.paymentUrl) {
+        // Redirect to PayFast payment page
+        window.location.href = result.paymentUrl
+      } else {
+        throw new Error(result.message || 'Payment initialization failed')
+      }
+    } catch (error) {
+      console.error('Payment failed:', error)
+      alert('Payment initialization failed. Please try again.')
+      setIsLoading(null)
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -122,8 +187,10 @@ export default function PricingPage() {
                         ? "bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-lg hover:shadow-primary/20"
                         : "glass-subtle border-primary/50 text-primary hover:bg-primary/10"
                     }`}
+                    onClick={() => handlePlanSelection(plan.planId)}
+                    disabled={isLoading !== null}
                   >
-                    {plan.buttonText}
+                    {isLoading === plan.planId ? "Processing..." : plan.buttonText}
                   </Button>
                 </CardContent>
               </Card>
@@ -184,15 +251,19 @@ export default function PricingPage() {
                   <Button
                     size="lg"
                     className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all duration-200 hover:shadow-lg hover:shadow-primary/20"
+                    onClick={() => handlePlanSelection("starter")}
+                    disabled={isLoading !== null}
                   >
-                    Start Free Trial
+                    {isLoading === "starter" ? "Processing..." : "Choose Starter Plan"}
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
                     className="glass-subtle border-primary/50 text-primary hover:bg-primary/10 bg-transparent"
+                    onClick={() => handlePlanSelection("pro")}
+                    disabled={isLoading !== null}
                   >
-                    Contact Sales
+                    {isLoading === "pro" ? "Processing..." : "Choose Pro Plan"}
                   </Button>
                 </div>
               </CardContent>

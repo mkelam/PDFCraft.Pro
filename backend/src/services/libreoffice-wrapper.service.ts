@@ -14,7 +14,7 @@ export class LibreOfficeWrapper {
   /**
    * Convert PDF to PowerPoint using LibreOffice headless mode
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  static async convertPDFToOffice(inputPath: string, outputDir: string): Promise<string> {
     console.log(`🔄 [LIBREOFFICE-WRAPPER] Starting conversion: ${path.basename(inputPath)}`);
 
     // Validate input file exists
@@ -29,7 +29,7 @@ export class LibreOfficeWrapper {
 
     // Generate output filename
     const inputBasename = path.basename(inputPath, '.pdf');
-    const outputFilename = `${inputBasename}_converted.pptx`;
+    const outputFilename = `${inputBasename}.pptx`;
     const expectedOutputPath = path.join(outputDir, outputFilename);
 
     try {

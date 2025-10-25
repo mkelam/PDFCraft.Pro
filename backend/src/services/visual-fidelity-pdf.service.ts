@@ -18,42 +18,36 @@ import { PDFDocument } from 'pdf-lib';
 const pdf2pic = require('pdf2pic');
 const sharp = require('sharp');
 
-interface ExtractedImage {
-  id: string;
-  name: string;
-  buffer: Buffer;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  type: 'logo' | 'qr-code' | 'chart' | 'signature' | 'image' | 'unknown';
-  confidence: number;
-}
+// Import quality validation and unified types
+import {
+  QualityValidationEngine,
+  validateOutputQuality,
+  QualityValidationRequest,
+  QualityValidationResult
+} from '../middleware/quality-validation.middleware';
+import {
+  ConversionResult,
+  ConversionOptions,
+  ExtractedImage,
+  VisualElement,
+  VisualDocument,
+  PDFConversionService
+} from '../types/pdf-conversion.types';
 
-interface VisualElement {
-  type: 'text' | 'image' | 'shape';
-  content: any;
-  position: { x: number; y: number; width: number; height: number };
-  priority: number;
-}
-
-interface VisualDocument {
-  textElements: VisualElement[];
-  imageElements: ExtractedImage[];
-  pageImages: Buffer[];
-  detectedQRCodes: ExtractedImage[];
-  detectedLogos: ExtractedImage[];
-  visualComplexity: 'simple' | 'moderate' | 'complex';
-}
-
-export class VisualFidelityPDFService {
+export class VisualFidelityPDFService implements PDFConversionService {
   /**
    * EXPERT RECOMMENDATION: Enhanced image extraction and handling
    * Address QR codes, logos missing or mishandled
+   * WITH QUALITY VALIDATION INTEGRATION
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  async convertPDFToOffice(
+    inputPath: string,
+    outputDir: string,
+    options?: ConversionOptions
+  ): Promise<ConversionResult> {
     console.log('🎨 [VISUAL-FIDELITY] Starting enhanced image extraction conversion...');
     console.log('📋 Addressing expert Priority 3: Image and Visual Fidelity Gaps');
+    console.log('🔍 WITH INTEGRATED QUALITY VALIDATION');
 
     const startTime = Date.now();
 
@@ -80,23 +74,77 @@ export class VisualFidelityPDFService {
       // Add slides with visual elements
       await this.addVisualFidelitySlides(pptx, enhancedDocument, imagesDir);
 
-      // Generate output filename
+      // Generate output filename - preserve original name
       const originalName = path.basename(inputPath, '.pdf');
-      const outputFilename = `${originalName}_visual_fidelity.pptx`;
+      const outputFilename = `${originalName}.pptx`;
       const outputPath = path.join(outputDir, outputFilename);
 
       // Save presentation
       await pptx.writeFile({ fileName: outputPath });
 
       const totalTime = Date.now() - startTime;
+
+      // Quality validation integration
+      let qualityResult: QualityValidationResult | undefined;
+
+      if (options?.validateQuality !== false) {
+        console.log('🔍 [QUALITY] Validating visual fidelity output...');
+
+        // Prepare quality validation request
+        const qualityRequest: QualityValidationRequest = {
+          targetDPI: options?.targetDPI || 300,
+          targetQuality: options?.targetQuality || 90,
+          outputFormat: options?.outputFormat || 'png',
+          qualityLevel: options?.qualityLevel || 'excellent',
+          validateMetrics: true
+        };
+
+        // Create a buffer from the saved file for validation
+        const outputBuffer = await fs.readFile(outputPath);
+
+        // Validate output quality
+        qualityResult = validateOutputQuality(outputBuffer, qualityRequest, totalTime);
+
+        console.log('📊 [QUALITY] Visual fidelity validation results:', {
+          score: qualityResult.score,
+          valid: qualityResult.valid,
+          issues: qualityResult.issues.length
+        });
+
+        // Log quality issues if any
+        if (qualityResult.issues.length > 0) {
+          console.warn('⚠️ [QUALITY] Quality issues detected:');
+          qualityResult.issues.forEach(issue => {
+            console.warn(`   - ${issue.type}: ${issue.message}`);
+          });
+        }
+      }
+
       console.log(`🎉 [VISUAL-FIDELITY] Conversion completed!`);
       console.log(`⏱️  Time: ${totalTime}ms`);
       console.log(`📁 Output: ${outputFilename}`);
       console.log(`🖼️ Images extracted: ${enhancedDocument.imageElements.length}`);
       console.log(`📱 QR codes detected: ${enhancedDocument.detectedQRCodes.length}`);
       console.log(`🏢 Logos detected: ${enhancedDocument.detectedLogos.length}`);
+      console.log(`🎯 Quality Score: ${qualityResult?.score || 'N/A'}`);
 
-      return outputFilename;
+      // Return standardized ConversionResult
+      const result: ConversionResult = {
+        filename: outputFilename,
+        qualityResult,
+        processingTime: totalTime,
+        success: true,
+        metadata: {
+          originalFilename: path.basename(inputPath),
+          inputSize: (await fs.stat(inputPath)).size,
+          outputSize: (await fs.stat(outputPath)).size,
+          pageCount: enhancedDocument.pageImages.length || 1,
+          timestamp: new Date().toISOString(),
+          engineVersion: 'visual-fidelity-v3.0'
+        }
+      };
+
+      return result;
 
     } catch (error: any) {
       console.error('❌ [VISUAL-FIDELITY] Conversion failed:', error);
@@ -104,11 +152,12 @@ export class VisualFidelityPDFService {
     }
   }
 
+
   /**
    * EXPERT RECOMMENDATION: Extract images and visual elements
    * Address QR codes and logos being mishandled
    */
-  private static async extractVisualDocument(inputPath: string, imagesDir: string): Promise<VisualDocument> {
+  private async extractVisualDocument(inputPath: string, imagesDir: string): Promise<VisualDocument> {
     console.log('🔍 [VISUAL] Analyzing document for images and visual elements...');
 
     // Method 1: Extract embedded images using pdf-lib
@@ -143,7 +192,7 @@ export class VisualFidelityPDFService {
    * EXPERT RECOMMENDATION: Extract embedded images using pdf-lib
    * Address logos and QR codes being absent in extracted text
    */
-  private static async extractEmbeddedImages(inputPath: string, imagesDir: string): Promise<ExtractedImage[]> {
+  private async extractEmbeddedImages(inputPath: string, imagesDir: string): Promise<ExtractedImage[]> {
     console.log('🖼️ [EXTRACTION] Extracting embedded images...');
 
     try {
@@ -206,7 +255,7 @@ export class VisualFidelityPDFService {
   /**
    * Simulate image detection (in production, would parse actual PDF content streams)
    */
-  private static async simulateImageDetection(pageIndex: number, page: any): Promise<any[]> {
+  private async simulateImageDetection(pageIndex: number, page: any): Promise<any[]> {
     // Simulate detection of common elements in bank documents
     const simulatedImages = [];
 
@@ -251,7 +300,7 @@ export class VisualFidelityPDFService {
    * EXPERT RECOMMENDATION: Render pages as high-quality images
    * Fallback method for visual fidelity preservation
    */
-  private static async renderPagesAsImages(inputPath: string, imagesDir: string): Promise<Buffer[]> {
+  private async renderPagesAsImages(inputPath: string, imagesDir: string): Promise<Buffer[]> {
     console.log('📸 [RENDERING] Creating high-quality page renders...');
 
     try {
@@ -288,7 +337,7 @@ export class VisualFidelityPDFService {
   /**
    * Apply Priority 1 (Spacing) + Priority 2 (Layout) enhancements
    */
-  private static async extractEnhancedText(inputPath: string): Promise<VisualElement[]> {
+  private async extractEnhancedText(inputPath: string): Promise<VisualElement[]> {
     console.log('🔤 [TEXT] Extracting text with Priority 1+2 enhancements...');
 
     try {
@@ -344,7 +393,7 @@ export class VisualFidelityPDFService {
    * EXPERT RECOMMENDATION: Classify visual elements
    * Detect QR codes, logos, charts, signatures
    */
-  private static async classifyVisualElements(images: ExtractedImage[]): Promise<{
+  private async classifyVisualElements(images: ExtractedImage[]): Promise<{
     qrCodes: ExtractedImage[];
     logos: ExtractedImage[];
     charts: ExtractedImage[];
@@ -368,7 +417,7 @@ export class VisualFidelityPDFService {
   /**
    * Apply all previous priority enhancements
    */
-  private static async applyPreviousPriorityEnhancements(document: VisualDocument): Promise<VisualDocument> {
+  private async applyPreviousPriorityEnhancements(document: VisualDocument): Promise<VisualDocument> {
     console.log('🔧 [ENHANCEMENT] Applying Priority 1+2+3 optimizations...');
 
     // Priority 1: Enhanced spacing is already applied in text extraction
@@ -385,7 +434,7 @@ export class VisualFidelityPDFService {
    * EXPERT RECOMMENDATION: Add slides with visual fidelity
    * Integrate images, QR codes, and logos into PPTX
    */
-  private static async addVisualFidelitySlides(
+  private async addVisualFidelitySlides(
     pptx: any,
     document: VisualDocument,
     imagesDir: string
@@ -545,7 +594,7 @@ export class VisualFidelityPDFService {
   }
 
   // Helper methods
-  private static async createPlaceholderImage(width: number, height: number, type: string): Promise<Buffer> {
+  private async createPlaceholderImage(width: number, height: number, type: string): Promise<Buffer> {
     // Create a placeholder image with Sharp
     const color = this.getTypeColor(type);
 
@@ -561,7 +610,7 @@ export class VisualFidelityPDFService {
     .toBuffer();
   }
 
-  private static getTypeColor(type: string): { r: number; g: number; b: number } {
+  private getTypeColor(type: string): { r: number; g: number; b: number } {
     switch (type) {
       case 'logo': return { r: 70, g: 130, b: 180 }; // Steel blue
       case 'qr-code': return { r: 0, g: 0, b: 0 }; // Black
@@ -574,7 +623,7 @@ export class VisualFidelityPDFService {
   /**
    * Classify image type based on characteristics
    */
-  private static classifyImageType(imageName: string, width: number, height: number): 'logo' | 'qr-code' | 'chart' | 'signature' | 'photo' {
+  private classifyImageType(imageName: string, width: number, height: number): 'logo' | 'qr-code' | 'chart' | 'signature' | 'photo' {
     // Square images (likely QR codes)
     if (Math.abs(width - height) <= 10 && width < 200) {
       return 'qr-code';
@@ -598,7 +647,7 @@ export class VisualFidelityPDFService {
     return 'photo';
   }
 
-  private static assessVisualComplexity(images: ExtractedImage[], textElements: VisualElement[]): 'simple' | 'moderate' | 'complex' {
+  private assessVisualComplexity(images: ExtractedImage[], textElements: VisualElement[]): 'simple' | 'moderate' | 'complex' {
     const imageCount = images.length;
     const textCount = textElements.length;
 

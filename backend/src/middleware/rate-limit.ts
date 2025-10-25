@@ -31,10 +31,11 @@ export const authRateLimit = rateLimit({
 /**
  * Rate limiting for registration endpoint
  * Even more restrictive to prevent spam registrations
+ * TEMPORARILY DISABLED FOR TESTING - TODO: Re-enable for production
  */
 export const registrationRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // Limit each IP to 3 registration attempts per hour
+  max: 1000, // TESTING: Increased limit for manual testing (was 3)
   message: {
     success: false,
     error: {

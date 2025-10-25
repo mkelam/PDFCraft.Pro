@@ -13,7 +13,8 @@ const productionEnvVars = [
   'DB_NAME',
   'DB_USER',
   'DB_PASSWORD',
-  'PAYSTACK_SECRET_KEY'
+  'PAYFAST_MERCHANT_ID',
+  'PAYFAST_MERCHANT_KEY'
 ];
 
 // Validate required environment variables
@@ -56,14 +57,16 @@ export const config: AppConfig = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
 
-  paystack: {
-    secretKey: process.env.PAYSTACK_SECRET_KEY!,
-    publicKey: process.env.PAYSTACK_PUBLIC_KEY || '',
+  payfast: {
+    merchantId: process.env.PAYFAST_MERCHANT_ID!,
+    merchantKey: process.env.PAYFAST_MERCHANT_KEY!,
+    passphrase: process.env.PAYFAST_PASSPHRASE || '',
+    sandbox: process.env.NODE_ENV !== 'production',
   },
 
   app: {
-    frontendUrl: process.env.FRONTEND_URL || 'https://pdfcraft.pro',
-    apiUrl: process.env.API_URL || 'https://api.pdfcraft.pro',
+    frontendUrl: process.env.FRONTEND_URL || 'https://pdflab.pro',
+    apiUrl: process.env.API_URL || 'https://api.pdflab.pro',
   },
 
   upload: {
