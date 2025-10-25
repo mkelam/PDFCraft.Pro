@@ -44,11 +44,18 @@ export class EmailService {
       });
 
       // Verify SMTP connection
-      if (process.env.NODE_ENV === 'production') {
-        await this.transporter.verify();
-        logger.info('✅ SMTP connection verified');
+      const hasSmtpConfig = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+
+      if (hasSmtpConfig) {
+        try {
+          await this.transporter.verify();
+          logger.info('✅ SMTP connection verified - Emails will be sent');
+        } catch (error) {
+          logger.warn('⚠️  SMTP verification failed - Check your email credentials');
+          logger.error('SMTP error:', error);
+        }
       } else {
-        logger.info('📧 Email service initialized (development mode)');
+        logger.info('📧 Email service initialized (dev mode - emails will be logged only)');
       }
 
       this.isInitialized = true;
@@ -73,9 +80,12 @@ export class EmailService {
         attachments: options.attachments,
       };
 
-      // In development, just log the email
-      if (process.env.NODE_ENV !== 'production') {
-        logger.info('📧 [DEV] Email would be sent:', {
+      // Check if SMTP credentials are configured
+      const hasSmtpConfig = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+
+      // In development without SMTP config, just log the email
+      if (process.env.NODE_ENV !== 'production' && !hasSmtpConfig) {
+        logger.info('📧 [DEV] Email would be sent (SMTP not configured):', {
           to: mailOptions.to,
           subject: mailOptions.subject,
           hasAttachments: !!mailOptions.attachments?.length,
@@ -83,7 +93,7 @@ export class EmailService {
         return true;
       }
 
-      // Send email in production
+      // Send email if SMTP is configured (works in both dev and production)
       const result = await this.transporter.sendMail(mailOptions);
 
       logger.info('📧 Email sent successfully:', {
