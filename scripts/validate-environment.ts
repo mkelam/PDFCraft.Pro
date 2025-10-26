@@ -215,6 +215,12 @@ class EnvironmentValidator {
  * Main execution
  */
 async function main(): Promise<void> {
+  // Skip validation if explicitly disabled (e.g., during Docker builds)
+  if (process.env.SKIP_ENV_VALIDATION === 'true') {
+    console.log('⏭️  Environment validation skipped (SKIP_ENV_VALIDATION=true)')
+    return
+  }
+
   const validator = new EnvironmentValidator()
   const success = await validator.validate()
 

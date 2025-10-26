@@ -1,8 +1,18 @@
-# Use Node.js 18 LTS Alpine image for smaller size
-FROM node:18-alpine
+# Use Node.js 20 LTS Alpine image for smaller size
+FROM node:20-alpine
 
-# Install LibreOffice, ImageMagick, Tesseract OCR, Ghostscript and other dependencies
+# Install build dependencies, LibreOffice, ImageMagick, Tesseract OCR, Ghostscript and other dependencies
 RUN apk update && apk add --no-cache \
+    python3 \
+    py3-pip \
+    py3-setuptools \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev \
     libreoffice \
     imagemagick \
     imagemagick-dev \

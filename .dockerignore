@@ -77,8 +77,7 @@ Dockerfile
 docker-compose*.yml
 .dockerignore
 
-# Development scripts
-scripts/
+# Development scripts (keep scripts/ for build validation)
 .bmad-core/
 BMAD-METHOD/
 

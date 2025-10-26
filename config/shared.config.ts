@@ -15,9 +15,9 @@ export interface ServiceConfig {
 
 export const SHARED_CONFIG: Record<'development' | 'production', ServiceConfig> = {
   development: {
-    BACKEND_PORT: 3016,
+    BACKEND_PORT: 3015,
     FRONTEND_PORT: 3020,
-    API_BASE_URL: 'http://localhost:3016',
+    API_BASE_URL: 'http://localhost:3015',
     CORS_ORIGINS: [
       'http://localhost:3000',
       'http://localhost:3001',

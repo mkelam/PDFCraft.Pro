@@ -1,19 +1,32 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useAuth, useRequireAuth } from "@/contexts/AuthContext"
 import { Navigation } from "@/components/Navigation"
-import { User, FileText, Download, Settings, LogOut } from "lucide-react"
+import { User, FileText, Download, Settings, LogOut, Clock, CheckCircle, XCircle } from "lucide-react"
 import Link from "next/link"
+
+interface ConversionActivity {
+  id: string
+  type: string
+  status: string
+  fileName: string
+  fileSize: number
+  processingTime: number
+  createdAt: string
+  completedAt: string
+}
 
 export default function DashboardPage() {
   // Require authentication - will redirect to login if not authenticated
   const { user, isLoading } = useRequireAuth()
   const { logout } = useAuth()
+  const [recentActivity, setRecentActivity] = useState<ConversionActivity[]>([])
+  const [activityLoading, setActivityLoading] = useState(true)
 
   const handleLogout = async () => {
     try {
@@ -23,6 +36,37 @@ export default function DashboardPage() {
       console.error('Logout failed:', error)
     }
   }
+
+  // Fetch recent activity when user is available
+  useEffect(() => {
+    const fetchRecentActivity = async () => {
+      if (!user) return
+
+      try {
+        setActivityLoading(true)
+        const token = localStorage.getItem('authToken')  // Fixed: Changed from 'auth_token' to 'authToken'
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3015'
+
+        const response = await fetch(`${API_URL}/api/users/enhanced/history?limit=5`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setRecentActivity(data.data.history || [])
+        }
+      } catch (error) {
+        console.error('Failed to fetch recent activity:', error)
+      } finally {
+        setActivityLoading(false)
+      }
+    }
+
+    fetchRecentActivity()
+  }, [user])
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -167,16 +211,84 @@ export default function DashboardPage() {
               <CardDescription>Your recent PDF conversions and activity</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No Recent Activity</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start converting PDFs to see your activity here
-                </p>
-                <Link href="/convert">
-                  <Button>Convert Your First PDF</Button>
-                </Link>
-              </div>
+              {activityLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Loading activity...</p>
+                </div>
+              ) : recentActivity.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No Recent Activity</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Start converting PDFs to see your activity here
+                  </p>
+                  <Link href="/convert">
+                    <Button>Convert Your First PDF</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentActivity.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className="flex items-start gap-4 p-4 rounded-lg border border-border/50 hover:border-border transition-colors"
+                    >
+                      <div className="flex-shrink-0">
+                        {activity.status === 'completed' ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : activity.status === 'failed' ? (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        ) : (
+                          <Clock className="w-5 h-5 text-amber-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-foreground truncate">
+                              {activity.fileName}
+                            </h4>
+                            <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                              <span className="capitalize">{activity.type.replace('-', ' ')}</span>
+                              <span>•</span>
+                              <span>{(activity.fileSize / 1024).toFixed(1)} KB</span>
+                              {activity.processingTime > 0 && (
+                                <>
+                                  <span>•</span>
+                                  <span>{(activity.processingTime / 1000).toFixed(1)}s</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <Badge
+                            variant={
+                              activity.status === 'completed'
+                                ? 'default'
+                                : activity.status === 'failed'
+                                ? 'destructive'
+                                : 'secondary'
+                            }
+                            className="capitalize flex-shrink-0"
+                          >
+                            {activity.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(activity.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {recentActivity.length >= 5 && (
+                    <div className="text-center pt-2">
+                      <Button variant="outline" size="sm">
+                        View All Activity
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 

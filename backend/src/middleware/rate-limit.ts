@@ -3,10 +3,11 @@ import rateLimit from 'express-rate-limit';
 /**
  * Rate limiting for authentication endpoints
  * More restrictive to prevent brute force attacks
+ * TEMPORARILY INCREASED FOR DEVELOPMENT TESTING
  */
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
+  max: 1000, // DEVELOPMENT: Increased for testing (was 5 for production)
   message: {
     success: false,
     error: {

@@ -49,7 +49,7 @@ export class PDFCraftAPI {
    * Make authenticated API request with token warning detection
    */
   private static async makeAuthenticatedRequest(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
     const response = await fetch(url, {
       ...options,
@@ -77,7 +77,7 @@ export class PDFCraftAPI {
       if (errorData.error?.code === 'AUTH_TOKEN_EXPIRED') {
         // Clear stored token and redirect to login
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
+          localStorage.removeItem('authToken');
           // You can customize this based on your routing setup
           window.location.href = '/login';
         }
@@ -128,9 +128,15 @@ export class PDFCraftAPI {
       formData.append('textOverlays', 'true');
       formData.append('ocrAccuracy', 'high');
 
-      // Submit conversion job
+      // Get auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+      // Submit conversion job with authentication
       const response = await fetch(`${API_BASE_URL}/api/convert/pdf-to-ppt`, {
         method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
         body: formData,
       });
 
@@ -162,6 +168,7 @@ export class PDFCraftAPI {
   private static async pollJobCompletion(jobId: string): Promise<ConversionResponse> {
     const maxAttempts = 120; // 120 attempts = 2 minutes max for large PDFs
     let attempts = 0;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
     while (attempts < maxAttempts) {
       try {
@@ -173,6 +180,7 @@ export class PDFCraftAPI {
         const response = await fetch(statusUrl, {
           cache: 'no-store', // More aggressive than no-cache
           headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
             'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
             'Pragma': 'no-cache',
             'Expires': '0',
@@ -271,9 +279,15 @@ export class PDFCraftAPI {
         formData.append('files', file);
       });
 
-      // Submit merge job
+      // Get auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+      // Submit merge job with authentication
       const response = await fetch(`${API_BASE_URL}/api/convert/merge`, {
         method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
         body: formData,
       });
 
@@ -317,9 +331,15 @@ export class PDFCraftAPI {
       const formData = new FormData();
       formData.append('files', file);
 
-      // Submit image extraction job
+      // Get auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+      // Submit image extraction job with authentication
       const response = await fetch(`${API_BASE_URL}/api/convert/pdf-to-images`, {
         method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
         body: formData,
       });
 

@@ -235,6 +235,7 @@ app.get('/api/status', HealthController.getHealth); // API status endpoint for f
 // API routes
 
 // Conversion routes (PROTECTED - Authentication + Email Verification + Usage Limits REQUIRED)
+// ✅ PRODUCTION MODE: Full authentication enabled
 app.post('/api/convert/pdf-to-ppt',
   upload.array('files', 1),
   authenticateToken,
@@ -283,12 +284,20 @@ app.post('/api/convert/merge',
   ConvertController.mergePDFs
 );
 
+// PDF to Images - Coming Soon
 app.post('/api/convert/pdf-to-images',
-  upload.array('files', 1),
-  authenticateToken,
-  requireEmailVerified,
-  checkUsageLimitsAtomic,
-  ConvertController.convertToImages
+  (req, res) => {
+    res.status(503).json({
+      success: false,
+      message: 'PDF to Images conversion is coming soon!',
+      error: {
+        code: 'FEATURE_COMING_SOON',
+        feature: 'PDF to Images',
+        status: 'In Development',
+        expectedRelease: 'Q1 2025'
+      }
+    });
+  }
 );
 
 // Middleware to prevent 304 responses for job status endpoints

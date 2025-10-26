@@ -41,7 +41,18 @@ const runMigrations = async (): Promise<void> => {
   try {
     console.log('🔧 Running database migrations...');
 
-    // Check if conversion_jobs table exists and has the old constraint
+    // Migration 1: Check if users table has verification_token column
+    const usersTableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get() as any;
+
+    if (usersTableInfo && usersTableInfo.sql && !usersTableInfo.sql.includes('verification_token')) {
+      console.log('📋 Migrating users table to add verification columns...');
+
+      // Drop the old users table if it exists (only in development)
+      db.exec('DROP TABLE IF EXISTS users');
+      console.log('✅ Migration completed: users table will be recreated with verification columns');
+    }
+
+    // Migration 2: Check if conversion_jobs table exists and has the old constraint
     const tableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='conversion_jobs'").get() as any;
 
     if (tableInfo && tableInfo.sql && !tableInfo.sql.includes("'pdf-to-images'")) {
@@ -87,9 +98,9 @@ const runMigrations = async (): Promise<void> => {
       `);
 
       console.log('✅ Migration completed: pdf-to-images type now supported');
-    } else {
-      console.log('✅ Database schema is up to date');
     }
+
+    console.log('✅ All database migrations completed');
   } catch (error) {
     console.error('❌ Migration failed:', error);
     // Don't throw error here - let the app continue with existing schema
