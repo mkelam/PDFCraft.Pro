@@ -189,7 +189,9 @@
       "Bash(if exist \".ts-node\" rmdir /s /q \".ts-node\")",
       "Bash(set PORT=3002)",
       "Bash(for route in \"\" \"features\" \"pricing\" \"terms\" \"privacy\")",
-      "Bash(do echo -n \"/$route: \")"
+      "Bash(do echo -n \"/$route: \")",
+      "Bash(NEXT_PUBLIC_API_URL=http://localhost:3010 npm run dev)",
+      "Bash(SKIP_ENV_VALIDATION=true NEXT_PUBLIC_API_URL=http://localhost:3010 npm run dev:*)"
     ],
     "deny": [],
     "ask": []
