@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 import { performance } from 'perf_hooks';
 import { productionMonitoring } from '../services/production-monitoring.service';
 import winston from 'winston';
+import { ConversionType } from '../types/conversion.types';
 
 // Extend Request type to include monitoring data
 declare global {
@@ -144,9 +145,11 @@ export const errorMonitoringMiddleware = (
 /**
  * Conversion monitoring middleware
  * Specifically tracks PDF conversion operations
+ *
+ * @param operationType - The type of conversion being performed (centralized type from conversion.types.ts)
  */
 export const conversionMonitoringMiddleware = (
-  operationType: 'pdf-to-ppt' | 'pdf-merge' | 'pdf-to-word' | 'pdf-to-excel' | 'pdf-to-office'
+  operationType: ConversionType
 ) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // Initialize monitoring data

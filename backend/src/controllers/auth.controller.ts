@@ -343,7 +343,7 @@ export class AuthController {
 
       // Send verification email
       await EmailService.sendVerificationEmail(
-        { ...user, verification_token: newToken },
+        { email: user.email, full_name: user.full_name },
         newToken
       );
 

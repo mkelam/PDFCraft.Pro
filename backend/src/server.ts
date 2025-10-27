@@ -245,37 +245,9 @@ app.post('/api/convert/pdf-to-ppt',
   ConvertController.convertToPPT
 );
 
-// PDF to Word conversion (uses same pipeline as PPT with different output format) - DISABLED FOR NOW
-/*
-app.post('/api/convert/pdf-to-word',
-  upload.array('files', 1),
-  authenticateToken,
-  requireEmailVerified,
-  checkUsageLimitsAtomic,
-  conversionMonitoringMiddleware('pdf-to-word'),
-  ConvertController.convertToWord
-);
-
-// PDF to Excel conversion (uses same pipeline as PPT with different output format)
-app.post('/api/convert/pdf-to-excel',
-  upload.array('files', 1),
-  authenticateToken,
-  requireEmailVerified,
-  checkUsageLimitsAtomic,
-  conversionMonitoringMiddleware('pdf-to-excel'),
-  ConvertController.convertToExcel
-);
-
-// Generic PDF to Office conversion with format parameter
-app.post('/api/convert/pdf-to-office',
-  upload.array('files', 1),
-  authenticateToken,
-  requireEmailVerified,
-  checkUsageLimitsAtomic,
-  conversionMonitoringMiddleware('pdf-to-office'),
-  ConvertController.convertToOffice
-);
-*/
+// PDF to Word/Excel/Office conversion endpoints temporarily disabled
+// TODO: Implement these conversion methods in ConvertController
+// TODO: Add corresponding conversion types to production-monitoring.middleware.ts
 
 app.post('/api/convert/merge',
   upload.array('files', 20),
