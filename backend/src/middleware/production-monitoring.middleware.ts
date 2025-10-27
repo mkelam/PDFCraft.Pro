@@ -146,7 +146,7 @@ export const errorMonitoringMiddleware = (
  * Specifically tracks PDF conversion operations
  */
 export const conversionMonitoringMiddleware = (
-  operationType: 'pdf-to-ppt' | 'pdf-merge'
+  operationType: 'pdf-to-ppt' | 'pdf-merge' | 'pdf-to-word' | 'pdf-to-excel' | 'pdf-to-office'
 ) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // Initialize monitoring data

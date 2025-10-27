@@ -60,13 +60,13 @@ export class PayFastService {
   private readonly baseUrl: string;
 
   constructor() {
-    // Define subscription plans with South African pricing (ZAR)
+    // Define subscription plans with USD pricing
     this.plans = [
       {
         id: 'free',
         name: 'Free',
         price: 0,
-        currency: 'ZAR',
+        currency: 'USD',
         interval: 'month',
         features: {
           conversionsPerMonth: 3,
@@ -80,8 +80,8 @@ export class PayFastService {
       {
         id: 'starter',
         name: 'Starter',
-        price: 129, // ~$7 USD in ZAR
-        currency: 'ZAR',
+        price: 7, // $7 USD per month
+        currency: 'USD',
         interval: 'month',
         features: {
           conversionsPerMonth: 100,
@@ -95,8 +95,8 @@ export class PayFastService {
       {
         id: 'pro',
         name: 'Pro',
-        price: 349, // ~$19 USD in ZAR
-        currency: 'ZAR',
+        price: 19, // $19 USD per month
+        currency: 'USD',
         interval: 'month',
         features: {
           conversionsPerMonth: -1, // Unlimited
@@ -110,8 +110,8 @@ export class PayFastService {
       {
         id: 'enterprise',
         name: 'Enterprise',
-        price: 1799, // ~$99 USD in ZAR
-        currency: 'ZAR',
+        price: 99, // $99 USD per month
+        currency: 'USD',
         interval: 'month',
         features: {
           conversionsPerMonth: -1, // Unlimited
@@ -423,7 +423,7 @@ export class PayFastService {
    */
   formatPrice(plan: SubscriptionPlan): string {
     if (plan.price === 0) return 'Free';
-    return `R${plan.price}/${plan.interval}`;
+    return `$${plan.price}/${plan.interval}`;
   }
 
   /**

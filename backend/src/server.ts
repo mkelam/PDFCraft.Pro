@@ -245,7 +245,8 @@ app.post('/api/convert/pdf-to-ppt',
   ConvertController.convertToPPT
 );
 
-// PDF to Word conversion (uses same pipeline as PPT with different output format)
+// PDF to Word conversion (uses same pipeline as PPT with different output format) - DISABLED FOR NOW
+/*
 app.post('/api/convert/pdf-to-word',
   upload.array('files', 1),
   authenticateToken,
@@ -274,6 +275,7 @@ app.post('/api/convert/pdf-to-office',
   conversionMonitoringMiddleware('pdf-to-office'),
   ConvertController.convertToOffice
 );
+*/
 
 app.post('/api/convert/merge',
   upload.array('files', 20),
@@ -769,6 +771,6 @@ async function startServer() {
 startServer();
 
 export default app;
-// Trigger restart
+// Trigger restart - USD pricing update
 
 
