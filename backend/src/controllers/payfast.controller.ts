@@ -93,12 +93,14 @@ export class PayFastController {
           `, [paymentResult.paymentId, userId || null, email, plan, planDetails.price, planDetails.currency]);
         } else {
           const db = getSQLite();
+          // Convert userId to integer if it's a string that looks like a number, otherwise set to null
+          const numericUserId = userId && !isNaN(Number(userId)) ? Number(userId) : null;
           const stmt = db.prepare(`
             INSERT INTO payment_transactions
             (payment_id, user_id, email, plan, amount, currency, status, created_at)
             VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
           `);
-          stmt.run(paymentResult.paymentId, userId || null, email, plan, planDetails.price, planDetails.currency);
+          stmt.run(paymentResult.paymentId, numericUserId, email, plan, planDetails.price, planDetails.currency);
         }
       } catch (dbError) {
         logger.warn('Failed to store transaction in database', dbError);
@@ -182,7 +184,7 @@ export class PayFastController {
         } else {
           const db = getSQLite();
           const stmt = db.prepare(
-            'UPDATE payment_transactions SET status = ?, updated_at = datetime("now") WHERE payment_id = ?'
+            `UPDATE payment_transactions SET status = ?, updated_at = datetime('now') WHERE payment_id = ?`
           );
           stmt.run('cancelled', m_payment_id);
         }
@@ -240,7 +242,7 @@ export class PayFastController {
           const db = getSQLite();
           const stmt = db.prepare(`
             UPDATE payment_transactions
-            SET status = ?, payfast_payment_id = ?, verified_at = datetime("now"), updated_at = datetime("now")
+            SET status = ?, payfast_payment_id = ?, verified_at = datetime('now'), updated_at = datetime('now')
             WHERE payment_id = ?
           `);
           stmt.run(notificationData.payment_status, notificationData.pf_payment_id, notificationData.m_payment_id);
