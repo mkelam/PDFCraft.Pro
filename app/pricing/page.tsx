@@ -125,7 +125,7 @@ export default function PricingPage() {
           setPricingPlans(enhancedPlans)
         }
       } catch (err) {
-        console.error('Error fetching plans:', err)
+        console.error('Error fetching pricing plans:', err)
         setError('Failed to load pricing plans. Please refresh the page.')
       } finally {
         setLoading(false)
