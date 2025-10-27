@@ -1,5 +1,5 @@
 /**
- * Authentication API Client - PDFCraft.Pro
+ * Authentication API Client - pdflab.pro
  * Frontend integration for user authentication and session management
  */
 import { CONFIG } from '@/config/shared.config'
@@ -44,8 +44,8 @@ export interface AuthResponse {
 }
 
 export class AuthAPI {
-  private static baseUrl = process.env.NODE_ENV === 'production'
-    ? 'https://api.pdfcraft.pro'
+  private static baseUrl = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL
     : CONFIG.API_BASE_URL;
 
   /**

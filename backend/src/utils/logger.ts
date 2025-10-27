@@ -11,7 +11,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json()
   ),
-  defaultMeta: { service: 'pdfcraft-api' },
+  defaultMeta: { service: 'pdflab-api' },
   transports: [
     // Error logs
     new winston.transports.File({

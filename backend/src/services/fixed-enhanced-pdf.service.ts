@@ -153,8 +153,8 @@ export class FixedEnhancedPDFService {
       (ppt as any).compression = false;
 
       // Set presentation properties
-      ppt.author = 'PDFCraft.Pro';
-      ppt.company = 'PDFCraft.Pro';
+      ppt.author = 'pdflab.pro';
+      ppt.company = 'pdflab.pro';
       ppt.title = `${originalPdfName} - Converted`;
       ppt.subject = `PDF to PowerPoint Conversion ${pdf2picSupported ? 'with Images' : 'Text-Only'}`;
 

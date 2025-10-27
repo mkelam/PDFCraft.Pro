@@ -12,7 +12,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'PDFCraft.Pro API Server is running!',
+    message: 'pdflab.pro API Server is running!',
     version: '1.0.0',
     timestamp: new Date().toISOString()
   });

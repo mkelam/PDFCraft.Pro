@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'data', 'pdfcraft.db');
+const dbPath = path.join(__dirname, 'data', 'pdflab.db');
 const db = new Database(dbPath);
 
 // Update the test user to be verified

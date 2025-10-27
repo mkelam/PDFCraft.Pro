@@ -1,5 +1,5 @@
 /**
- * Production Monitoring Middleware for PDFCraft.Pro
+ * Production Monitoring Middleware for pdflab.pro
  * Integrates monitoring into Express request/response cycle
  */
 

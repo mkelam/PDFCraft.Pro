@@ -68,8 +68,8 @@ export class PuppeteerPDFService {
       const pptx = new PptxGenJS();
 
       // Set presentation properties for professional output
-      pptx.author = 'PDFCraft.Pro';
-      pptx.company = 'PDFCraft.Pro Premium';
+      pptx.author = 'pdflab.pro';
+      pptx.company = 'pdflab.pro Premium';
       pptx.revision = '1.0';
       pptx.subject = 'High-Fidelity PDF Conversion';
       pptx.title = path.basename(inputPath, '.pdf');
@@ -368,7 +368,7 @@ export class PuppeteerPDFService {
         `Pages: ${pageCount}`,
         `Converted: ${new Date().toLocaleString()}`,
         `Quality: Maximum Fidelity`,
-        `Engine: PDFCraft.Pro Puppeteer Engine v2.0`
+        `Engine: pdflab.pro Puppeteer Engine v2.0`
       ].join('\n');
 
       metaSlide.addText(metaInfo, {

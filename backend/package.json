@@ -1,5 +1,5 @@
 {
-  "name": "pdfcraft-backend",
+  "name": "pdflab-backend",
   "version": "1.0.0",
   "description": "PDF-to-PowerPoint converter and PDF merger API",
   "main": "dist/server.js",
@@ -19,13 +19,13 @@
     "typecheck": "tsc --noEmit",
     "deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh",
     "deploy:staging": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh staging",
-    "docker:build": "docker build -t pdfcraft-api .",
+    "docker:build": "docker build -t pdflab-api .",
     "docker:run": "docker-compose up -d",
     "docker:stop": "docker-compose down",
     "pm2:start": "pm2 start ecosystem.config.js --env production",
-    "pm2:stop": "pm2 stop pdfcraft-api",
-    "pm2:restart": "pm2 restart pdfcraft-api",
-    "pm2:logs": "pm2 logs pdfcraft-api",
+    "pm2:stop": "pm2 stop pdflab-api",
+    "pm2:restart": "pm2 restart pdflab-api",
+    "pm2:logs": "pm2 logs pdflab-api",
     "pm2:monit": "pm2 monit",
     "validate": "chmod +x scripts/validate-production.sh && ./scripts/validate-production.sh",
     "setup:monitoring": "chmod +x scripts/setup-monitoring.sh && ./scripts/setup-monitoring.sh",
@@ -123,6 +123,6 @@
     "merge",
     "api"
   ],
-  "author": "PDFCraft.Pro Team",
+  "author": "pdflab.pro Team",
   "license": "MIT"
 }

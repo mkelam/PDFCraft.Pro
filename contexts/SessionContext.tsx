@@ -1,5 +1,5 @@
 /**
- * Session Context - PDFCraft.Pro
+ * Session Context - pdflab.pro
  * React context for session management with hooks
  */
 

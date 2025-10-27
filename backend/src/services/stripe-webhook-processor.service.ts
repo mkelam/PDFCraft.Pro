@@ -1,5 +1,5 @@
 /**
- * Stripe Webhook Processor Service - PDFCraft.Pro
+ * Stripe Webhook Processor Service - pdflab.pro
  * CRITICAL FIX: Eliminates race conditions in subscription webhook processing
  * Implements atomic processing with distributed locking and idempotency
  */

@@ -1,5 +1,5 @@
 /**
- * Service-specific type definitions for PDFCraft.Pro backend
+ * Service-specific type definitions for pdflab.pro backend
  * Addresses TypeScript compilation errors across all services
  */
 

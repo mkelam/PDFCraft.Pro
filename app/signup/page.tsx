@@ -132,7 +132,7 @@ export default function SignupPage() {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          Back to PDF Craft Pro
+          Back to PDF Lab Pro
         </Link>
 
         {/* Signup form card */}
@@ -140,7 +140,7 @@ export default function SignupPage() {
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-2xl font-bold text-foreground">Create your account</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Join PDF Craft Pro and start converting documents instantly
+              Join PDF Lab Pro and start converting documents instantly
             </CardDescription>
           </CardHeader>
 
@@ -427,7 +427,7 @@ export default function SignupPage() {
 
         {/* Footer text */}
         <p className="text-center text-xs text-muted-foreground mt-8">
-          By creating an account, you agree to receive updates about PDF Craft Pro features and services.
+          By creating an account, you agree to receive updates about PDF Lab Pro features and services.
         </p>
       </div>
     </div>

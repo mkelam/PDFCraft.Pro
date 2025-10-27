@@ -60,7 +60,7 @@ POST /api/auth/update-password         // Update password (authenticated users)
 2. **`backend/src/migrations/003_auth_system.sql`** (450+ lines)
    - Complete database schema for authentication system
    - 8 tables: users, conversion_history, pending_uploads, subscriptions, payment_transactions, email_logs, refresh_tokens, audit_logs
-   - Ready to run: `mysql -u root -p pdfcraft_db < backend/src/migrations/003_auth_system.sql`
+   - Ready to run: `mysql -u root -p pdflab_db < backend/src/migrations/003_auth_system.sql`
 
 3. **`backend/src/models/User.model.ts`** (450+ lines)
    - Complete user CRUD operations
@@ -88,7 +88,7 @@ POST /api/auth/update-password         // Update password (authenticated users)
 ### Step 1: Run Database Migration
 ```bash
 cd backend
-mysql -u root -p pdfcraft_db < src/migrations/003_auth_system.sql
+mysql -u root -p pdflab_db < src/migrations/003_auth_system.sql
 ```
 
 ### Step 2: Restart Backend Server

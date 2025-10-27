@@ -127,7 +127,7 @@ curl -X POST http://localhost:3001/api/payfast/initialize \
 **Symptoms**: Console shows CORS error
 
 **Solution**:
-- The server already has CORS configured for `localhost:3000` and `pdfcraft.pro`
+- The server already has CORS configured for `localhost:3000` and `pdflab.pro`
 - Since you're on `localhost:3001`, CORS should allow it (origin wildcard)
 - If issue persists, check server CORS configuration
 

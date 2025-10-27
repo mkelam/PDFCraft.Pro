@@ -1,5 +1,5 @@
 /**
- * Stripe API Client - PDFCraft.Pro
+ * Stripe API Client - pdflab.pro
  * Frontend integration for OCR Overlay subscription management
  * Handles checkout sessions, billing portal, and subscription details
  */

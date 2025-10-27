@@ -24,7 +24,7 @@ describe('PDF Service Integration Tests', () => {
     const page1 = pdfDoc1.addPage();
     const { width, height } = page1.getSize();
 
-    page1.drawText('PDFCraft.Pro Test Document #1', {
+    page1.drawText('pdflab.pro Test Document #1', {
       x: 50,
       y: height - 100,
       size: 24,
@@ -99,7 +99,7 @@ describe('PDF Service Integration Tests', () => {
     const pdfDoc2 = await PDFDocument.create();
     const page3 = pdfDoc2.addPage();
 
-    page3.drawText('PDFCraft.Pro Test Document #2', {
+    page3.drawText('pdflab.pro Test Document #2', {
       x: 50,
       y: height - 100,
       size: 24,
@@ -173,7 +173,7 @@ describe('PDF Service Integration Tests', () => {
 
       const pdfDoc = await PDFDocument.create();
       pdfDoc.setTitle('Test PDF Title');
-      pdfDoc.setAuthor('PDFCraft.Pro Test Suite');
+      pdfDoc.setAuthor('pdflab.pro Test Suite');
 
       const page = pdfDoc.addPage();
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -187,7 +187,7 @@ describe('PDF Service Integration Tests', () => {
 
       expect(metadata.pages).toBe(1);
       expect(metadata.title).toBe('Test PDF Title');
-      expect(metadata.author).toBe('PDFCraft.Pro Test Suite');
+      expect(metadata.author).toBe('pdflab.pro Test Suite');
 
       // Cleanup
       await fs.unlink(metadataPDFPath);

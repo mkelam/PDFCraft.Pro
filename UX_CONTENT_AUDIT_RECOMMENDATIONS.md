@@ -40,10 +40,10 @@ The app's text content is **85% accurate** with reality. Most claims are verifie
 
 **Current State:**
 ```
-app/page.tsx: "PDF Craft Pro" (line 75)
+app/page.tsx: "PDF Lab Pro" (line 75)
 README.md: "PDFLab.Pro" (line 1)
-Footer: "PDF Craft Pro"
-Domain: pdfcraft.pro
+Footer: "PDF Lab Pro"
+Domain: pdflab.pro
 ```
 
 **Issue:** Users see different brand names throughout the app
@@ -51,7 +51,7 @@ Domain: pdfcraft.pro
 **Fix Required:**
 ```typescript
 // Choose ONE official name:
-Option A: "PDFCraft.Pro" (matches domain)
+Option A: "pdflab.pro" (matches domain)
 Option B: "PDFLab.Pro" (current README)
 
 // Update everywhere:
@@ -61,7 +61,7 @@ Option B: "PDFLab.Pro" (current README)
 - All marketing materials
 ```
 
-**Recommendation:** Use **"PDFCraft.Pro"** (matches domain pdfcraft.pro)
+**Recommendation:** Use **"pdflab.pro"** (matches domain pdflab.pro)
 
 ---
 
@@ -295,7 +295,7 @@ curl http://localhost:3010/api/download/{filename} --output result.pptx
 ## 📋 Implementation Checklist
 
 ### Immediate (Before Production Launch)
-- [ ] Fix brand name consistency (PDFCraft.Pro everywhere)
+- [ ] Fix brand name consistency (pdflab.pro everywhere)
 - [ ] Update homepage hero to mention all 3 formats
 - [ ] Update README roadmap (move Word/Excel to completed)
 - [ ] Add API documentation for new endpoints
@@ -344,14 +344,14 @@ curl http://localhost:3010/api/download/{filename} --output result.pptx
 **BEFORE:**
 ```tsx
 <div className="text-sm text-muted-foreground">
-  © 2024 PDF Craft Pro. All rights reserved.
+  © 2024 PDF Lab Pro. All rights reserved.
 </div>
 ```
 
 **AFTER:**
 ```tsx
 <div className="text-sm text-muted-foreground">
-  © 2024 PDFCraft.Pro. All rights reserved.
+  © 2024 pdflab.pro. All rights reserved.
 </div>
 ```
 
@@ -366,7 +366,7 @@ curl http://localhost:3010/api/download/{filename} --output result.pptx
 
 **AFTER:**
 ```markdown
-# PDFCraft.Pro 🚀
+# pdflab.pro 🚀
 ```
 
 ---
@@ -414,8 +414,8 @@ curl http://localhost:3010/api/download/{filename} --output result.pptx
 
 1. **Find & Replace** (brand consistency)
    ```bash
-   # Search for: "PDF Craft Pro" or "PDFLab"
-   # Replace with: "PDFCraft.Pro"
+   # Search for: "PDF Lab Pro" or "PDFLab"
+   # Replace with: "pdflab.pro"
    ```
 
 2. **Update Homepage Hero** (1 file change)

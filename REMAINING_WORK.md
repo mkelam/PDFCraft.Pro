@@ -1,4 +1,4 @@
-# 🎯 PDFCraft.Pro - Remaining Work to Production Launch
+# 🎯 pdflab.pro - Remaining Work to Production Launch
 
 **Current Status**: 87% Complete | **BMAD Grade**: A+ (EXCEPTIONAL)
 **Estimated Time to Launch**: 7-10 days
@@ -84,13 +84,13 @@ PAYFAST_MERCHANT_ID=YOUR_LIVE_MERCHANT_ID
 PAYFAST_MERCHANT_KEY=YOUR_LIVE_MERCHANT_KEY
 PAYFAST_PASSPHRASE=YOUR_SECURE_PASSPHRASE
 PAYFAST_MODE=production
-PAYFAST_NOTIFY_URL=https://api.pdfcraft.pro/api/payfast/webhook
+PAYFAST_NOTIFY_URL=https://api.pdflab.pro/api/payfast/webhook
 ```
 
 **Action Steps:**
 1. [ ] Login to PayFast dashboard
 2. [ ] Get live credentials
-3. [ ] Configure webhook URL: `https://api.pdfcraft.pro/api/payfast/webhook`
+3. [ ] Configure webhook URL: `https://api.pdflab.pro/api/payfast/webhook`
 4. [ ] Test with R1 payment
 5. [ ] Verify webhook receives notification
 6. [ ] Verify user tier upgrades automatically
@@ -126,10 +126,10 @@ PAYFAST_NOTIFY_URL=https://api.pdfcraft.pro/api/payfast/webhook
 **Action Steps:**
 ```bash
 # On VPS
-mysql -u pdfcraft_user -p pdfcraft_prod < /var/www/pdfcraft/backend/src/migrations/001_initial_schema.sql
+mysql -u pdflab_user -p pdflab_prod < /var/www/pdflab/backend/src/migrations/001_initial_schema.sql
 
 # Verify
-mysql -u pdfcraft_user -p pdfcraft_prod
+mysql -u pdflab_user -p pdflab_prod
 SHOW TABLES;
 DESCRIBE users;
 SELECT * FROM users;  # Should show admin user

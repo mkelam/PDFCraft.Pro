@@ -1,9 +1,9 @@
 -- ================================
--- PDFCRAFT.PRO DATABASE SCHEMA
+-- pdflab.pro DATABASE SCHEMA
 -- ================================
 -- Migration: 001_initial_schema
 -- Created: 2025-10-23
--- Description: Initial database schema for PDFCraft.Pro production
+-- Description: Initial database schema for pdflab.pro production
 
 -- ================================
 -- USERS TABLE
@@ -285,7 +285,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
 -- Password: Admin123!@# (hashed with bcrypt)
 INSERT INTO users (email, password_hash, name, plan, is_admin, email_verified, daily_limit, monthly_limit)
 VALUES (
-  'admin@pdfcraft.pro',
+  'admin@pdflab.pro',
   '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyVpLzjqhZxa',  -- Hash of 'Admin123!@#'
   'System Administrator',
   'enterprise',
@@ -381,10 +381,10 @@ DELIMITER ;
 -- GRANT PERMISSIONS (Production)
 -- ================================
 -- Run these after creating the production user
--- GRANT SELECT, INSERT, UPDATE, DELETE ON pdfcraft_prod.* TO 'pdfcraft_user'@'localhost';
--- GRANT EXECUTE ON PROCEDURE pdfcraft_prod.reset_daily_usage TO 'pdfcraft_user'@'localhost';
--- GRANT EXECUTE ON PROCEDURE pdfcraft_prod.reset_monthly_usage TO 'pdfcraft_user'@'localhost';
--- GRANT EXECUTE ON PROCEDURE pdfcraft_prod.cleanup_old_jobs TO 'pdfcraft_user'@'localhost';
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON pdflab_prod.* TO 'pdflab_user'@'localhost';
+-- GRANT EXECUTE ON PROCEDURE pdflab_prod.reset_daily_usage TO 'pdflab_user'@'localhost';
+-- GRANT EXECUTE ON PROCEDURE pdflab_prod.reset_monthly_usage TO 'pdflab_user'@'localhost';
+-- GRANT EXECUTE ON PROCEDURE pdflab_prod.cleanup_old_jobs TO 'pdflab_user'@'localhost';
 -- FLUSH PRIVILEGES;
 
 -- ================================

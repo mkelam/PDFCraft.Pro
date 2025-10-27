@@ -3,7 +3,7 @@
 **Date:** October 25, 2025
 **Status:** ✅ COMPLETE AND WORKING
 **Server:** http://localhost:3016
-**Database:** SQLite (backend/data/pdfcraft.db)
+**Database:** SQLite (backend/data/pdflab.db)
 
 ---
 
@@ -290,7 +290,7 @@ curl -X POST http://localhost:3016/api/convert/pdf-to-ppt \
 # Response: 403 Forbidden - "Email verification required"
 
 # 3. Get verification token from database
-sqlite3 backend/data/pdfcraft.db "SELECT verification_token FROM users WHERE email='user@example.com';"
+sqlite3 backend/data/pdflab.db "SELECT verification_token FROM users WHERE email='user@example.com';"
 
 # 4. Verify email
 curl -X GET http://localhost:3016/api/auth/verify-email/TOKEN_FROM_DATABASE
@@ -308,7 +308,7 @@ curl -X POST http://localhost:3016/api/convert/pdf-to-ppt \
 ### For Production:
 1. Update `.env` with production SMTP credentials
 2. Update `FRONTEND_URL` to production domain
-3. Run migration: `mysql -u root -p pdfcraft_db < backend/src/migrations/003_auth_system.sql`
+3. Run migration: `mysql -u root -p pdflab_db < backend/src/migrations/003_auth_system.sql`
 4. Start server: `PORT=3015 npm start`
 
 ---
@@ -383,7 +383,7 @@ curl -X POST http://localhost:3016/api/convert/pdf-to-ppt \
 
 ### Server Information:
 - **Port:** 3016 (development)
-- **Database:** SQLite (backend/data/pdfcraft.db)
+- **Database:** SQLite (backend/data/pdflab.db)
 - **Environment:** Development
 - **Node.js:** Latest LTS
 - **Framework:** Express.js + TypeScript

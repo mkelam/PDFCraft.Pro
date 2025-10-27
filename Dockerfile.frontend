@@ -25,6 +25,10 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # Skip environment validation during Docker build (services not running yet)
 ENV SKIP_ENV_VALIDATION=true
 
+# Build-time environment variable for API URL
+ARG NEXT_PUBLIC_API_URL=http://localhost:3001
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 # Build Next.js app
 RUN npm run build
 

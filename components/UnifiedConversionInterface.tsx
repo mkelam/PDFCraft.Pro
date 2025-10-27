@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { AlertCircle, ChevronDown, Upload, FileText, Download, CheckCircle, X } from "lucide-react"
 import { PDFUpload } from "@/components/PDFUpload"
-import { ConversionResponse, PDFCraftAPI, formatFileSize, validatePDFFile } from "@/lib/api"
+import { ConversionResponse, pdflabAPI, formatFileSize, validatePDFFile } from "@/lib/api"
 
 interface UnifiedConversionInterfaceProps {
   onSuccess?: (result: ConversionResponse) => void
@@ -180,14 +180,14 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
 
       if (activeTab === "convert") {
         if (outputFormat === "image") {
-          result = await PDFCraftAPI.convertPDFToImages(validFiles[0].file)
+          result = await pdflabAPI.convertPDFToImages(validFiles[0].file)
         } else {
           // Map output format to API format
           const apiFormat = outputFormat === "powerpoint" ? "pptx" : outputFormat === "word" ? "docx" : "xlsx"
-          result = await PDFCraftAPI.convertPDFToOffice(validFiles[0].file, apiFormat as "pptx" | "docx" | "xlsx")
+          result = await pdflabAPI.convertPDFToOffice(validFiles[0].file, apiFormat as "pptx" | "docx" | "xlsx")
         }
       } else {
-        result = await PDFCraftAPI.mergePDFs(validFiles.map((f) => f.file))
+        result = await pdflabAPI.mergePDFs(validFiles.map((f) => f.file))
       }
 
       if (progressTimer) clearInterval(progressTimer)
@@ -214,7 +214,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
 
   const downloadFile = () => {
     if (processing.result?.outputFile) {
-      PDFCraftAPI.triggerDownload(
+      pdflabAPI.triggerDownload(
         processing.result.outputFile,
         processing.result.originalFile || processing.result.outputFile
       )

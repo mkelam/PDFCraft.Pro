@@ -1,5 +1,5 @@
 /**
- * Production Configuration - PDFCraft.Pro
+ * Production Configuration - pdflab.pro
  * Optimized settings for OCR Overlay system deployment
  * Designed for Hostinger VPS and production-grade performance
  */
@@ -98,15 +98,15 @@ export const productionConfig: ProductionConfig = {
     port: parseInt(process.env.PORT || '3001'),
     host: process.env.HOST || '0.0.0.0',
     nodeEnv: process.env.NODE_ENV || 'production',
-    processTitle: 'pdfcraft-pro-api',
+    processTitle: 'pdflab-pro-api',
     gracefulShutdownTimeout: 30000, // 30 seconds
   },
 
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '3306'),
-    database: process.env.DB_NAME || 'pdfcraft_pro',
-    username: process.env.DB_USER || 'pdfcraft_user',
+    database: process.env.DB_NAME || 'pdflab_pro',
+    username: process.env.DB_USER || 'pdflab_user',
     password: process.env.DB_PASSWORD || '',
     connectionLimit: 20,
     acquireTimeout: 60000,
@@ -127,7 +127,7 @@ export const productionConfig: ProductionConfig = {
   },
 
   cors: {
-    origins: (process.env.CORS_ORIGINS || 'https://pdfcraft.pro,https://www.pdfcraft.pro').split(','),
+    origins: (process.env.CORS_ORIGINS || 'https://pdflab.pro,https://www.pdflab.pro').split(','),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'stripe-signature'],
     credentials: true,
@@ -154,8 +154,8 @@ export const productionConfig: ProductionConfig = {
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       'application/vnd.ms-powerpoint'
     ],
-    uploadDir: process.env.UPLOAD_DIR || '/tmp/pdfcraft/uploads',
-    tempDir: process.env.TEMP_DIR || '/tmp/pdfcraft/temp',
+    uploadDir: process.env.UPLOAD_DIR || '/tmp/pdflab/uploads',
+    tempDir: process.env.TEMP_DIR || '/tmp/pdflab/temp',
     cleanupInterval: 60 * 60 * 1000, // 1 hour
     retentionPeriod: 24 * 60 * 60 * 1000, // 24 hours
   },

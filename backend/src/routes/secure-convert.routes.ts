@@ -90,7 +90,7 @@ router.get('/ping', (req, res) => {
     success: true,
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'PDFCraft.Pro Secure API',
+    service: 'pdflab.pro Secure API',
     foundation: 'ImprovedPDFService (100% success rate)',
     security: '8-layer protection active'
   });

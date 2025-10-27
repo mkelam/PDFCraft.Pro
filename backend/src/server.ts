@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { config } from './config';
 // Import shared config from relative path
 const SHARED_CONFIG = {
-  CORS_ORIGINS: ['http://localhost:3000', 'https://pdfcraft.pro', 'https://*.pdfcraft.pro']
+  CORS_ORIGINS: ['http://localhost:3000', 'https://pdflab.pro', 'https://*.pdflab.pro']
 };
 import { connectDatabase } from './config/database';
 import { connectRedis } from './config/redis';
@@ -419,7 +419,7 @@ app.get('/', (req, res) => {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>PDFCraft.Pro API Server</title>
+        <title>pdflab.pro API Server</title>
         <style>
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -513,7 +513,7 @@ app.get('/', (req, res) => {
         <div class="container">
             <div class="header">
                 <div class="status-badge">✅ SERVER RUNNING</div>
-                <h1>🎯 PDFCraft.Pro API Server</h1>
+                <h1>🎯 pdflab.pro API Server</h1>
                 <p>Lightning-fast PDF processing with PayFast payments</p>
                 <p><strong>Version:</strong> 1.0.0 | <strong>Port:</strong> 3002 | <strong>Environment:</strong> Development</p>
             </div>
@@ -643,7 +643,7 @@ app.use(errorMonitoringMiddleware);
 // Initialize connections and start server
 async function startServer() {
   try {
-    logger.info('🚀 Starting PDFCraft.Pro API Server...');
+    logger.info('🚀 Starting pdflab.pro API Server...');
 
     // Create log and upload directories
     const fs = require('fs').promises;

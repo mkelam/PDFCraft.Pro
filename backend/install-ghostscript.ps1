@@ -1,5 +1,5 @@
-# Ghostscript Installation Script for PDFCraft.Pro
-Write-Host "Installing Ghostscript for PDFCraft.Pro..." -ForegroundColor Green
+# Ghostscript Installation Script for pdflab.pro
+Write-Host "Installing Ghostscript for pdflab.pro..." -ForegroundColor Green
 
 # Set security protocol
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -81,14 +81,14 @@ if ($ghostscriptPath) {
 
 Write-Host ""
 Write-Host "Ghostscript installation completed!" -ForegroundColor Green
-Write-Host "Benefits for PDFCraft.Pro:" -ForegroundColor Cyan
+Write-Host "Benefits for pdflab.pro:" -ForegroundColor Cyan
 Write-Host "  - Advanced PDF manipulation" -ForegroundColor White
 Write-Host "  - Better quality rendering" -ForegroundColor White
 Write-Host "  - Support for complex PDF operations" -ForegroundColor White
 Write-Host "  - Industry-standard PDF processing" -ForegroundColor White
 
 # Update .env file
-$envPath = "C:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro\backend\.env"
+$envPath = "C:\Users\Mac\OneDrive\Desktop\Projects\pdflab.pro\backend\.env"
 Write-Host "Updating .env file..." -ForegroundColor Yellow
 
 if ($ghostscriptPath) {

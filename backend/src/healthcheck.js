@@ -1,5 +1,5 @@
 /**
- * Docker Health Check Script for PDFCraft.Pro
+ * Docker Health Check Script for pdflab.pro
  * Simple health check that verifies the application is running
  */
 

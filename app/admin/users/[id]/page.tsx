@@ -48,7 +48,7 @@ export default function EditUserPage() {
     try {
       setIsLoading(true)
       const token = localStorage.getItem('authToken')
-      const response = await fetch(`http://localhost:3016/api/admin/users/${userId}`, {
+      const response = await fetch(`http://localhost:3015/api/admin/users/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -81,7 +81,7 @@ export default function EditUserPage() {
     try {
       setIsSaving(true)
       const token = localStorage.getItem('authToken')
-      const response = await fetch(`http://localhost:3016/api/admin/users/${userId}`, {
+      const response = await fetch(`http://localhost:3015/api/admin/users/${userId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

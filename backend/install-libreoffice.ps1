@@ -1,5 +1,5 @@
-# LibreOffice Installation Script for PDFCraft.Pro
-Write-Host "Installing LibreOffice for PDFCraft.Pro..." -ForegroundColor Green
+# LibreOffice Installation Script for pdflab.pro
+Write-Host "Installing LibreOffice for pdflab.pro..." -ForegroundColor Green
 
 # Set security protocol
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -65,7 +65,7 @@ Write-Host "   2. Restart the backend server: npm run dev" -ForegroundColor Whit
 Write-Host "   3. Test PDF conversion with LibreOffice engine" -ForegroundColor White
 
 # Create .env update
-$envPath = "C:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro\backend\.env"
+$envPath = "C:\Users\Mac\OneDrive\Desktop\Projects\pdflab.pro\backend\.env"
 Write-Host "Updating .env file..." -ForegroundColor Yellow
 @"
 # LibreOffice Configuration

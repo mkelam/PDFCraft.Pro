@@ -1,11 +1,12 @@
 # Use Node.js 20 LTS Alpine image for smaller size
 FROM node:20-alpine
 
-# Install build dependencies, LibreOffice, ImageMagick, Tesseract OCR, Ghostscript and other dependencies
+# Install minimal runtime dependencies
+# Note: Using CloudConvert for PDF conversions, so LibreOffice not needed
+# Cairo dependencies needed for canvas package (legacy services)
 RUN apk update && apk add --no-cache \
     python3 \
     py3-pip \
-    py3-setuptools \
     make \
     g++ \
     cairo-dev \
@@ -13,22 +14,6 @@ RUN apk update && apk add --no-cache \
     pango-dev \
     giflib-dev \
     pixman-dev \
-    libreoffice \
-    imagemagick \
-    imagemagick-dev \
-    ghostscript \
-    tesseract-ocr \
-    tesseract-ocr-data-eng \
-    font-liberation \
-    font-noto \
-    font-noto-cjk \
-    font-noto-extra \
-    font-noto-emoji \
-    ttf-dejavu \
-    cairo \
-    pango \
-    pixman \
-    giflib \
     curl \
     bash \
     && rm -rf /var/cache/apk/*
@@ -43,14 +28,13 @@ RUN addgroup -g 1001 -S pdfcraft && \
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install ALL dependencies (including devDependencies for ts-node and types)
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# No build step needed - we'll use ts-node at runtime like local development
 
 # Create necessary directories
 RUN mkdir -p /app/logs /app/uploads /app/temp && \
@@ -62,8 +46,7 @@ ENV PORT=3001
 ENV UPLOAD_DIR=/app/uploads
 ENV TEMP_DIR=/app/temp
 ENV LOG_DIR=/app/logs
-ENV LIBREOFFICE_PATH=/usr/bin/libreoffice
-ENV LIBREOFFICE_AVAILABLE=true
+ENV LIBREOFFICE_AVAILABLE=false
 
 # Expose port
 EXPOSE 3001
@@ -75,5 +58,5 @@ USER pdfcraft
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:3001/health || exit 1
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application with ts-node (same as local development)
+CMD ["npx", "ts-node", "--transpile-only", "src/server.ts"]

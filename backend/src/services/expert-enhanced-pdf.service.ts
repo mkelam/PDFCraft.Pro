@@ -59,7 +59,7 @@ export class ExpertEnhancedPDFService {
 
       // Step 2: Create PowerPoint presentation
       const ppt = new PptxGenJS();
-      ppt.author = 'PDFCraft.Pro - Expert Enhanced Engine';
+      ppt.author = 'pdflab.pro - Expert Enhanced Engine';
       ppt.title = `${originalPdfName} - Expert Quality Conversion`;
       ppt.subject = 'PDF to PowerPoint with Position-Aware Text and Layout Preservation';
 

@@ -1,5 +1,5 @@
 /**
- * Production Monitoring Service for PDFCraft.Pro
+ * Production Monitoring Service for pdflab.pro
  * Comprehensive real-time monitoring for production environment
  */
 

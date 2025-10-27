@@ -66,8 +66,8 @@ export class EnhancedSpacingPDFService {
 
       // Create PowerPoint presentation
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro Enhanced Spacing Engine';
-      pptx.company = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro Enhanced Spacing Engine';
+      pptx.company = 'pdflab.pro';
       pptx.subject = 'Enhanced Spacing PDF Conversion';
 
       // Add slides with enhanced content

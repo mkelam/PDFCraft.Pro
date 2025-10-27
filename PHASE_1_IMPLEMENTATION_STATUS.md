@@ -103,7 +103,7 @@ Need to create: `backend/src/routes/auth.routes.ts`
 
 1. **Run Database Migration**
    ```bash
-   mysql -u root -p pdfcraft_db < backend/src/migrations/003_auth_system.sql
+   mysql -u root -p pdflab_db < backend/src/migrations/003_auth_system.sql
    ```
 
 2. **Create Email Service**

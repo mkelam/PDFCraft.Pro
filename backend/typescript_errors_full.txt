@@ -1,0 +1,290 @@
+src/services/advanced-layout-analyzer.service.ts(253,5): error TS1016: A required parameter cannot follow an optional parameter.
+src/services/advanced-layout-analyzer.service.ts(409,61): error TS2345: Argument of type 'LayoutElement[]' is not assignable to parameter of type 'LayoutElement[][]'.
+  Type 'LayoutElement' is missing the following properties from type 'LayoutElement[]': length, pop, push, concat, and 29 more.
+src/services/advanced-layout-analyzer.service.ts(422,51): error TS2345: Argument of type 'LayoutElement' is not assignable to parameter of type 'LayoutElement[]'.
+  Type 'LayoutElement' is missing the following properties from type 'LayoutElement[]': length, pop, push, concat, and 29 more.
+src/services/balanced-quality-ocr.service.ts(145,51): error TS2339: Property 'std' does not exist on type 'ChannelStats'.
+src/services/balanced-quality-ocr.service.ts(192,11): error TS2353: Object literal may only specify known properties, and 'contrast' does not exist in type '{ brightness?: number; saturation?: number; hue?: number; lightness?: number; }'.
+src/services/concurrent-processing-optimizer.service.ts(336,32): error TS2683: 'this' implicitly has type 'any' because it does not have a type annotation.
+src/services/concurrent-processing-optimizer.service.ts(337,38): error TS2683: 'this' implicitly has type 'any' because it does not have a type annotation.
+src/services/enhanced-ocr-accuracy.service.ts(344,41): error TS2339: Property 'words' does not exist on type 'Page'.
+src/services/enhanced-ocr-accuracy.service.ts(399,7): error TS2353: Object literal may only specify known properties, and 'tessedit_pageseg_mode' does not exist in type 'Partial<WorkerOptions>'.
+src/services/enterprise-features.service.ts(273,13): error TS2367: This comparison appears to be unintentional because the types '"processing"' and '"cancelled"' have no overlap.
+src/services/hybrid-editable-pdf.service.ts(153,9): error TS2345: Argument of type '{ totalImages: number; images: ExtractedImage[]; content: PDFContent; }' is not assignable to parameter of type 'PDFContent'.
+  Type '{ totalImages: number; images: ExtractedImage[]; content: PDFContent; }' is missing the following properties from type 'PDFContent': pages, totalTextBlocks, hasTransparency, colorSpaces
+src/services/hybrid-editable-pdf.service.ts(184,7): error TS2322: Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/hybrid-editable-pdf.service.ts(187,7): error TS2322: Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/hybrid-editable-pdf.service.ts(331,7): error TS2322: Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/hybrid-editable-pdf.service.ts(334,7): error TS2322: Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/interactive-elements-processor.service.ts(215,39): error TS2345: Argument of type 'string' is not assignable to parameter of type 'PDFName'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(113,72): error TS2339: Property 'textBlocks' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(116,37): error TS2339: Property 'textBlocks' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(120,66): error TS2339: Property 'textBlocks' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(134,87): error TS2339: Property 'pageImage' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(293,33): error TS2339: Property 'width' does not exist on type 'PageImage'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(294,34): error TS2339: Property 'height' does not exist on type 'PageImage'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(397,45): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(398,47): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(440,34): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(441,34): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(442,38): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(442,51): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(443,39): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(443,52): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(470,48): error TS2551: Property 'isBold' does not exist on type 'TextBlock'. Did you mean 'bold'?
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(502,44): error TS2551: Property 'isBold' does not exist on type 'TextBlock'. Did you mean 'bold'?
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(503,46): error TS2551: Property 'isItalic' does not exist on type 'TextBlock'. Did you mean 'italic'?
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(506,50): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(506,63): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(509,39): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(509,69): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(509,98): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(516,52): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(517,44): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(538,52): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(539,53): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(539,66): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(543,54): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(548,29): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(548,43): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(554,56): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(554,69): error TS2339: Property 'bounds' does not exist on type 'TextBlock'.
+src/services/ocr-overlay/analyzers/smart-text-analyzer.service.ts(628,47): error TS2339: Property 'textBlocks' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(11,61): error TS2305: Module '"../types/ocr-overlay.types"' has no exported member 'ConversionConfig'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(80,5): error TS2353: Object literal may only specify known properties, and 'inputPath' does not exist in type 'EnhancedConversionConfig'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(123,35): error TS2554: Expected 1-2 arguments, but got 0.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(129,73): error TS2339: Property 'imageProcessing' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(133,73): error TS2339: Property 'powerPointGeneration' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(148,56): error TS2339: Property 'inputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(149,57): error TS2339: Property 'outputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(157,49): error TS2339: Property 'inputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(180,23): error TS2339: Property 'inputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(182,11): error TS2554: Expected 1-2 arguments, but got 3.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(185,67): error TS2339: Property 'qualityMetrics' does not exist on type 'ExtractionResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(193,68): error TS2551: Property 'extractImages' does not exist on type 'ExtractionOrchestratorService'. Did you mean 'extractPageImages'?
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(193,94): error TS2339: Property 'inputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(227,51): error TS2339: Property 'processImages' does not exist on type 'EnhancedOCREngineService'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(227,94): error TS2339: Property 'ocrLanguage' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(229,66): error TS2339: Property 'confidence' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(240,49): error TS2339: Property 'processImages' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(240,92): error TS2339: Property 'ocrLanguage' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(244,104): error TS2339: Property 'confidence' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(273,23): error TS2339: Property 'outputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(275,66): error TS2339: Property 'generationMetrics' does not exist on type 'ConversionResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(284,23): error TS2339: Property 'outputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(285,11): error TS2554: Expected 3 arguments, but got 4.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(285,23): error TS2339: Property 'powerPointGeneration' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(297,9): error TS2345: Argument of type 'PageImage[]' is not assignable to parameter of type 'ConversionResult'.
+  Type 'PageImage[]' is missing the following properties from type 'ConversionResult': success, outputPath, metrics
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(300,21): error TS2339: Property 'qualityValidation' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(304,62): error TS2339: Property 'overallScore' does not exist on type 'ValidationResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(318,81): error TS2339: Property 'confidence' does not exist on type 'OCRResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(319,58): error TS2339: Property 'overallScore' does not exist on type 'ValidationResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(320,58): error TS2339: Property 'processingTime' does not exist on type 'ConversionResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(321,67): error TS2339: Property 'outputPath' does not exist on type '{ useAdvancedProcessing: boolean; useMultiQualityExtraction: boolean; useEnhancedOCR: boolean; useSmartTextAnalysis: boolean; useAdvancedPowerPoint: boolean; usePerformanceOptimization: boolean; ... 5 more ...; comprehensiveReporting: boolean; }'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(354,7): error TS2353: Object literal may only specify known properties, and 'inputPath' does not exist in type 'Partial<EnhancedConversionConfig>'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(376,7): error TS2353: Object literal may only specify known properties, and 'inputPath' does not exist in type 'Partial<EnhancedConversionConfig>'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(406,11): error TS2353: Object literal may only specify known properties, and 'inputPath' does not exist in type 'Partial<EnhancedConversionConfig>'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(422,32): error TS2339: Property 'qualityMetrics' does not exist on type 'EnhancedConversionResult'.
+src/services/ocr-overlay/core/enhanced-ocr-overlay-converter.service.ts(427,76): error TS2339: Property 'qualityMetrics' does not exist on type 'EnhancedConversionResult'.
+src/services/ocr-overlay/core/quality-validator.service.ts(105,42): error TS2322: Type '"pixel-analysis"' is not assignable to type '"pixel-comparison" | "visual-similarity" | "hash-comparison"'.
+src/services/ocr-overlay/extractors/advanced-image-processor.service.ts(39,15): error TS2739: Type '{}' is missing the following properties from type 'ImageProcessingOptions': adaptiveQuality, enhanceText, preserveColors, optimizeSize
+src/services/ocr-overlay/extractors/advanced-image-processor.service.ts(177,27): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/extractors/advanced-image-processor.service.ts(213,20): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/extractors/advanced-image-processor.service.ts(376,32): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/extractors/extraction-orchestrator.service.ts(92,57): error TS2339: Property 'message' does not exist on type 'string | Error'.
+  Property 'message' does not exist on type 'string'.
+src/services/ocr-overlay/extractors/multi-quality-extractor.service.ts(99,15): error TS2740: Type '{}' is missing the following properties from type 'DynamicExtractionConfig': enableAdaptiveQuality, performanceTarget, qualityTarget, maxFileSize, and 2 more.
+src/services/ocr-overlay/extractors/multi-quality-extractor.service.ts(422,49): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(path: PathOrFileDescriptor, options?: { encoding?: null; flag?: string; }): NonSharedBuffer', gave the following error.
+    Object literal may only specify known properties, and 'start' does not exist in type '{ encoding?: null; flag?: string; }'.
+  Overload 2 of 3, '(path: PathOrFileDescriptor, options: BufferEncoding | { encoding: BufferEncoding; flag?: string; }): string', gave the following error.
+    Object literal may only specify known properties, and 'start' does not exist in type '{ encoding: BufferEncoding; flag?: string; }'.
+  Overload 3 of 3, '(path: PathOrFileDescriptor, options?: BufferEncoding | (ObjectEncodingOptions & { flag?: string; })): string | NonSharedBuffer', gave the following error.
+    Object literal may only specify known properties, and 'start' does not exist in type 'ObjectEncodingOptions & { flag?: string; }'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(22,10): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(34,45): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(34,69): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(34,115): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(49,23): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(50,22): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(53,35): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(54,23): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(86,35): error TS2339: Property 'path' does not exist on type 'BufferResponse'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(88,58): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(106,23): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(108,25): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(109,24): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(124,48): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(155,23): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(156,22): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(159,35): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(160,23): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(183,21): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(185,23): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(186,22): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(258,53): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(259,55): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(264,17): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(283,53): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/pdf2pic-extractor.service.ts(284,48): error TS2339: Property 'config' does not exist on type 'PDF2PicExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(23,10): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(35,45): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(35,69): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(78,33): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(107,22): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(108,25): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(108,57): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(123,23): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(125,25): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(126,24): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(188,33): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(200,20): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(201,23): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(201,55): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(216,21): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(218,23): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(219,22): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(363,53): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(364,55): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/extractors/puppeteer-extractor.service.ts(369,17): error TS2339: Property 'config' does not exist on type 'PuppeteerExtractorService'.
+src/services/ocr-overlay/generators/advanced-powerpoint.service.ts(132,9): error TS2353: Object literal may only specify known properties, and 'pageCount' does not exist in type 'ConversionResult'.
+src/services/ocr-overlay/generators/advanced-powerpoint.service.ts(849,32): error TS2339: Property 'width' does not exist on type 'PageImage'.
+src/services/ocr-overlay/generators/advanced-powerpoint.service.ts(849,55): error TS2339: Property 'height' does not exist on type 'PageImage'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(35,10): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(50,45): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(50,72): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(50,114): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(126,37): error TS2709: Cannot use namespace 'PptxGenJS' as a type.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(135,29): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(140,19): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(141,20): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(146,51): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(146,78): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(146,120): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(153,11): error TS2709: Cannot use namespace 'PptxGenJS' as a type.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(268,28): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(304,27): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(305,27): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(314,53): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(315,53): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(316,55): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(317,55): error TS2339: Property 'config' does not exist on type 'OverlayPowerPointService'.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(403,33): error TS2709: Cannot use namespace 'PptxGenJS' as a type.
+src/services/ocr-overlay/generators/overlay-powerpoint.service.ts(448,52): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(path: PathOrFileDescriptor, options?: { encoding?: null; flag?: string; }): NonSharedBuffer', gave the following error.
+    Object literal may only specify known properties, and 'start' does not exist in type '{ encoding?: null; flag?: string; }'.
+  Overload 2 of 3, '(path: PathOrFileDescriptor, options: BufferEncoding | { encoding: BufferEncoding; flag?: string; }): string', gave the following error.
+    Object literal may only specify known properties, and 'start' does not exist in type '{ encoding: BufferEncoding; flag?: string; }'.
+  Overload 3 of 3, '(path: PathOrFileDescriptor, options?: BufferEncoding | (ObjectEncodingOptions & { flag?: string; })): string | NonSharedBuffer', gave the following error.
+    Object literal may only specify known properties, and 'start' does not exist in type 'ObjectEncodingOptions & { flag?: string; }'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(51,23): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(51,36): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(59,23): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(59,36): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(59,54): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(59,65): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(67,23): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(67,36): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(67,49): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(67,66): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(75,23): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(75,36): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(75,58): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(83,23): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(83,43): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(83,60): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(83,71): error TS2322: Type 'string' is not assignable to type 'PreprocessingStep'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(226,27): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(339,77): error TS2345: Argument of type 'PreprocessingStep[]' is not assignable to parameter of type 'string[]'.
+  Type 'PreprocessingStep' is not assignable to type 'string'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(416,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(420,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(424,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(428,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(432,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(436,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(441,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(450,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(458,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(470,18): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(577,18): error TS2339: Property 'loadLanguage' does not exist on type 'Worker'.
+src/services/ocr-overlay/ocr/enhanced-ocr-engine.service.ts(578,18): error TS2551: Property 'initialize' does not exist on type 'Worker'. Did you mean 'reinitialize'?
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(36,10): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(47,45): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(47,82): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(47,119): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(114,16): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(115,37): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(143,24): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(156,24): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(169,16): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(189,23): error TS2349: This expression is not callable.
+  Type 'typeof sharp' has no call signatures.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(193,20): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(196,20): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(243,34): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(454,20): error TS2339: Property 'loadLanguage' does not exist on type 'Worker'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(455,20): error TS2551: Property 'initialize' does not exist on type 'Worker'. Did you mean 'reinitialize'?
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(518,64): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(528,33): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/ocr/tesseract-ocr.service.ts(532,30): error TS2339: Property 'config' does not exist on type 'TesseractOCRService'.
+src/services/ocr-overlay/optimization/performance-optimizer.service.ts(9,21): error TS2305: Module '"../types/ocr-overlay.types"' has no exported member 'ConversionConfig'.
+src/services/optimized-engine-selection.service.ts(523,11): error TS2322: Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/optimized-engine-selection.service.ts(535,11): error TS2322: Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/pdf.service.ts(380,49): error TS2345: Argument of type 'string | { filename: string; qualityResult?: QualityValidationResult; }' is not assignable to parameter of type 'string'.
+  Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/pdf.service.ts(386,13): error TS2322: Type 'string | { filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+  Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/pdf.service.ts(391,13): error TS2322: Type 'string | { filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+  Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/quality-enhanced-pdf.service.ts(122,15): error TS2588: Cannot assign to 'qualityReq' because it is a constant.
+src/services/quality-metrics-validator.service.ts(479,27): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(arrayBuffer: WithImplicitCoercion<ArrayBufferLike>, byteOffset?: number, length?: number): Buffer<ArrayBufferLike>', gave the following error.
+    Argument of type 'Buffer<ArrayBufferLike>' is not assignable to parameter of type 'WithImplicitCoercion<ArrayBufferLike>'.
+      Type 'Buffer<ArrayBufferLike>' is not assignable to type 'SharedArrayBuffer'.
+        The types of 'slice(...)[Symbol.toStringTag]' are incompatible between these types.
+          Type '"Uint8Array"' is not assignable to type '"SharedArrayBuffer"'.
+  Overload 2 of 4, '(string: WithImplicitCoercion<string>, encoding?: BufferEncoding): Buffer<ArrayBuffer>', gave the following error.
+    Argument of type 'Buffer<ArrayBufferLike>' is not assignable to parameter of type 'WithImplicitCoercion<string>'.
+      Type 'Buffer<ArrayBufferLike>' is not assignable to type '{ valueOf(): string; }'.
+        The types returned by 'valueOf()' are incompatible between these types.
+          Type 'Buffer<ArrayBufferLike>' is not assignable to type 'string'.
+src/services/quality-monitoring.service.ts(129,34): error TS2339: Property 'targetDPI' does not exist on type 'QualityValidationResult'.
+src/services/quality-monitoring.service.ts(131,38): error TS2339: Property 'targetQuality' does not exist on type 'QualityValidationResult'.
+src/services/semantic-validation-pdf.service.ts(134,7): error TS2322: Type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to type 'string'.
+src/services/semantic-validation-pdf.service.ts(386,37): error TS2345: Argument of type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to parameter of type 'string'.
+src/services/semantic-validation-pdf.service.ts(399,37): error TS2345: Argument of type '{ filename: string; qualityResult?: QualityValidationResult; }' is not assignable to parameter of type 'string'.
+src/services/stripe-webhook-processor.service.ts(45,22): error TS2769: No overload matches this call.
+  Overload 1 of 8, '(options: RedisOptions): Redis', gave the following error.
+    Object literal may only specify known properties, and 'retryDelayOnFailover' does not exist in type 'RedisOptions'.
+  Overload 2 of 8, '(port: number): Redis', gave the following error.
+    Argument of type '{ host: string; port: number; password: string; retryDelayOnFailover: number; enableReadyCheck: boolean; maxRetriesPerRequest: number; }' is not assignable to parameter of type 'number'.
+  Overload 3 of 8, '(path: string): Redis', gave the following error.
+    Argument of type '{ host: string; port: number; password: string; retryDelayOnFailover: number; enableReadyCheck: boolean; maxRetriesPerRequest: number; }' is not assignable to parameter of type 'string'.
+src/services/template-cache.service.ts(209,27): error TS2339: Property 'clear' does not exist on type 'WeakSet<object>'.
+src/services/transparency-handler.service.ts(107,27): error TS2339: Property 'metadata' does not exist on type 'ExtractedImage'.
+src/services/usage-tracking.service.ts(31,22): error TS2769: No overload matches this call.
+  Overload 1 of 8, '(options: RedisOptions): Redis', gave the following error.
+    Object literal may only specify known properties, and 'retryDelayOnFailover' does not exist in type 'RedisOptions'.
+  Overload 2 of 8, '(port: number): Redis', gave the following error.
+    Argument of type '{ host: string; port: number; password: string; retryDelayOnFailover: number; enableReadyCheck: boolean; maxRetriesPerRequest: number; }' is not assignable to parameter of type 'number'.
+  Overload 3 of 8, '(path: string): Redis', gave the following error.
+    Argument of type '{ host: string; port: number; password: string; retryDelayOnFailover: number; enableReadyCheck: boolean; maxRetriesPerRequest: number; }' is not assignable to parameter of type 'string'.
+src/workers/optimized-conversion.worker.ts(75,11): error TS2554: Expected 2-3 arguments, but got 4.
+src/workers/optimized-conversion.worker.ts(186,11): error TS2554: Expected 2 arguments, but got 3.
+src/workers/optimized-conversion.worker.ts(271,11): error TS2554: Expected 2-3 arguments, but got 4.

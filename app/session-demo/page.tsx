@@ -74,7 +74,7 @@ export default function SessionDemoPage() {
             🛡️ Session Management Demo
           </h1>
           <p className="text-gray-600">
-            Test the enhanced session management features of PDFCraft.Pro
+            Test the enhanced session management features of pdflab.pro
           </p>
         </div>
 

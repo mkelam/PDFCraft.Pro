@@ -1,5 +1,11 @@
--- PDFCraft.Pro Database Initialization Script
+-- pdflab.pro Database Initialization Script
 -- This script creates the required tables for production deployment
+
+-- Plan Limits Reference:
+-- Free:       3 conversions/month
+-- Starter:    100 conversions/month
+-- Pro:        -1 (unlimited)
+-- Enterprise: -1 (unlimited)
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
@@ -11,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     plan ENUM('free', 'starter', 'pro', 'enterprise') DEFAULT 'free',
     stripe_customer_id VARCHAR(255),
     conversions_used INT DEFAULT 0,
-    conversions_limit INT DEFAULT 3,
+    conversions_limit INT DEFAULT 3,  -- Free: 3, Starter: 100, Pro/Enterprise: -1 (unlimited)
     last_reset_date DATE DEFAULT (CURRENT_DATE),
     is_active BOOLEAN DEFAULT TRUE,
     email_verified BOOLEAN DEFAULT FALSE,
@@ -126,7 +132,7 @@ CREATE TABLE IF NOT EXISTS password_resets (
 -- Insert default admin user (password: 'admin123' - change in production!)
 INSERT IGNORE INTO users (email, password, plan, conversions_limit, first_name, last_name, email_verified)
 VALUES (
-    'admin@pdfcraft.pro',
+    'admin@pdflab.pro',
     '$2b$10$rqYwgpR0.Lq1.YrJ6WZUJuE7kP8p.Xkh5LW3GvqKbLh5TzXs1wGlO',
     'enterprise',
     -1,

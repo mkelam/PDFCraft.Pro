@@ -89,8 +89,8 @@ export class PositionAwarePDFService {
 
       // Create PowerPoint presentation
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro Position-Aware Engine';
-      pptx.company = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro Position-Aware Engine';
+      pptx.company = 'pdflab.pro';
       pptx.subject = 'High-Fidelity PDF Conversion';
 
       // Process each page with position-aware extraction

@@ -166,8 +166,8 @@ export class EnterprisePDFService {
       const pptx = new PptxGenJS();
 
       // Set presentation properties
-      pptx.author = 'PDFCraft.Pro';
-      pptx.company = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro';
+      pptx.company = 'pdflab.pro';
       pptx.title = 'Converted from PDF';
       pptx.subject = 'PDF to PowerPoint Conversion';
 
@@ -347,7 +347,7 @@ export class EnterprisePDFService {
       // Create optimized merged PDF
       const mergedPdf = await PDFDocument.create();
       mergedPdf.setTitle('Merged PDF Document');
-      mergedPdf.setProducer('PDFCraft.Pro Enterprise');
+      mergedPdf.setProducer('pdflab.pro Enterprise');
       mergedPdf.setCreationDate(new Date());
 
       let totalPages = 0;
@@ -435,7 +435,7 @@ export class EnterprisePDFService {
 
       // Create PowerPoint with advanced options
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro';
       pptx.company = 'Premium PDF Conversion';
       pptx.title = path.basename(inputPath, '.pdf');
 

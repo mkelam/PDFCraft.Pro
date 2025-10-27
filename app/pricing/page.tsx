@@ -245,7 +245,7 @@ export default function PricingPage() {
               <CardContent className="p-8">
                 <h3 className="text-2xl font-bold text-foreground mb-4">Ready to get started?</h3>
                 <p className="text-muted-foreground mb-6">
-                  Join thousands of professionals who trust PDF Craft Pro for their document conversion needs.
+                  Join thousands of professionals who trust PDF Lab Pro for their document conversion needs.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button

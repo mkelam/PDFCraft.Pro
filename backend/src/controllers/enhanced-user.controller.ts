@@ -1,5 +1,5 @@
 /**
- * Enhanced User Controller - PDFCraft.Pro
+ * Enhanced User Controller - pdflab.pro
  * Advanced user management with OCR Overlay conversion tracking
  * Provides comprehensive analytics and subscription management
  */

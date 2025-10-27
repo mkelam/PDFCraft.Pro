@@ -11,7 +11,7 @@ export const connectSQLite = async (): Promise<void> => {
     await fs.mkdir(dbDir, { recursive: true });
 
     // Connect to SQLite database
-    const dbPath = path.join(dbDir, 'pdfcraft.db');
+    const dbPath = path.join(dbDir, 'pdflab.db');
     db = new Database(dbPath);
 
     // Enable foreign keys

@@ -138,7 +138,7 @@ const createTables = async (): Promise<void> => {
       amount DECIMAL(10,2) NOT NULL,
       currency VARCHAR(3) DEFAULT 'ZAR',
       payment_provider ENUM('payfast') DEFAULT 'payfast',
-      status ENUM('pending', 'success', 'failed', 'abandoned', 'cancelled', 'COMPLETE', 'FAILED', 'CANCELLED') DEFAULT 'pending',
+      status ENUM('pending', 'success', 'failed', 'abandoned', 'cancelled', 'complete') DEFAULT 'pending',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       verified_at TIMESTAMP NULL,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

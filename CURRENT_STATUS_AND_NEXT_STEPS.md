@@ -299,7 +299,7 @@ export const createUser = async (userData: CreateUserData): Promise<AuthResult> 
 ## 💻 Server Information
 
 - **Port:** 3016 (development)
-- **Database:** SQLite (backend/data/pdfcraft.db)
+- **Database:** SQLite (backend/data/pdflab.db)
 - **Environment:** Development
 - **Node.js:** Latest LTS
 - **Framework:** Express.js + TypeScript
@@ -336,7 +336,7 @@ curl -X POST http://localhost:3016/api/convert/pdf-to-ppt \
 
 ### Get Verification Token:
 ```bash
-sqlite3 backend/data/pdfcraft.db "SELECT verification_token FROM users WHERE email='test@example.com';"
+sqlite3 backend/data/pdflab.db "SELECT verification_token FROM users WHERE email='test@example.com';"
 ```
 
 ### Verify Email:

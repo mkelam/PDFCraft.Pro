@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Log-Aware E2E Testing Script for PDFCraft.Pro
+# Log-Aware E2E Testing Script for pdflab.pro
 # Integrates comprehensive log analysis into CI/CD pipeline
 
 set -e
 
-PROJECT_ROOT="/c/Users/Mac/OneDrive/Desktop/Projects/PDFCraft.Pro"
+PROJECT_ROOT="/c/Users/Mac/OneDrive/Desktop/Projects/pdflab.pro"
 LOG_DIR="$PROJECT_ROOT/backend/logs"
 TEST_RESULTS_DIR="$PROJECT_ROOT/test-output"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -165,7 +165,7 @@ generate_test_report() {
     local report_file="$TEST_RESULTS_DIR/test_report_$TIMESTAMP.md"
 
     cat > "$report_file" << EOF
-# PDFCraft.Pro E2E Test Report with Log Analysis
+# pdflab.pro E2E Test Report with Log Analysis
 
 **Test Execution Time:** $(date -Iseconds)
 **Test Environment:** Development

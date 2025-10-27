@@ -1,5 +1,5 @@
 /**
- * Concurrent Processing Optimizer Service - PDFCraft.Pro
+ * Concurrent Processing Optimizer Service - pdflab.pro
  * CRITICAL FIX: Dramatically improves concurrent user performance
  * Implements intelligent resource management and load balancing
  */

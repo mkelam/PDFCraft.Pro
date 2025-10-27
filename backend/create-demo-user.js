@@ -2,7 +2,7 @@ const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'data', 'pdfcraft.db');
+const dbPath = path.join(__dirname, 'data', 'pdflab.db');
 const db = new Database(dbPath);
 
 // Hash the password
@@ -10,7 +10,7 @@ const password = 'Demo123!';
 const hashedPassword = bcrypt.hashSync(password, 10);
 
 // Create demo user directly
-const email = 'demo@pdfcraft.pro';
+const email = 'demo@pdflab.pro';
 
 // Check if user already exists
 const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);

@@ -1,5 +1,5 @@
 /**
- * Enhanced Session Manager - PDFCraft.Pro
+ * Enhanced Session Manager - pdflab.pro
  * Comprehensive session management with security, persistence, and auto-refresh
  */
 
@@ -96,7 +96,7 @@ export class SessionManager {
     try {
       // Store in localStorage with encryption-like encoding
       const encoded = btoa(JSON.stringify(sessionData));
-      localStorage.setItem('pdfcraft_session', encoded);
+      localStorage.setItem('pdflab_session', encoded);
 
       // Store individual items for AuthAPI compatibility
       AuthAPI.setToken(authResult.token);
@@ -125,7 +125,7 @@ export class SessionManager {
     if (typeof window === 'undefined') return null;
 
     try {
-      const encoded = localStorage.getItem('pdfcraft_session');
+      const encoded = localStorage.getItem('pdflab_session');
       if (!encoded) return null;
 
       const sessionData: SessionData = JSON.parse(atob(encoded));
@@ -167,7 +167,7 @@ export class SessionManager {
 
     try {
       const encoded = btoa(JSON.stringify(updatedSession));
-      localStorage.setItem('pdfcraft_session', encoded);
+      localStorage.setItem('pdflab_session', encoded);
 
       // Update AuthAPI storage as well
       if (updates.accessToken) {
@@ -189,7 +189,7 @@ export class SessionManager {
 
     try {
       // Clear all session-related storage
-      localStorage.removeItem('pdfcraft_session');
+      localStorage.removeItem('pdflab_session');
       AuthAPI.removeToken();
 
       // Clear timers
@@ -325,14 +325,14 @@ export class SessionManager {
     if (typeof window === 'undefined') return;
 
     this.storageListener = (e: StorageEvent) => {
-      if (e.key === 'pdfcraft_session_event') {
+      if (e.key === 'pdflab_session_event') {
         const eventData = e.newValue ? JSON.parse(e.newValue) : null;
 
         if (eventData) {
           switch (eventData.type) {
             case 'session_cleared':
               // Another tab logged out, clear this tab's session too
-              localStorage.removeItem('pdfcraft_session');
+              localStorage.removeItem('pdflab_session');
               AuthAPI.removeToken();
               window.location.reload();
               break;
@@ -360,11 +360,11 @@ export class SessionManager {
       timestamp: Date.now()
     };
 
-    localStorage.setItem('pdfcraft_session_event', JSON.stringify(eventData));
+    localStorage.setItem('pdflab_session_event', JSON.stringify(eventData));
 
     // Remove the event after a short delay to prevent interference
     setTimeout(() => {
-      localStorage.removeItem('pdfcraft_session_event');
+      localStorage.removeItem('pdflab_session_event');
     }, 100);
   }
 

@@ -1,4 +1,4 @@
-# PDFCraft.Pro Backend
+# pdflab.pro Backend
 
 Lightning-fast PDF processing API with conversion and merging capabilities.
 
@@ -30,7 +30,7 @@ cp .env.example .env
 ```bash
 # Create MySQL database
 mysql -u root -p
-CREATE DATABASE pdfcraft_db;
+CREATE DATABASE pdflab_db;
 ```
 
 4. **Start Redis**
@@ -100,7 +100,7 @@ curl http://localhost:3001/api/job/your-job-id/status
 PORT=3001
 NODE_ENV=development
 DB_HOST=localhost
-DB_NAME=pdfcraft_db
+DB_NAME=pdflab_db
 DB_USER=your_username
 DB_PASSWORD=your_password
 JWT_SECRET=your_jwt_secret
@@ -140,10 +140,10 @@ sudo systemctl enable redis-server
 2. **Deploy Application**
 ```bash
 # Upload code
-scp -r backend/ user@your-vps:/var/www/pdfcraft/
+scp -r backend/ user@your-vps:/var/www/pdflab/
 
 # Install dependencies
-cd /var/www/pdfcraft/backend
+cd /var/www/pdflab/backend
 npm ci --production
 
 # Build TypeScript
@@ -153,7 +153,7 @@ npm run build
 sudo npm install -g pm2
 
 # Start application
-pm2 start dist/server.js --name "pdfcraft-api"
+pm2 start dist/server.js --name "pdflab-api"
 pm2 startup
 pm2 save
 ```
@@ -162,7 +162,7 @@ pm2 save
 ```nginx
 server {
     listen 80;
-    server_name api.pdfcraft.pro;
+    server_name api.pdflab.pro;
 
     location / {
         proxy_pass http://localhost:3001;
@@ -257,7 +257,7 @@ pm2 status
 ### Log Files
 ```bash
 # Application logs
-pm2 logs pdfcraft-api
+pm2 logs pdflab-api
 
 # System logs
 tail -f /var/log/syslog

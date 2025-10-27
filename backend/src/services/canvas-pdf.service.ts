@@ -49,7 +49,7 @@ export class CanvasPDFService {
       const ppt = new PptxGenJS();
 
       // Set presentation properties
-      ppt.author = 'PDFCraft.Pro - Canvas Engine';
+      ppt.author = 'pdflab.pro - Canvas Engine';
       ppt.title = `${originalPdfName} - High Quality Conversion`;
       ppt.subject = 'PDF to PowerPoint Conversion with Canvas Rendering';
 

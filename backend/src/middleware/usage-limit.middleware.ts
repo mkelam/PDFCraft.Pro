@@ -1,5 +1,5 @@
 /**
- * Usage Limit Middleware - PDFCraft.Pro
+ * Usage Limit Middleware - pdflab.pro
  * CRITICAL FIX: Atomic usage limit enforcement
  * Prevents race condition that allowed unlimited free tier usage
  */

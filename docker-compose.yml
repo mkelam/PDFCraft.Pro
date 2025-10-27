@@ -1,52 +1,99 @@
 version: '3.8'
 
 services:
-  # PDFCraft.Pro Application
-  pdfcraft-app:
+  # Backend API Service
+  backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
-    container_name: pdfcraft-app
+    container_name: pdflab-backend
     restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV:-production}
       - PORT=3001
-      - DATABASE_URL=mysql://pdfcraft_user:${MYSQL_PASSWORD}@mysql:3306/pdfcraft_db
-      - REDIS_URL=redis://redis:6379
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${DB_NAME:-pdflab_db}
+      - DB_USER=${DB_USER:-pdflab_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - JWT_SECRET=${JWT_SECRET}
-      - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY}
-      - PAYSTACK_PUBLIC_KEY=${PAYSTACK_PUBLIC_KEY}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
+      - PAYFAST_MERCHANT_ID=${PAYFAST_MERCHANT_ID}
+      - PAYFAST_MERCHANT_KEY=${PAYFAST_MERCHANT_KEY}
+      - PAYFAST_PASSPHRASE=${PAYFAST_PASSPHRASE:-}
+      - PAYFAST_MODE=${PAYFAST_MODE:-sandbox}
+      - CLOUDCONVERT_API_KEY=${CLOUDCONVERT_API_KEY}
+      - CLOUDCONVERT_SANDBOX=${CLOUDCONVERT_SANDBOX:-false}
       - UPLOAD_DIR=/app/uploads
-      - MAX_FILE_SIZE=104857600
+      - TEMP_DIR=/app/temp
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE:-104857600}
       - LIBREOFFICE_AVAILABLE=true
       - GHOSTSCRIPT_AVAILABLE=true
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:3001}
     volumes:
       - uploads:/app/uploads
       - temp:/app/temp
       - logs:/app/logs
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
-      - pdfcraft-network
+      - pdflab-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
 
+  # Frontend Next.js Service
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: pdflab-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - NEXT_PUBLIC_API_URL=${BACKEND_URL:-http://localhost:3001}
+      - SKIP_ENV_VALIDATION=${SKIP_ENV_VALIDATION:-false}
+    depends_on:
+      - backend
+    networks:
+      - pdflab-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   # MySQL Database
   mysql:
     image: mysql:8.0
-    container_name: pdfcraft-mysql
+    container_name: pdflab-mysql
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=pdfcraft_db
-      - MYSQL_USER=pdfcraft_user
+      - MYSQL_DATABASE=${DB_NAME:-pdflab_db}
+      - MYSQL_USER=${DB_USER:-pdflab_user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
@@ -54,25 +101,26 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - pdfcraft-network
+      - pdflab-network
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
   # Redis for Queue Management
   redis:
     image: redis:7-alpine
-    container_name: pdfcraft-redis
+    container_name: pdflab-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - pdfcraft-network
+      - pdflab-network
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -83,7 +131,7 @@ services:
   # Nginx Reverse Proxy (Optional - for production)
   nginx:
     image: nginx:alpine
-    container_name: pdfcraft-nginx
+    container_name: pdflab-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -93,9 +141,10 @@ services:
       - ./nginx/ssl:/etc/ssl/certs
       - logs:/var/log/nginx
     depends_on:
-      - pdfcraft-app
+      - backend
+      - frontend
     networks:
-      - pdfcraft-network
+      - pdflab-network
     profiles:
       - production
 
@@ -112,5 +161,5 @@ volumes:
     driver: local
 
 networks:
-  pdfcraft-network:
+  pdflab-network:
     driver: bridge

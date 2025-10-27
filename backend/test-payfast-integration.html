@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayFast Integration Test - pdflab.pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-box.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .result-box.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .result-box pre {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .plan-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .plan-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .plan-card .price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .plan-card ul {
+            list-style: none;
+            text-align: left;
+            margin-top: 15px;
+        }
+
+        .plan-card li {
+            padding: 8px 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-badge.live {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-badge.sandbox {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .credentials-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .credentials-info strong {
+            color: #0066cc;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .endpoint-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .endpoint-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.85rem;
+        }
+
+        .method.get {
+            background: #28a745;
+            color: white;
+        }
+
+        .method.post {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 PayFast Integration Test</h1>
+            <p>pdflab.pro Payment Gateway Testing Interface</p>
+            <span class="status-badge live">Production Ready</span>
+        </div>
+
+        <div class="card credentials-info">
+            <h3>✅ Configured Credentials</h3>
+            <p><strong>Merchant ID:</strong> 25263515</p>
+            <p><strong>Merchant Key:</strong> cyxcghcf5hsbl (configured)</p>
+            <p><strong>Mode:</strong> Production (Live payments enabled)</p>
+            <p style="margin-top: 10px; color: #666;">
+                <em>Note: Switch to sandbox mode in development environment for safe testing.</em>
+            </p>
+        </div>
+
+        <!-- Test 1: Get Available Plans -->
+        <div class="card">
+            <h2>📋 Test 1: Get Available Plans</h2>
+            <p style="color: #666; margin-bottom: 20px;">Fetch all subscription plans from the API</p>
+
+            <button onclick="getPlans()">
+                <span id="plans-btn-text">Fetch Plans</span>
+                <span id="plans-loading" class="loading" style="display: none;"></span>
+            </button>
+
+            <div id="plans-result" class="result-box"></div>
+            <div id="plans-display" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Test 2: Initialize Payment -->
+        <div class="card">
+            <h2>💳 Test 2: Initialize Payment</h2>
+            <p style="color: #666; margin-bottom: 20px;">Create a payment request for a selected plan</p>
+
+            <form id="payment-form" onsubmit="initializePayment(event)">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" value="test@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="firstName" value="Test" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="lastName" value="User" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Subscription Plan</label>
+                    <select id="plan" required>
+                        <option value="">-- Select Plan --</option>
+                        <option value="starter">Starter - R129/month</option>
+                        <option value="pro">Pro - R349/month</option>
+                        <option value="enterprise">Enterprise - R1,799/month</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>User ID (Optional)</label>
+                    <input type="text" id="userId" value="test_user_123" placeholder="Leave blank for guest">
+                </div>
+
+                <button type="submit">
+                    <span id="payment-btn-text">Initialize Payment</span>
+                    <span id="payment-loading" class="loading" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div id="payment-result" class="result-box"></div>
+        </div>
+
+        <!-- Test 3: Check Payment Status -->
+        <div class="card">
+            <h2>🔍 Test 3: Check Payment Status</h2>
+            <p style="color: #666; margin-bottom: 20px;">Verify the status of a payment transaction</p>
+
+            <div class="form-group">
+                <label>Payment ID</label>
+                <input type="text" id="paymentId" placeholder="e.g., user_123_starter_1729728000000">
+            </div>
+
+            <button onclick="checkPaymentStatus()">
+                <span id="status-btn-text">Check Status</span>
+                <span id="status-loading" class="loading" style="display: none;"></span>
+            </button>
+
+            <div id="status-result" class="result-box"></div>
+        </div>
+
+        <!-- API Endpoints Reference -->
+        <div class="card">
+            <h2>🔗 Available API Endpoints</h2>
+            <div class="endpoint-list">
+                <ul style="list-style: none;">
+                    <li><span class="method get">GET</span> /api/payfast/plans</li>
+                    <li><span class="method post">POST</span> /api/payfast/initialize</li>
+                    <li><span class="method get">GET</span> /api/payfast/return</li>
+                    <li><span class="method get">GET</span> /api/payfast/cancel</li>
+                    <li><span class="method post">POST</span> /api/payfast/notify (Webhook)</li>
+                    <li><span class="method get">GET</span> /api/payfast/status/:paymentId</li>
+                    <li><span class="method get">GET</span> /api/payfast/history (Auth Required)</li>
+                    <li><span class="method post">POST</span> /api/payfast/cancel-subscription (Auth Required)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        // Test 1: Get Plans
+        async function getPlans() {
+            const btn = document.getElementById('plans-btn-text');
+            const loading = document.getElementById('plans-loading');
+            const resultBox = document.getElementById('plans-result');
+            const plansDisplay = document.getElementById('plans-display');
+
+            btn.style.display = 'none';
+            loading.style.display = 'inline-block';
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/payfast/plans`);
+                const data = await response.json();
+
+                resultBox.className = 'result-box success';
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = `
+                    <strong>✅ Success!</strong>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+
+                // Display plans in cards
+                if (data.success && data.data) {
+                    plansDisplay.innerHTML = '<h3 style="margin-bottom: 15px;">Available Plans:</h3>';
+                    const grid = document.createElement('div');
+                    grid.className = 'plans-grid';
+
+                    data.data.forEach(plan => {
+                        if (plan.id !== 'free') {
+                            const card = document.createElement('div');
+                            card.className = 'plan-card';
+                            card.innerHTML = `
+                                <h3>${plan.name}</h3>
+                                <div class="price">R${plan.price}</div>
+                                <p>per ${plan.interval}</p>
+                                <ul>
+                                    <li>💾 ${plan.features.conversionsPerMonth === -1 ? 'Unlimited' : plan.features.conversionsPerMonth} conversions</li>
+                                    <li>📄 ${(plan.features.maxFileSize / 1024 / 1024).toFixed(0)}MB max file size</li>
+                                    <li>${plan.features.ocrOverlayAccess ? '✅' : '❌'} OCR Overlay</li>
+                                    <li>${plan.features.advancedFeatures ? '✅' : '❌'} Advanced Features</li>
+                                    <li>${plan.features.apiAccess ? '✅' : '❌'} API Access</li>
+                                </ul>
+                            `;
+                            grid.appendChild(card);
+                        }
+                    });
+
+                    plansDisplay.appendChild(grid);
+                }
+            } catch (error) {
+                resultBox.className = 'result-box error';
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = `
+                    <strong>❌ Error!</strong>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                btn.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        }
+
+        // Test 2: Initialize Payment
+        async function initializePayment(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('payment-btn-text');
+            const loading = document.getElementById('payment-loading');
+            const resultBox = document.getElementById('payment-result');
+
+            btn.style.display = 'none';
+            loading.style.display = 'inline-block';
+            resultBox.style.display = 'none';
+
+            const payload = {
+                email: document.getElementById('email').value,
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                plan: document.getElementById('plan').value,
+                userId: document.getElementById('userId').value || undefined
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/payfast/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultBox.className = 'result-box success';
+                    resultBox.style.display = 'block';
+                    resultBox.innerHTML = `
+                        <strong>✅ Payment Initialized!</strong>
+                        <p><strong>Payment ID:</strong> ${data.data.payment_id}</p>
+                        <p><strong>Amount:</strong> R${data.data.amount}</p>
+                        <p><strong>Payment URL:</strong> <a href="${data.data.payment_url}" target="_blank">${data.data.payment_url}</a></p>
+                        <p style="margin-top: 15px;">
+                            <strong>Next Step:</strong> In production, the user would be redirected to PayFast to complete payment.
+                        </p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultBox.className = 'result-box error';
+                    resultBox.style.display = 'block';
+                    resultBox.innerHTML = `
+                        <strong>❌ Error!</strong>
+                        <p>${data.message}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultBox.className = 'result-box error';
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = `
+                    <strong>❌ Network Error!</strong>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                btn.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        }
+
+        // Test 3: Check Payment Status
+        async function checkPaymentStatus() {
+            const paymentId = document.getElementById('paymentId').value;
+
+            if (!paymentId) {
+                alert('Please enter a payment ID');
+                return;
+            }
+
+            const btn = document.getElementById('status-btn-text');
+            const loading = document.getElementById('status-loading');
+            const resultBox = document.getElementById('status-result');
+
+            btn.style.display = 'none';
+            loading.style.display = 'inline-block';
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/api/payfast/status/${paymentId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    resultBox.className = 'result-box success';
+                    resultBox.style.display = 'block';
+                    resultBox.innerHTML = `
+                        <strong>✅ Payment Found!</strong>
+                        <p><strong>Status:</strong> ${data.data.status}</p>
+                        <p><strong>Amount:</strong> ${data.data.currency} ${data.data.amount}</p>
+                        <p><strong>Plan:</strong> ${data.data.plan}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultBox.className = 'result-box error';
+                    resultBox.style.display = 'block';
+                    resultBox.innerHTML = `
+                        <strong>❌ Not Found!</strong>
+                        <p>${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                resultBox.className = 'result-box error';
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = `
+                    <strong>❌ Error!</strong>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                btn.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        }
+
+        // Auto-load plans on page load
+        window.addEventListener('load', () => {
+            getPlans();
+        });
+    </script>
+</body>
+</html>

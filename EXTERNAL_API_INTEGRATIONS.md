@@ -1,4 +1,4 @@
-# 🌐 PDFCraft.Pro - External API Integrations
+# 🌐 pdflab.pro - External API Integrations
 
 **Last Updated**: October 23, 2025
 **Status**: Most APIs Configured, Some Not Yet Enabled
@@ -25,7 +25,7 @@
 
 ## 🎯 **THE TRUTH: YOUR APP IS 99% SELF-HOSTED!**
 
-**Important**: Despite having external API integrations configured, **PDFCraft.Pro currently runs 100% locally** without requiring any external API calls for core functionality.
+**Important**: Despite having external API integrations configured, **pdflab.pro currently runs 100% locally** without requiring any external API calls for core functionality.
 
 **What This Means:**
 - ✅ **No API costs** for PDF conversions
@@ -270,7 +270,7 @@ PAYFAST_PASSPHRASE=your-secure-passphrase
 PAYFAST_MODE=production  # Change from 'sandbox'
 
 # 3. Configure webhook URL
-PAYFAST_NOTIFY_URL=https://api.pdfcraft.pro/api/payfast/webhook
+PAYFAST_NOTIFY_URL=https://api.pdflab.pro/api/payfast/webhook
 ```
 
 **Estimated Monthly API Calls**:
@@ -373,7 +373,7 @@ PAYFAST_NOTIFY_URL=https://api.pdfcraft.pro/api/payfast/webhook
 ```
 Host: smtp.hostinger.com
 Port: 587
-Your email: noreply@pdfcraft.pro
+Your email: noreply@pdflab.pro
 ```
 
 **Option B: SendGrid/Mailtrap** (Alternative)
@@ -539,10 +539,10 @@ PROVIDER_API_KEY=your-key-here
 PROVIDER_ENABLED=true
 
 # 3. Restart server
-pm2 restart pdfcraft-api
+pm2 restart pdflab-api
 
 # 4. Verify in logs
-pm2 logs pdfcraft-api
+pm2 logs pdflab-api
 ```
 
 ### **Security Best Practices**

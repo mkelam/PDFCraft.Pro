@@ -1,4 +1,4 @@
-# Email Setup Guide for PDFCraft.Pro
+# Email Setup Guide for pdflab.pro
 
 This guide explains how to configure email sending for user registration, verification, and notifications.
 
@@ -9,7 +9,7 @@ This guide explains how to configure email sending for user registration, verifi
 1. **Get Hostinger Email Credentials**:
    - Log into your Hostinger account
    - Go to Email → Email Accounts
-   - Create or use existing email: `noreply@pdfcraft.pro`
+   - Create or use existing email: `noreply@pdflab.pro`
    - Note the password
 
 2. **Configure Environment Variables**:
@@ -19,9 +19,9 @@ This guide explains how to configure email sending for user registration, verifi
    # Email Configuration
    SMTP_HOST=smtp.hostinger.com
    SMTP_PORT=587
-   SMTP_USER=noreply@pdfcraft.pro
+   SMTP_USER=noreply@pdflab.pro
    SMTP_PASSWORD=your_actual_password_here
-   SMTP_FROM=PDFCraft.Pro <noreply@pdfcraft.pro>
+   SMTP_FROM=pdflab.pro <noreply@pdflab.pro>
    FRONTEND_URL=http://localhost:3000
    ```
 
@@ -66,12 +66,12 @@ The system sends these emails:
    - Sent immediately after registration
 
 2. **Password Reset**
-   - Subject: "Reset Your PDFCraft.Pro Password"
+   - Subject: "Reset Your pdflab.pro Password"
    - Contains reset link (expires in 1 hour)
    - Sent when user requests password reset
 
 3. **Welcome Email** (Optional)
-   - Subject: "Welcome to PDFCraft.Pro"
+   - Subject: "Welcome to pdflab.pro"
    - Sent after email verification
 
 ## Troubleshooting
@@ -98,12 +98,12 @@ The system sends these emails:
      host: 'smtp.hostinger.com',
      port: 587,
      auth: {
-       user: 'noreply@pdfcraft.pro',
+       user: 'noreply@pdflab.pro',
        pass: 'YOUR_PASSWORD'
      }
    });
    transporter.sendMail({
-     from: 'noreply@pdfcraft.pro',
+     from: 'noreply@pdflab.pro',
      to: 'your-email@gmail.com',
      subject: 'Test',
      text: 'Test email'
@@ -120,7 +120,7 @@ The system sends these emails:
 
 **Issue**: Emails sent but not received
 - **Solution**: Check spam folder
-- Verify sender domain (pdfcraft.pro) has proper DNS records
+- Verify sender domain (pdflab.pro) has proper DNS records
 - Check Hostinger email quotas
 
 **Issue**: "Connection timeout"
@@ -137,16 +137,16 @@ For production deployment:
    NODE_ENV=production
    SMTP_HOST=smtp.hostinger.com
    SMTP_PORT=587
-   SMTP_USER=noreply@pdfcraft.pro
+   SMTP_USER=noreply@pdflab.pro
    SMTP_PASSWORD=production_password_here
-   SMTP_FROM=PDFCraft.Pro <noreply@pdfcraft.pro>
-   FRONTEND_URL=https://pdfcraft.pro
+   SMTP_FROM=pdflab.pro <noreply@pdflab.pro>
+   FRONTEND_URL=https://pdflab.pro
    ```
 
 2. **DNS Configuration**:
    - Add SPF record: `v=spf1 include:_spf.hostinger.com ~all`
    - Add DKIM record (get from Hostinger)
-   - Add DMARC record: `v=DMARC1; p=none; rua=mailto:postmaster@pdfcraft.pro`
+   - Add DMARC record: `v=DMARC1; p=none; rua=mailto:postmaster@pdflab.pro`
 
 3. **Email Limits**:
    - Hostinger typically allows 100-200 emails/hour
@@ -208,4 +208,4 @@ If you need help:
 ---
 
 *Last Updated: October 2025*
-*For: PDFCraft.Pro Email System*
+*For: pdflab.pro Email System*

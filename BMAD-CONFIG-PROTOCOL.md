@@ -25,8 +25,8 @@ export const SHARED_CONFIG = {
   production: {
     BACKEND_PORT: 8080,
     FRONTEND_PORT: 80,
-    API_BASE_URL: 'https://api.pdfcraft.pro',
-    CORS_ORIGINS: ['https://pdfcraft.pro']
+    API_BASE_URL: 'https://api.pdflab.pro',
+    CORS_ORIGINS: ['https://pdflab.pro']
   }
 }
 ```

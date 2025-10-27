@@ -510,7 +510,7 @@ npm ci --production
 
 4. **Restart Server**:
 ```bash
-pm2 restart pdfcraft-api
+pm2 restart pdflab-api
 # or
 npm run start:production
 ```
@@ -539,7 +539,7 @@ If issues arise, rollback is simple:
 
 # To rollback:
 git checkout previous-commit
-pm2 restart pdfcraft-api
+pm2 restart pdflab-api
 ```
 
 ---

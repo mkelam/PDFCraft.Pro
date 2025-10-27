@@ -1,0 +1,22 @@
+
+        # OCR TEST DOCUMENT - SIMPLE TEXT
+
+        This is a test document designed to validate OCR functionality.
+
+        ## Test Sections:
+        1. Simple paragraph text
+        2. Numbers and dates: 12/25/2024, $1,234.56
+        3. Mixed case: MixedCaseWords, UPPERCASE, lowercase
+        4. Special characters: @#$%^&*()_+{}[]|\:";'<>?,./
+
+        ## Accuracy Test Phrases:
+        - "The quick brown fox jumps over the lazy dog"
+        - "Pack my box with five dozen liquor jugs"
+        - "Sphinx of black quartz, judge my vow"
+
+        ## Numbers Test:
+        123456789 0987654321
+        π ≈ 3.14159265359
+
+        This document should achieve >90% OCR accuracy with properly configured engines.
+        

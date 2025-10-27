@@ -7,7 +7,7 @@ Complete guide for testing the email verification enforcement system.
 ### 1. Database Migration (REQUIRED)
 ```bash
 cd backend
-mysql -u root -p pdfcraft_db < src/migrations/003_auth_system.sql
+mysql -u root -p pdflab_db < src/migrations/003_auth_system.sql
 ```
 
 ### 2. Environment Variables
@@ -31,7 +31,7 @@ FRONTEND_URL=http://localhost:3020
 
 # Database
 DB_HOST=localhost
-DB_NAME=pdfcraft_db
+DB_NAME=pdflab_db
 DB_USER=root
 DB_PASSWORD=your-password
 ```
@@ -285,7 +285,7 @@ curl -X POST http://localhost:3015/api/auth/resend-verification \
 ### 4.4 Verify Email (Extract Token from Email or Database)
 ```bash
 # First, get token from database:
-mysql -u root -p -e "SELECT verification_token FROM pdfcraft_db.users WHERE email = 'test@example.com';"
+mysql -u root -p -e "SELECT verification_token FROM pdflab_db.users WHERE email = 'test@example.com';"
 
 # Then verify:
 curl -X GET http://localhost:3015/api/auth/verify-email/YOUR_VERIFICATION_TOKEN
@@ -385,15 +385,15 @@ mysql -u root -p -e "SHOW DATABASES;"
 ```
 
 ### Issue: Tables Don't Exist
-**Error:** `Table 'pdfcraft_db.users' doesn't exist`
+**Error:** `Table 'pdflab_db.users' doesn't exist`
 **Fix:**
 ```bash
 # Run migration
 cd backend
-mysql -u root -p pdfcraft_db < src/migrations/003_auth_system.sql
+mysql -u root -p pdflab_db < src/migrations/003_auth_system.sql
 
 # Verify tables created
-mysql -u root -p -e "SHOW TABLES FROM pdfcraft_db;"
+mysql -u root -p -e "SHOW TABLES FROM pdflab_db;"
 ```
 
 ### Issue: Email Not Sending

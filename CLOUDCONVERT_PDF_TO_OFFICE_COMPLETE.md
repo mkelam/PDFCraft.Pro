@@ -2,7 +2,7 @@
 
 ## Summary
 
-Successfully integrated CloudConvert's PDF to Office conversion capabilities into PDFCraft.Pro. The application now supports converting PDFs to multiple Office formats with industry-leading accuracy.
+Successfully integrated CloudConvert's PDF to Office conversion capabilities into pdflab.pro. The application now supports converting PDFs to multiple Office formats with industry-leading accuracy.
 
 ## Features Implemented
 

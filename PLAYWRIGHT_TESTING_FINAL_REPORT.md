@@ -155,7 +155,7 @@ taskkill /F /IM node.exe /FI "WINDOWTITLE eq Next.js*"
 rm -rf .next
 
 # Start fresh
-cd C:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro
+cd C:\Users\Mac\OneDrive\Desktop\Projects\pdflab.pro
 npm run dev
 ```
 
@@ -287,7 +287,7 @@ node playwright-office-conversion-test.js
 
 **Report Generated:** October 24, 2025
 **Engineer:** Claude Code
-**Project:** PDFCraft.Pro Playwright Testing
+**Project:** pdflab.pro Playwright Testing
 **Final Status:** 🎯 **TESTING COMPLETE - CONFIG FIXED - READY FOR PRODUCTION**
 
 ---

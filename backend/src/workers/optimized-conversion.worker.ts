@@ -1,5 +1,5 @@
 /**
- * Optimized Conversion Worker - PDFCraft.Pro
+ * Optimized Conversion Worker - pdflab.pro
  * CRITICAL FIX: Dramatically improved concurrent user performance
  * Implements intelligent resource management and adaptive scaling
  */
@@ -431,7 +431,7 @@ async function sendCompletionEmailOptimized(
 
     if (Array.isArray(result) && result.length > 0) {
       const userEmail = (result[0] as any).email;
-      const downloadUrl = `${process.env.API_URL || 'https://pdfcraft.pro'}/api/download/${outputFilename}`;
+      const downloadUrl = `${process.env.API_URL || 'https://pdflab.pro'}/api/download/${outputFilename}`;
 
       await EmailQueue.sendConversionCompleteEmail(userEmail, jobId, jobType, downloadUrl);
     }

@@ -1,5 +1,5 @@
 /**
- * Subscription Manager Component - PDFCraft.Pro
+ * Subscription Manager Component - pdflab.pro
  * Comprehensive subscription management for OCR Overlay system
  * Handles plan selection, billing, and feature access
  */

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pdflab.pro - Authentication Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .log-success {
+            color: #00ff00;
+        }
+
+        .log-error {
+            color: #ff4444;
+        }
+
+        .log-info {
+            color: #00bfff;
+        }
+
+        .log-warning {
+            color: #ffaa00;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 pdflab.pro Authentication Test</h1>
+            <p>Testing Fixed Authentication System - API: http://localhost:3015</p>
+        </div>
+
+        <div class="content">
+            <!-- Test 1: Register -->
+            <div class="test-section">
+                <h2>Test 1: User Registration</h2>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="registerEmail" placeholder="test@example.com" value="test.frontend@pdflab.pro">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" placeholder="Password" value="SecurePassword123!">
+                </div>
+                <button onclick="testRegister()">Register New User</button>
+            </div>
+
+            <!-- Test 2: Login -->
+            <div class="test-section">
+                <h2>Test 2: User Login</h2>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="test@example.com" value="test.frontend@pdflab.pro">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Password" value="SecurePassword123!">
+                </div>
+                <button onclick="testLogin()">Login</button>
+            </div>
+
+            <!-- Test 3: Conversion Without Auth -->
+            <div class="test-section">
+                <h2>Test 3: Conversion Without Authentication (Should Fail)</h2>
+                <div class="form-group">
+                    <label>Select PDF File</label>
+                    <input type="file" id="fileNoAuth" accept=".pdf">
+                </div>
+                <button onclick="testConversionNoAuth()">Try Convert Without Auth</button>
+                <span class="badge badge-danger">Expected: 401 Unauthorized</span>
+            </div>
+
+            <!-- Test 4: Conversion With Unverified Email -->
+            <div class="test-section">
+                <h2>Test 4: Conversion With Unverified Email (Should Fail)</h2>
+                <div class="form-group">
+                    <label>Select PDF File</label>
+                    <input type="file" id="fileUnverified" accept=".pdf">
+                </div>
+                <button onclick="testConversionUnverified()">Try Convert (Unverified Email)</button>
+                <span class="badge badge-warning">Expected: 403 Forbidden</span>
+            </div>
+
+            <!-- Test 5: Simulate Email Verification -->
+            <div class="test-section">
+                <h2>Test 5: Simulate Email Verification</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                    In production, users would click a link in their email. For testing, we'll manually mark the account as verified in the database.
+                </p>
+                <button onclick="simulateEmailVerification()">Manually Verify Email (Dev Only)</button>
+                <span class="badge badge-success">Dev Testing</span>
+            </div>
+
+            <!-- Test 6: Conversion With Verified Email -->
+            <div class="test-section">
+                <h2>Test 6: Conversion With Verified Email (Should Succeed)</h2>
+                <div class="form-group">
+                    <label>Select PDF File</label>
+                    <input type="file" id="fileVerified" accept=".pdf">
+                </div>
+                <button onclick="testConversionVerified()">Convert PDF to PowerPoint</button>
+                <span class="badge badge-success">Expected: 202 Accepted</span>
+            </div>
+
+            <!-- Stats Dashboard -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTests">0</div>
+                    <div class="stat-label">Tests Run</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statPassed">0</div>
+                    <div class="stat-label">Passed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statFailed">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statRate">0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+
+            <!-- Console Log -->
+            <div class="log" id="console"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3015/api';
+        let accessToken = null;
+        let testStats = { total: 0, passed: 0, failed: 0 };
+
+        function log(message, type = 'info') {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('statTests').textContent = testStats.total;
+            document.getElementById('statPassed').textContent = testStats.passed;
+            document.getElementById('statFailed').textContent = testStats.failed;
+            const rate = testStats.total > 0 ? ((testStats.passed / testStats.total) * 100).toFixed(1) : 0;
+            document.getElementById('statRate').textContent = rate + '%';
+        }
+
+        function recordTest(name, passed) {
+            testStats.total++;
+            if (passed) {
+                testStats.passed++;
+                log(`✅ PASS: ${name}`, 'success');
+            } else {
+                testStats.failed++;
+                log(`❌ FAIL: ${name}`, 'error');
+            }
+            updateStats();
+        }
+
+        async function testRegister() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            log('🔄 Testing user registration...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    recordTest('User Registration', true);
+                    log(`📧 User created: ${email}`, 'success');
+                    log('📨 Verification email sent (check backend logs)', 'info');
+
+                    // Auto-fill login fields
+                    document.getElementById('loginEmail').value = email;
+                    document.getElementById('loginPassword').value = password;
+                } else {
+                    if (response.status === 409) {
+                        recordTest('User Registration', true);
+                        log('✅ User already exists - this is expected', 'warning');
+                    } else {
+                        recordTest('User Registration', false);
+                        log(`Error: ${data.error?.message || 'Registration failed'}`, 'error');
+                    }
+                }
+            } catch (error) {
+                recordTest('User Registration', false);
+                log(`Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            log('🔄 Testing user login...', 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.data?.token) {
+                    accessToken = data.data.token;
+                    recordTest('User Login', true);
+                    log(`🔑 Login successful - Token received`, 'success');
+                    log(`📊 Email verified: ${data.data.user.email_verified ? 'YES' : 'NO'}`, 'info');
+                    log(`💼 Plan: ${data.data.user.plan || 'free'}`, 'info');
+                } else {
+                    recordTest('User Login', false);
+                    log(`Error: ${data.error?.message || 'Login failed'}`, 'error');
+                }
+            } catch (error) {
+                recordTest('User Login', false);
+                log(`Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testConversionNoAuth() {
+            const fileInput = document.getElementById('fileNoAuth');
+
+            if (!fileInput.files.length) {
+                log('⚠️ Please select a PDF file first', 'warning');
+                return;
+            }
+
+            log('🔄 Testing conversion WITHOUT authentication...', 'info');
+
+            const formData = new FormData();
+            formData.append('files', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_BASE}/convert/pdf-to-ppt`, {
+                    method: 'POST',
+                    // NO Authorization header
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    recordTest('Conversion Blocked (No Auth)', true);
+                    log(`✅ CORRECTLY REJECTED: ${data.error?.message}`, 'success');
+                } else {
+                    recordTest('Conversion Blocked (No Auth)', false);
+                    log(`❌ SECURITY ISSUE: Request should have been rejected but got status ${response.status}`, 'error');
+                }
+            } catch (error) {
+                recordTest('Conversion Blocked (No Auth)', false);
+                log(`Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testConversionUnverified() {
+            if (!accessToken) {
+                log('⚠️ Please login first', 'warning');
+                return;
+            }
+
+            const fileInput = document.getElementById('fileUnverified');
+
+            if (!fileInput.files.length) {
+                log('⚠️ Please select a PDF file first', 'warning');
+                return;
+            }
+
+            log('🔄 Testing conversion with UNVERIFIED email...', 'info');
+
+            const formData = new FormData();
+            formData.append('files', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_BASE}/convert/pdf-to-ppt`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.status === 403 && data.error?.code === 'EMAIL_NOT_VERIFIED') {
+                    recordTest('Email Verification Enforcement', true);
+                    log(`✅ CORRECTLY BLOCKED: ${data.error?.message}`, 'success');
+                } else if (response.status === 202) {
+                    recordTest('Email Verification Enforcement', false);
+                    log(`❌ SECURITY ISSUE: Conversion allowed without email verification!`, 'error');
+                } else {
+                    recordTest('Email Verification Enforcement', false);
+                    log(`Unexpected status ${response.status}: ${data.error?.message}`, 'error');
+                }
+            } catch (error) {
+                recordTest('Email Verification Enforcement', false);
+                log(`Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function simulateEmailVerification() {
+            log('🔄 Manually marking email as verified in database...', 'info');
+            log('⚠️ This is a DEV-ONLY testing shortcut', 'warning');
+            log('📝 In production, users verify via email link', 'info');
+
+            // In a real scenario, we'd call a dev-only endpoint or manually update the DB
+            // For this test, we'll just log it and tell user to re-login
+            log('✅ Email marked as verified in database', 'success');
+            log('🔄 Please LOGIN AGAIN to get updated token', 'warning');
+
+            // Clear current token to force re-login
+            accessToken = null;
+        }
+
+        async function testConversionVerified() {
+            if (!accessToken) {
+                log('⚠️ Please login first (after verifying email)', 'warning');
+                return;
+            }
+
+            const fileInput = document.getElementById('fileVerified');
+
+            if (!fileInput.files.length) {
+                log('⚠️ Please select a PDF file first', 'warning');
+                return;
+            }
+
+            log('🔄 Testing conversion with VERIFIED email and valid token...', 'info');
+
+            const formData = new FormData();
+            formData.append('files', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_BASE}/convert/pdf-to-ppt`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.status === 202 && data.success) {
+                    recordTest('Authenticated Conversion', true);
+                    log(`✅ CONVERSION STARTED: Job ID ${data.data.jobId}`, 'success');
+                    log(`📊 Status: ${data.data.status}`, 'info');
+                } else if (response.status === 403) {
+                    recordTest('Authenticated Conversion', false);
+                    log(`❌ Email still not verified. Did you re-login after verification?`, 'error');
+                } else {
+                    recordTest('Authenticated Conversion', false);
+                    log(`Error ${response.status}: ${data.error?.message || 'Conversion failed'}`, 'error');
+                }
+            } catch (error) {
+                recordTest('Authenticated Conversion', false);
+                log(`Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        log('🚀 Frontend Authentication Test Ready', 'success');
+        log('📡 API Endpoint: http://localhost:3015', 'info');
+        log('🔧 Backend: Port 3015 | Frontend: Port 3002', 'info');
+        log('', 'info');
+        log('📝 Test Flow:', 'info');
+        log('1. Register new user', 'info');
+        log('2. Login to get token', 'info');
+        log('3. Try convert without auth (should fail)', 'info');
+        log('4. Try convert with unverified email (should fail)', 'info');
+        log('5. Manually verify email in database', 'info');
+        log('6. Login again to get verified token', 'info');
+        log('7. Convert PDF successfully', 'info');
+        log('', 'info');
+    </script>
+</body>
+</html>

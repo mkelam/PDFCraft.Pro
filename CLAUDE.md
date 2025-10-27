@@ -1,10 +1,10 @@
-# CLAUDE.md - PDFCraft.Pro Project Guide
+# CLAUDE.md - pdflab.pro Project Guide
 
-This file provides comprehensive guidance to Claude Code when working with the PDFCraft.Pro codebase.
+This file provides comprehensive guidance to Claude Code when working with the pdflab.pro codebase.
 
 ## Project Overview
 
-**PDFCraft.Pro** is a revolutionary PDF processing application with one core breakthrough feature:
+**pdflab.pro** is a revolutionary PDF processing application with one core breakthrough feature:
 1. **OCR-Enhanced PDF-to-PowerPoint Conversion** - Transform any PDF (including scanned/image-heavy documents) into fully editable PowerPoints while preserving visual layout and structure (<5 second target)
 2. **PDF Merging** - Combine multiple PDFs efficiently (<2 second target)
 
@@ -42,11 +42,11 @@ Backend (COMPLETED)
 **Primary Platform**: Windows 11
 **Hosting**: Hostinger VPS ($8.99/mo)
 **Deployment**: Hostinger + Vercel
-**Domain**: pdfcraft.pro
+**Domain**: pdflab.pro
 
 ### Key Directories
 ```
-PDFCraft.Pro/
+pdflab.pro/
 ├── app/                    # Next.js frontend (COMPLETE)
 ├── components/             # React components (COMPLETE)
 ├── backend/               # Express API (IN DEVELOPMENT)
@@ -202,7 +202,7 @@ NODE_ENV=development
 
 # Database (Hostinger MySQL)
 DB_HOST=localhost
-DB_NAME=pdfcraft_db
+DB_NAME=pdflab_db
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 
@@ -265,17 +265,17 @@ mysql -h hostname -u username -p database_name
 ### Deployment Steps
 ```bash
 # 1. Upload code to VPS
-scp -r backend/ user@vps-ip:/var/www/pdfcraft/
+scp -r backend/ user@vps-ip:/var/www/pdflab/
 
 # 2. Install dependencies
-cd /var/www/pdfcraft/backend
+cd /var/www/pdflab/backend
 npm ci --production
 
 # 3. Build TypeScript
 npm run build
 
 # 4. Start with PM2
-pm2 start dist/server.js --name "pdfcraft-api"
+pm2 start dist/server.js --name "pdflab-api"
 pm2 startup
 pm2 save
 ```
@@ -504,10 +504,10 @@ perf: optimize LibreOffice conversion pipeline
 cd backend && npm run dev
 
 # Check backend logs
-pm2 logs pdfcraft-api
+pm2 logs pdflab-api
 
 # Database backup
-mysqldump -u user -p pdfcraft_db > backup.sql
+mysqldump -u user -p pdflab_db > backup.sql
 
 # Redis monitoring
 redis-cli monitor

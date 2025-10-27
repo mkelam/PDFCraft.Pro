@@ -1,4 +1,4 @@
-// API utilities for PDFCraft.Pro backend communication
+// API utilities for pdflab.pro backend communication
 import { CONFIG } from '@/config/shared.config'
 
 // Use BMAD shared configuration to prevent endpoint drift
@@ -37,7 +37,7 @@ export interface HealthResponse {
 // Global token expiration warning handler
 let onTokenWarning: ((warning: any) => void) | null = null;
 
-export class PDFCraftAPI {
+export class pdflabAPI {
   /**
    * Set global token warning handler
    */
@@ -443,4 +443,4 @@ export const {
   formatFileSize,
   validatePDFFile,
   triggerDownload,
-} = PDFCraftAPI;
+} = pdflabAPI;

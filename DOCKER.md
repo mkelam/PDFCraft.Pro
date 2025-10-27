@@ -1,6 +1,6 @@
-# PDFCraft.Pro Docker Deployment Guide
+# pdflab.pro Docker Deployment Guide
 
-This guide will help you deploy PDFCraft.Pro using Docker on your Hostinger VPS or any other server.
+This guide will help you deploy pdflab.pro using Docker on your Hostinger VPS or any other server.
 
 ## 🚀 Quick Start
 
@@ -14,8 +14,8 @@ This guide will help you deploy PDFCraft.Pro using Docker on your Hostinger VPS 
 
 ```bash
 # Clone the repository
-git clone <your-repo-url> /var/www/pdfcraft
-cd /var/www/pdfcraft
+git clone <your-repo-url> /var/www/pdflab
+cd /var/www/pdflab
 
 # Copy environment file
 cp .env.production .env
@@ -73,7 +73,7 @@ docker-compose up -d
 docker-compose ps
 
 # View logs
-docker-compose logs -f pdfcraft-app
+docker-compose logs -f pdflab-app
 ```
 
 ### Verify Deployment
@@ -102,7 +102,7 @@ curl http://localhost:3002/api/health
 
 The Docker setup includes:
 
-- **pdfcraft-app**: Main Node.js application
+- **pdflab-app**: Main Node.js application
 - **mysql**: MySQL 8.0 database
 - **redis**: Redis for job queues
 - **nginx**: Reverse proxy (optional, for production)
@@ -150,12 +150,12 @@ docker-compose --profile production up -d nginx
 docker-compose logs
 
 # Specific service
-docker-compose logs pdfcraft-app
+docker-compose logs pdflab-app
 docker-compose logs mysql
 docker-compose logs redis
 
 # Follow logs in real-time
-docker-compose logs -f pdfcraft-app
+docker-compose logs -f pdflab-app
 ```
 
 ### Monitor Resources
@@ -173,10 +173,10 @@ df -h
 
 ```bash
 # Create backup
-docker-compose exec mysql mysqldump -u root -p pdfcraft_db > backup_$(date +%Y%m%d).sql
+docker-compose exec mysql mysqldump -u root -p pdflab_db > backup_$(date +%Y%m%d).sql
 
 # Restore backup
-docker-compose exec -T mysql mysql -u root -p pdfcraft_db < backup_20241201.sql
+docker-compose exec -T mysql mysql -u root -p pdflab_db < backup_20241201.sql
 ```
 
 ## 🔄 Updates and Maintenance
@@ -197,7 +197,7 @@ docker-compose up -d
 
 ```bash
 # Scale app instances
-docker-compose up -d --scale pdfcraft-app=3
+docker-compose up -d --scale pdflab-app=3
 
 # Use load balancer (nginx) to distribute requests
 ```
@@ -230,10 +230,10 @@ docker-compose up -d
 **File processing errors:**
 ```bash
 # Check if LibreOffice is working
-docker-compose exec pdfcraft-app libreoffice --version
+docker-compose exec pdflab-app libreoffice --version
 
 # Check available disk space
-docker-compose exec pdfcraft-app df -h /app/uploads
+docker-compose exec pdflab-app df -h /app/uploads
 ```
 
 ### Performance Optimization
@@ -244,7 +244,7 @@ docker-compose exec pdfcraft-app df -h /app/uploads
 ```yaml
 # In docker-compose.yml
 services:
-  pdfcraft-app:
+  pdflab-app:
     deploy:
       resources:
         limits:
@@ -296,10 +296,10 @@ If you encounter issues:
 docker-compose ps && curl -s http://localhost:3001/api/health
 
 # Restart specific service
-docker-compose restart pdfcraft-app
+docker-compose restart pdflab-app
 
 # Update single service
-docker-compose up -d --no-deps pdfcraft-app
+docker-compose up -d --no-deps pdflab-app
 
 # Clean up unused containers
 docker system prune -f

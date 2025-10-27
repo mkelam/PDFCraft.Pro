@@ -1,12 +1,12 @@
 /**
- * QUALITY VALIDATION MIDDLEWARE - PDFCraft.Pro
+ * QUALITY VALIDATION MIDDLEWARE - pdflab.pro
  *
  * Addresses BMAD Party-Mode quality validation inconsistencies:
  * - 7/9 quality tests failed due to inconsistent DPI/quality output
  * - Implements strict quality validation and enforcement
  * - Ensures consistent output meeting target thresholds
  *
- * Quality Targets (from PDFCraft.Pro requirements):
+ * Quality Targets (from pdflab.pro requirements):
  * - Minimum DPI: 150 (for readable text)
  * - Target DPI: 200-300 (for high quality)
  * - Quality Level: 75-95% (format dependent)

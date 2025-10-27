@@ -136,7 +136,7 @@ After saving, verify:
 - [ ] Return URL is correct (no typos!)
 - [ ] Cancel URL is correct (no typos!)
 - [ ] Notify URL is correct (no typos!)
-- [ ] All URLs use `pdflab.pro` (not pdfcraft.pro!)
+- [ ] All URLs use `pdflab.pro` (not pdflab.pro!)
 - [ ] All URLs use `https://` (not http://)
 - [ ] All URLs start with `api.pdflab.pro` (not just pdflab.pro!)
 - [ ] ITN/IPN is **ENABLED**
@@ -151,7 +151,7 @@ After saving, verify:
 ```
 http://pdflab.pro/...           (Missing 'api' subdomain)
 https://pdflab.pro/...           (Missing 'api' subdomain)
-https://api.pdfcraft.pro/...     (Old domain!)
+https://api.pdflab.pro/...     (Old domain!)
 ```
 
 ### ✅ CORRECT URLs

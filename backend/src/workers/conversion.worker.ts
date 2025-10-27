@@ -137,7 +137,7 @@ setTimeout(() => {
       try {
         const userEmail = await getUserEmail(userId);
         if (userEmail) {
-          const downloadUrl = `${process.env.API_URL || 'https://pdfcraft.pro'}/api/download/${outputFilename}`;
+          const downloadUrl = `${process.env.API_URL || 'https://pdflab.pro'}/api/download/${outputFilename}`;
           await EmailQueue.sendConversionCompleteEmail(userEmail, jobId, 'pdf-to-ppt', downloadUrl);
         }
       } catch (error) {
@@ -248,7 +248,7 @@ setTimeout(() => {
       try {
         const userEmail = await getUserEmail(userId);
         if (userEmail) {
-          const downloadUrl = `${process.env.API_URL || 'https://pdfcraft.pro'}/api/download/${outputFilename}`;
+          const downloadUrl = `${process.env.API_URL || 'https://pdflab.pro'}/api/download/${outputFilename}`;
           await EmailQueue.sendConversionCompleteEmail(userEmail, jobId, 'pdf-merge', downloadUrl);
         }
       } catch (error) {
@@ -335,7 +335,7 @@ setTimeout(() => {
         try {
           const userEmail = await getUserEmail(userId);
           if (userEmail) {
-            const downloadUrl = `${process.env.API_URL || 'https://pdfcraft.pro'}/api/download/${outputFilename}`;
+            const downloadUrl = `${process.env.API_URL || 'https://pdflab.pro'}/api/download/${outputFilename}`;
             await EmailQueue.sendConversionCompleteEmail(userEmail, jobId, 'pdf-to-images', downloadUrl);
           }
         } catch (error) {

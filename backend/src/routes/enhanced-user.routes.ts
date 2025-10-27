@@ -1,5 +1,5 @@
 /**
- * Enhanced User Routes - PDFCraft.Pro
+ * Enhanced User Routes - pdflab.pro
  * Advanced user management with OCR Overlay analytics
  * Provides comprehensive user dashboard and subscription management
  */

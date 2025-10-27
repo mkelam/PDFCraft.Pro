@@ -1,6 +1,6 @@
 /**
  * Real-time Log Monitoring Service for E2E Testing
- * PDFCraft.Pro - Intelligent log analysis during test execution
+ * pdflab.pro - Intelligent log analysis during test execution
  */
 
 import fs from 'fs';
@@ -48,7 +48,7 @@ export class LogMonitoringService extends EventEmitter {
   private metrics: LogMetrics;
   private testSession: string | null = null;
 
-  // Predefined critical patterns for PDFCraft.Pro
+  // Predefined critical patterns for pdflab.pro
   private patterns: LogPattern[] = [
     {
       name: 'PDF_CONVERSION_FAILURE',

@@ -1,5 +1,5 @@
 /**
- * ENHANCED SECURITY MIDDLEWARE - PDFCraft.Pro
+ * ENHANCED SECURITY MIDDLEWARE - pdflab.pro
  *
  * Addresses critical vulnerabilities identified in BMAD Party-Mode testing:
  * - Network share path validation (\\network-share\malicious.exe)

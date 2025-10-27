@@ -95,8 +95,8 @@ export class WorkingPDFService {
 
       // Step 3: Create HIGH-QUALITY PowerPoint with REAL content
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro';
-      pptx.company = 'PDFCraft.Pro - Enhanced Conversion';
+      pptx.author = 'pdflab.pro';
+      pptx.company = 'pdflab.pro - Enhanced Conversion';
       pptx.title = path.basename(inputPath, '.pdf');
       pptx.subject = 'Converted from PDF with visual structure and content preservation';
 
@@ -447,7 +447,7 @@ export class WorkingPDFService {
 
       const mergedPdf = await PDFDocument.create();
       mergedPdf.setTitle('Merged PDF Document');
-      mergedPdf.setProducer('PDFCraft.Pro Working Service');
+      mergedPdf.setProducer('pdflab.pro Working Service');
       mergedPdf.setCreationDate(new Date());
 
       let totalPages = 0;

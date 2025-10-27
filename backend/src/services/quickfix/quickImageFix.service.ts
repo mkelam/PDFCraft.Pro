@@ -256,8 +256,8 @@ export class QuickImageFixService {
     // Configure PPTX for better quality
     pptx.layout = 'LAYOUT_WIDE';
     pptx.theme = { headFontFace: 'Arial', bodyFontFace: 'Arial' };
-    pptx.author = 'PDFCraft.Pro';
-    pptx.company = 'PDFCraft.Pro';
+    pptx.author = 'pdflab.pro';
+    pptx.company = 'pdflab.pro';
 
     try {
       // Read all image files
@@ -435,8 +435,8 @@ export class QuickImageFixService {
 
     // CRITICAL: Configure for maximum quality
     (pptx as any).compression = false;
-    pptx.author = 'PDFCraft.Pro';
-    pptx.company = 'PDFCraft.Pro';
+    pptx.author = 'pdflab.pro';
+    pptx.company = 'pdflab.pro';
 
     // Group images by page
     const imagesByPage = new Map<number, any[]>();

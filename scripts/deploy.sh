@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# PDFCraft.Pro Deployment Script for Hostinger VPS
+# pdflab.pro Deployment Script for Hostinger VPS
 # Run this script on your Hostinger VPS to deploy the application
 
 set -e  # Exit on any error
 
-echo "🚀 Starting PDFCraft.Pro deployment..."
+echo "🚀 Starting pdflab.pro deployment..."
 
 # Configuration
-APP_NAME="pdfcraft-pro"
-REPO_URL="https://github.com/yourusername/pdfcraft-pro.git"  # Update with your repo
-APP_DIR="/var/www/pdfcraft"
+APP_NAME="pdflab-pro"
+REPO_URL="https://github.com/yourusername/pdflab-pro.git"  # Update with your repo
+APP_DIR="/var/www/pdflab"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 
 # Colors for output
@@ -109,7 +109,7 @@ if docker-compose ps | grep -q "Up"; then
 
     echo ""
     echo_info "🎉 Deployment completed successfully!"
-    echo_info "Your PDFCraft.Pro application should be accessible at:"
+    echo_info "Your pdflab.pro application should be accessible at:"
     echo_info "  - http://your-server-ip:3001"
     echo_info "  - Health check: http://your-server-ip:3001/api/health"
     echo ""
@@ -127,4 +127,4 @@ fi
 
 # Show logs
 echo_info "Recent application logs:"
-docker-compose logs --tail=20 pdfcraft-app
+docker-compose logs --tail=20 pdflab-app

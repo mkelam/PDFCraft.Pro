@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 
 /**
  * ImageMagick Wrapper Service
- * Professional-grade image processing for PDFCraft.Pro
+ * Professional-grade image processing for pdflab.pro
  */
 export class ImageMagickWrapper {
   private static readonly IMAGEMAGICK_PATHS = [

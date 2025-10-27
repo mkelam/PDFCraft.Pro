@@ -38,7 +38,7 @@ async function testPDFConversion() {
     const page = pdfDoc.addPage();
     const { width, height } = page.getSize();
 
-    page.drawText('PDFCraft.Pro Live Test', {
+    page.drawText('pdflab.pro Live Test', {
       x: 50,
       y: height - 100,
       size: 24,

@@ -1,5 +1,5 @@
 /**
- * User Dashboard Component - PDFCraft.Pro
+ * User Dashboard Component - pdflab.pro
  * Comprehensive user analytics and management dashboard
  * Displays OCR Overlay conversion history and statistics
  */

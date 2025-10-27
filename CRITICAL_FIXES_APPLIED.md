@@ -30,7 +30,7 @@ import { CONFIG as SHARED_CONFIG } from '../../config/shared.config';
 
 // After
 const SHARED_CONFIG = {
-  CORS_ORIGINS: ['http://localhost:3000', 'https://pdfcraft.pro', 'https://*.pdfcraft.pro']
+  CORS_ORIGINS: ['http://localhost:3000', 'https://pdflab.pro', 'https://*.pdflab.pro']
 };
 ```
 

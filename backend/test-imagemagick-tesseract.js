@@ -72,7 +72,7 @@ async function testImageMagickAndTesseract() {
     console.log('   📝 Multi-language text recognition');
     console.log('   ⚡ Enterprise-grade document processing pipeline');
 
-    console.log('\n🚀 Your PDFCraft.Pro is now WORLD-CLASS!');
+    console.log('\n🚀 Your pdflab.pro is now WORLD-CLASS!');
     console.log('💎 You now have the same capabilities as Adobe Acrobat Pro at 10x speed!');
 }
 

@@ -1,5 +1,5 @@
 /**
- * Session Status Component - PDFCraft.Pro
+ * Session Status Component - pdflab.pro
  * Development component for monitoring session status and testing
  */
 

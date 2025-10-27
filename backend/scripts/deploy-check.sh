@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# PDFCraft.Pro Development Deployment Check Script
+# pdflab.pro Development Deployment Check Script
 # Prevents deployment of code with compilation errors
 
 set -e
 
-echo "🔍 PDFCraft.Pro Deployment Check Starting..."
+echo "🔍 pdflab.pro Deployment Check Starting..."
 
 # Step 1: TypeScript Compilation Check
 echo "📝 Step 1: Checking TypeScript compilation..."
@@ -69,7 +69,7 @@ fi
 echo "✅ Node modules check passed"
 
 echo ""
-echo "🎉 PDFCraft.Pro Deployment Check PASSED!"
+echo "🎉 pdflab.pro Deployment Check PASSED!"
 echo "✅ Ready for deployment to production"
 echo ""
 echo "Next steps:"

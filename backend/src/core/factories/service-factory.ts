@@ -431,7 +431,7 @@ export class AbstractServiceFactory {
           }),
           database: this.dbFactory.create({
             type: 'mysql',
-            options: { host: 'mysql-prod', database: 'pdfcraft' }
+            options: { host: 'mysql-prod', database: 'pdflab' }
           }),
           queue: this.queueFactory.create({
             type: 'redis',
@@ -457,7 +457,7 @@ export class AbstractServiceFactory {
           }),
           database: this.dbFactory.create({
             type: 'mysql',
-            options: { host: 'mysql-staging', database: 'pdfcraft_staging' }
+            options: { host: 'mysql-staging', database: 'pdflab_staging' }
           }),
           queue: this.queueFactory.create({
             type: 'memory'

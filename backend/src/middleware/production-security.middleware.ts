@@ -1,7 +1,7 @@
 /**
  * PRODUCTION SECURITY MIDDLEWARE INTEGRATION
  *
- * Integrates enhanced security hardening into existing PDFCraft.Pro server
+ * Integrates enhanced security hardening into existing pdflab.pro server
  * Addresses BMAD Party-Mode critical vulnerabilities while maintaining compatibility
  */
 

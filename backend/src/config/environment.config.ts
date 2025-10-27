@@ -66,7 +66,7 @@ const createEnvironmentConfig = (): EnvironmentConfig => {
     },
 
     processing: {
-      tempDir: process.env.TEMP_DIR || '/tmp/pdfcraft',
+      tempDir: process.env.TEMP_DIR || '/tmp/pdflab',
       maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '104857600'), // 100MB
       timeout: 60000,
       cleanupInterval: 3600000 // 1 hour

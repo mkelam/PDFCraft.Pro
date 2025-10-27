@@ -25,7 +25,7 @@ export function Navigation() {
             <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
               <FileText className="w-4 h-4 text-primary" />
             </div>
-            <span className="font-semibold text-lg">PDF Craft Pro</span>
+            <span className="font-semibold text-lg">PDF Lab Pro</span>
           </Link>
 
           {/* Desktop Navigation */}

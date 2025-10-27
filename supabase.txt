@@ -1,0 +1,10 @@
+Project URL: https://ljpdurgvrqunyxkbzntn.supabase.co
+
+API: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqcGR1cmd2cnF1bnl4a2J6bnRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NzA0NTcsImV4cCI6MjA3NDE0NjQ1N30.fpTEqF37rN8boZihfU1Wy-bwJzCMuds-JzRCPWORCRQ
+
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://ljpdurgvrqunyxkbzntn.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)

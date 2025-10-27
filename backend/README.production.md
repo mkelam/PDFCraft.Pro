@@ -1,4 +1,4 @@
-# PDFCraft.Pro Backend - Production Ready
+# pdflab.pro Backend - Production Ready
 
 ## 🚀 Quick Start Production Deployment
 
@@ -104,8 +104,8 @@ PORT=3001
 
 # Database (Hostinger MySQL)
 DB_HOST=your-mysql-host.hostinger.com
-DB_NAME=u123456789_pdfcraft
-DB_USER=u123456789_pdfcraft
+DB_NAME=u123456789_pdflab
+DB_USER=u123456789_pdflab
 DB_PASSWORD=your-secure-password
 
 # Redis
@@ -114,16 +114,16 @@ REDIS_PORT=6379
 
 # Security
 JWT_SECRET=your-super-secure-jwt-secret-minimum-32-characters
-CORS_ORIGIN=https://pdfcraft.pro,https://www.pdfcraft.pro
+CORS_ORIGIN=https://pdflab.pro,https://www.pdflab.pro
 
 # Stripe
 STRIPE_SECRET_KEY=sk_live_your_live_stripe_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
 # Paths
-UPLOAD_DIR=/var/www/pdfcraft/uploads
-TEMP_DIR=/var/www/pdfcraft/temp
-LOG_DIR=/var/log/pdfcraft
+UPLOAD_DIR=/var/www/pdflab/uploads
+TEMP_DIR=/var/www/pdflab/temp
+LOG_DIR=/var/log/pdflab
 ```
 
 ## 🚀 Deployment Options
@@ -131,8 +131,8 @@ LOG_DIR=/var/log/pdfcraft
 ### Option A: Traditional VPS (Hostinger)
 ```bash
 # 1. Clone and setup
-git clone https://github.com/yourusername/pdfcraft-pro.git /var/www/pdfcraft
-cd /var/www/pdfcraft/backend
+git clone https://github.com/yourusername/pdflab-pro.git /var/www/pdflab
+cd /var/www/pdflab/backend
 
 # 2. Configure environment
 cp .env.production .env
@@ -173,7 +173,7 @@ pm2 monit
 ./monitoring/dashboard.sh
 
 # Log monitoring
-tail -f /var/log/pdfcraft/combined.log
+tail -f /var/log/pdflab/combined.log
 ```
 
 ### Automated Maintenance
@@ -202,7 +202,7 @@ tail -f /var/log/pdfcraft/combined.log
 
 ### Infrastructure ✅
 - [x] VPS provisioned (2GB+ RAM, 2+ CPU cores)
-- [x] Domain configured (pdfcraft.pro)
+- [x] Domain configured (pdflab.pro)
 - [x] SSL certificate installed
 - [x] Firewall configured (ports 80, 443, 22)
 
@@ -236,7 +236,7 @@ tail -f /var/log/pdfcraft/combined.log
 
 ### Quick Restart
 ```bash
-pm2 restart pdfcraft-api
+pm2 restart pdflab-api
 ```
 
 ### Emergency Rollback
@@ -246,7 +246,7 @@ pm2 restart pdfcraft-api
 
 ### View Live Logs
 ```bash
-pm2 logs pdfcraft-api --lines 100
+pm2 logs pdflab-api --lines 100
 ```
 
 ### Database Emergency Access
@@ -260,10 +260,10 @@ mysql -h $DB_HOST -u $DB_USER -p $DB_NAME
 1. Check PM2 status: `pm2 status`
 2. Check system resources: `htop`
 3. Check queue status: `curl http://localhost:3001/health`
-4. Restart if needed: `pm2 restart pdfcraft-api`
+4. Restart if needed: `pm2 restart pdflab-api`
 
 ### Application Errors
-1. View logs: `pm2 logs pdfcraft-api`
+1. View logs: `pm2 logs pdflab-api`
 2. Check health: `curl http://localhost:3001/health`
 3. Verify database: `mysql -h $DB_HOST -u $DB_USER -p -e "SELECT 1"`
 4. Check Redis: `redis-cli ping`
@@ -285,7 +285,7 @@ mysql -h $DB_HOST -u $DB_USER -p $DB_NAME
 - **Memory Usage**: <80% of available RAM
 - **CPU Usage**: <70% average load
 
-**🚀 PDFCraft.Pro Backend v1.0.0 - Production Ready**
+**🚀 pdflab.pro Backend v1.0.0 - Production Ready**
 
 *Generated: December 2024*
 *Next Review: January 2025*

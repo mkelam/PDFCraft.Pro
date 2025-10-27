@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# PDFCraft.Pro Production Monitoring Setup
+# pdflab.pro Production Monitoring Setup
 # This script sets up monitoring, logging, and alerting for the production environment
 
 set -e
 
-echo "🔍 Setting up production monitoring for PDFCraft.Pro..."
+echo "🔍 Setting up production monitoring for pdflab.pro..."
 
 # Create monitoring directories
-sudo mkdir -p /var/log/pdfcraft /var/www/pdfcraft/monitoring
+sudo mkdir -p /var/log/pdflab /var/www/pdflab/monitoring
 
 # Install PM2 monitoring tools
 echo "📊 Installing PM2 monitoring..."
@@ -25,12 +25,12 @@ echo "⚡ Configuring PM2 monitoring..."
 pm2 install pm2-server-monit
 
 # Create log monitoring script
-cat > /var/www/pdfcraft/monitoring/log-monitor.sh << 'EOF'
+cat > /var/www/pdflab/monitoring/log-monitor.sh << 'EOF'
 #!/bin/bash
 
 # Monitor application logs for errors and send alerts
-LOG_FILE="/var/log/pdfcraft/error.log"
-ALERT_EMAIL="admin@pdfcraft.pro"
+LOG_FILE="/var/log/pdflab/error.log"
+ALERT_EMAIL="admin@pdflab.pro"
 LAST_CHECK_FILE="/tmp/last-log-check"
 
 if [[ ! -f "$LAST_CHECK_FILE" ]]; then
@@ -45,7 +45,7 @@ if [[ $NEW_ERRORS -gt 0 ]]; then
 
     # Send email alert (requires mailutils to be installed)
     if command -v mail &> /dev/null; then
-        tail -n 50 "$LOG_FILE" | mail -s "PDFCraft.Pro Error Alert" "$ALERT_EMAIL"
+        tail -n 50 "$LOG_FILE" | mail -s "pdflab.pro Error Alert" "$ALERT_EMAIL"
     fi
 
     # Update last check timestamp
@@ -53,10 +53,10 @@ if [[ $NEW_ERRORS -gt 0 ]]; then
 fi
 EOF
 
-chmod +x /var/www/pdfcraft/monitoring/log-monitor.sh
+chmod +x /var/www/pdflab/monitoring/log-monitor.sh
 
 # Create system resource monitoring
-cat > /var/www/pdfcraft/monitoring/resource-monitor.sh << 'EOF'
+cat > /var/www/pdflab/monitoring/resource-monitor.sh << 'EOF'
 #!/bin/bash
 
 # Monitor system resources and alert if thresholds are exceeded
@@ -68,7 +68,7 @@ CPU_THRESHOLD=80
 MEMORY_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100.0}')
 if [[ $MEMORY_USAGE -gt $MEMORY_THRESHOLD ]]; then
     echo "⚠️ High memory usage: ${MEMORY_USAGE}%"
-    pm2 restart pdfcraft-api
+    pm2 restart pdflab-api
 fi
 
 # Check disk usage
@@ -76,8 +76,8 @@ DISK_USAGE=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
 if [[ $DISK_USAGE -gt $DISK_THRESHOLD ]]; then
     echo "⚠️ High disk usage: ${DISK_USAGE}%"
     # Cleanup old files
-    find /var/www/pdfcraft/uploads -type f -mtime +1 -delete
-    find /var/www/pdfcraft/temp -type f -mtime +1 -delete
+    find /var/www/pdflab/uploads -type f -mtime +1 -delete
+    find /var/www/pdflab/temp -type f -mtime +1 -delete
 fi
 
 # Check CPU usage (5-minute average)
@@ -92,12 +92,12 @@ fi
 echo "📊 Resource usage - Memory: ${MEMORY_USAGE}%, Disk: ${DISK_USAGE}%, CPU: ${CPU_PERCENTAGE}%"
 EOF
 
-chmod +x /var/www/pdfcraft/monitoring/resource-monitor.sh
+chmod +x /var/www/pdflab/monitoring/resource-monitor.sh
 
 # Set up crontab for monitoring
 echo "⏰ Setting up monitoring cron jobs..."
-(crontab -l 2>/dev/null; echo "*/5 * * * * /var/www/pdfcraft/monitoring/resource-monitor.sh >> /var/log/pdfcraft/monitoring.log 2>&1") | crontab -
-(crontab -l 2>/dev/null; echo "*/10 * * * * /var/www/pdfcraft/monitoring/log-monitor.sh >> /var/log/pdfcraft/monitoring.log 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "*/5 * * * * /var/www/pdflab/monitoring/resource-monitor.sh >> /var/log/pdflab/monitoring.log 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "*/10 * * * * /var/www/pdflab/monitoring/log-monitor.sh >> /var/log/pdflab/monitoring.log 2>&1") | crontab -
 
 # Install basic monitoring tools
 echo "🛠️  Installing monitoring tools..."
@@ -114,12 +114,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 # Create monitoring dashboard script
-cat > /var/www/pdfcraft/monitoring/dashboard.sh << 'EOF'
+cat > /var/www/pdflab/monitoring/dashboard.sh << 'EOF'
 #!/bin/bash
 
 # Simple monitoring dashboard
 clear
-echo "==================== PDFCraft.Pro Monitoring Dashboard ===================="
+echo "==================== pdflab.pro Monitoring Dashboard ===================="
 echo "🕒 Current Time: $(date)"
 echo "⏱️  Server Uptime: $(uptime -p)"
 echo ""
@@ -140,18 +140,18 @@ echo "Queue: $QUEUE_STATS"
 echo ""
 
 echo "🌐 Recent API Activity (last 10 requests):"
-tail -n 10 /var/log/pdfcraft/combined.log | jq -r '.timestamp + " " + .method + " " + .url + " " + (.status|tostring) + " " + .duration'
+tail -n 10 /var/log/pdflab/combined.log | jq -r '.timestamp + " " + .method + " " + .url + " " + (.status|tostring) + " " + .duration'
 
 echo "==================== End Dashboard ===================="
 EOF
 
-chmod +x /var/www/pdfcraft/monitoring/dashboard.sh
+chmod +x /var/www/pdflab/monitoring/dashboard.sh
 
 echo "✅ Monitoring setup completed!"
 echo ""
 echo "📋 Monitoring Commands:"
-echo "   • View dashboard: /var/www/pdfcraft/monitoring/dashboard.sh"
-echo "   • Check resources: /var/www/pdfcraft/monitoring/resource-monitor.sh"
-echo "   • View logs: tail -f /var/log/pdfcraft/combined.log"
+echo "   • View dashboard: /var/www/pdflab/monitoring/dashboard.sh"
+echo "   • Check resources: /var/www/pdflab/monitoring/resource-monitor.sh"
+echo "   • View logs: tail -f /var/log/pdflab/combined.log"
 echo "   • PM2 monitoring: pm2 monit"
 echo "   • System stats: htop"

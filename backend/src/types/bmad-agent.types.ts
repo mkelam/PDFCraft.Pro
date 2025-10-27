@@ -2,7 +2,7 @@
  * BMAD AI AGENT TYPE DEFINITIONS
  *
  * Comprehensive TypeScript interfaces for BMAD AI agent integration
- * into the PDFCraft.Pro service container architecture
+ * into the pdflab.pro service container architecture
  */
 
 import { ConversionResult, ConversionOptions } from './pdf-conversion.types';

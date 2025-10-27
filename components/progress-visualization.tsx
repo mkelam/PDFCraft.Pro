@@ -1,5 +1,5 @@
 /**
- * Progress Visualization Component - PDFCraft.Pro
+ * Progress Visualization Component - pdflab.pro
  * Real-time visualization of OCR Overlay conversion progress
  * Shows phase-by-phase progress with enhanced metrics
  */
@@ -14,7 +14,7 @@ import {
   Image, Brain, FileText, BarChart3, Zap, CheckCircle, Clock,
   Camera, Palette, Search, LayoutGrid, Presentation, Shield
 } from 'lucide-react';
-import { EnhancedPDFCraftAPI, ConversionProgress } from '@/lib/enhanced-api';
+import { EnhancedpdflabAPI, ConversionProgress } from '@/lib/enhanced-api';
 
 interface ProgressVisualizationProps {
   jobId: string;
@@ -93,7 +93,7 @@ export default function ProgressVisualization({ jobId, onComplete, onError }: Pr
 
     const pollStatus = async () => {
       try {
-        const status = await EnhancedPDFCraftAPI.getEnhancedJobStatus(jobId);
+        const status = await EnhancedpdflabAPI.getEnhancedJobStatus(jobId);
         setCurrentStatus(status);
 
         const job = status.job;
@@ -225,11 +225,11 @@ export default function ProgressVisualization({ jobId, onComplete, onError }: Pr
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center gap-1 text-gray-600">
               <Clock className="h-4 w-4" />
-              <span>Elapsed: {EnhancedPDFCraftAPI.formatProcessingTime(progress.timeElapsed)}</span>
+              <span>Elapsed: {EnhancedpdflabAPI.formatProcessingTime(progress.timeElapsed)}</span>
             </div>
             {progress.estimatedTimeRemaining > 0 && (
               <span className="text-gray-600">
-                Remaining: {EnhancedPDFCraftAPI.formatProcessingTime(progress.estimatedTimeRemaining)}
+                Remaining: {EnhancedpdflabAPI.formatProcessingTime(progress.estimatedTimeRemaining)}
               </span>
             )}
           </div>

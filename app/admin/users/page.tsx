@@ -59,7 +59,7 @@ export default function UserManagementPage() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('authToken')
-      const response = await fetch('http://localhost:3016/api/admin/stats', {
+      const response = await fetch('http://localhost:3015/api/admin/stats', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -88,7 +88,7 @@ export default function UserManagementPage() {
         ...(verifiedFilter !== 'all' && { verified: verifiedFilter })
       })
 
-      const response = await fetch(`http://localhost:3016/api/admin/users?${params}`, {
+      const response = await fetch(`http://localhost:3015/api/admin/users?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -115,7 +115,7 @@ export default function UserManagementPage() {
 
     try {
       const token = localStorage.getItem('authToken')
-      const response = await fetch(`http://localhost:3016/api/admin/users/${userId}/verify`, {
+      const response = await fetch(`http://localhost:3015/api/admin/users/${userId}/verify`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -140,7 +140,7 @@ export default function UserManagementPage() {
 
     try {
       const token = localStorage.getItem('authToken')
-      const response = await fetch(`http://localhost:3016/api/admin/users/${userId}/reset-usage`, {
+      const response = await fetch(`http://localhost:3015/api/admin/users/${userId}/reset-usage`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -164,7 +164,7 @@ export default function UserManagementPage() {
 
     try {
       const token = localStorage.getItem('authToken')
-      const response = await fetch(`http://localhost:3016/api/admin/users/${userId}`, {
+      const response = await fetch(`http://localhost:3015/api/admin/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

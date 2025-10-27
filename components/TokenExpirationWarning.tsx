@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, X } from "lucide-react"
-import { PDFCraftAPI } from "@/lib/api"
+import { pdflabAPI } from "@/lib/api"
 
 interface TokenWarning {
   message: string
@@ -18,7 +18,7 @@ export function TokenExpirationWarning() {
 
   useEffect(() => {
     // Set up the token warning handler
-    PDFCraftAPI.setTokenWarningHandler((tokenWarning: TokenWarning) => {
+    pdflabAPI.setTokenWarningHandler((tokenWarning: TokenWarning) => {
       setWarning(tokenWarning)
       setIsDismissed(false)
     })

@@ -1,6 +1,6 @@
-# Social Authentication Setup Guide - PDFCraft.Pro
+# Social Authentication Setup Guide - pdflab.pro
 
-This guide will help you set up Google, Facebook, and LinkedIn authentication for PDFCraft.Pro.
+This guide will help you set up Google, Facebook, and LinkedIn authentication for pdflab.pro.
 
 ## Prerequisites
 
@@ -18,13 +18,13 @@ This guide will help you set up Google, Facebook, and LinkedIn authentication fo
 3. Enable "Google+ API" and "Google OAuth2 API"
 4. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client IDs"
 5. Configure OAuth consent screen:
-   - Application name: "PDFCraft.Pro"
-   - Authorized domains: `localhost`, `pdfcraft.pro`
+   - Application name: "pdflab.pro"
+   - Authorized domains: `localhost`, `pdflab.pro`
 6. Create OAuth 2.0 Client ID:
    - Application type: "Web application"
    - Authorized redirect URIs:
      - Development: `http://localhost:3000/api/auth/callback/google`
-     - Production: `https://pdfcraft.pro/api/auth/callback/google`
+     - Production: `https://pdflab.pro/api/auth/callback/google`
 
 ### 1.2 Get Google Credentials
 
@@ -48,7 +48,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 4. Configure Facebook Login settings:
    - Valid OAuth Redirect URIs:
      - Development: `http://localhost:3000/api/auth/callback/facebook`
-     - Production: `https://pdfcraft.pro/api/auth/callback/facebook`
+     - Production: `https://pdflab.pro/api/auth/callback/facebook`
 
 ### 2.2 Get Facebook Credentials
 
@@ -69,13 +69,13 @@ FACEBOOK_CLIENT_SECRET=your-facebook-app-secret
 1. Go to [LinkedIn Developers](https://www.linkedin.com/developers/)
 2. Create a new app
 3. Fill in basic information:
-   - App name: "PDFCraft.Pro"
+   - App name: "pdflab.pro"
    - Company: Your company
-   - Privacy policy URL: `https://pdfcraft.pro/privacy`
+   - Privacy policy URL: `https://pdflab.pro/privacy`
    - App logo: Upload your logo
 4. In "Auth" tab, add redirect URLs:
    - Development: `http://localhost:3000/api/auth/callback/linkedin`
-   - Production: `https://pdfcraft.pro/api/auth/callback/linkedin`
+   - Production: `https://pdflab.pro/api/auth/callback/linkedin`
 
 ### 3.2 Get LinkedIn Credentials
 
@@ -166,13 +166,13 @@ PAYFAST_SANDBOX=true
 For production deployment, update all OAuth applications with production URLs:
 
 **Google:**
-- `https://pdfcraft.pro/api/auth/callback/google`
+- `https://pdflab.pro/api/auth/callback/google`
 
 **Facebook:**
-- `https://pdfcraft.pro/api/auth/callback/facebook`
+- `https://pdflab.pro/api/auth/callback/facebook`
 
 **LinkedIn:**
-- `https://pdfcraft.pro/api/auth/callback/linkedin`
+- `https://pdflab.pro/api/auth/callback/linkedin`
 
 ### 6.2 Production Environment Variables
 
@@ -180,7 +180,7 @@ Set in your hosting platform (Vercel, Netlify, etc.):
 
 ```bash
 NEXTAUTH_SECRET=your-production-secret
-NEXTAUTH_URL=https://pdfcraft.pro
+NEXTAUTH_URL=https://pdflab.pro
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 FACEBOOK_CLIENT_ID=your-facebook-app-id

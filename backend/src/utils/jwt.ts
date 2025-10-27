@@ -20,8 +20,8 @@ export const generateToken = (userId: number, email: string): string => {
 
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRATION,
-    issuer: 'pdfcraft-pro',
-    audience: 'pdfcraft-users',
+    issuer: 'pdflab-pro',
+    audience: 'pdflab-users',
   });
 };
 
@@ -33,8 +33,8 @@ export const generateToken = (userId: number, email: string): string => {
 export const verifyToken = (token: string): JWTPayload | null => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'pdfcraft-pro',
-      audience: 'pdfcraft-users',
+      issuer: 'pdflab-pro',
+      audience: 'pdflab-users',
     }) as JWTPayload;
 
     return decoded;
@@ -59,8 +59,8 @@ export const generateRefreshToken = (userId: number, email: string): string => {
 
   return jwt.sign(payload, JWT_REFRESH_SECRET, {
     expiresIn: JWT_REFRESH_EXPIRATION,
-    issuer: 'pdfcraft-pro',
-    audience: 'pdfcraft-users',
+    issuer: 'pdflab-pro',
+    audience: 'pdflab-users',
   });
 };
 
@@ -72,8 +72,8 @@ export const generateRefreshToken = (userId: number, email: string): string => {
 export const verifyRefreshToken = (token: string): JWTPayload | null => {
   try {
     const decoded = jwt.verify(token, JWT_REFRESH_SECRET, {
-      issuer: 'pdfcraft-pro',
-      audience: 'pdfcraft-users',
+      issuer: 'pdflab-pro',
+      audience: 'pdflab-users',
     }) as JWTPayload;
 
     // Ensure it's a refresh token
@@ -115,8 +115,8 @@ export const generateResetToken = (userId: number, email: string): string => {
 
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: '1h', // 1 hour for password reset
-    issuer: 'pdfcraft-pro',
-    audience: 'pdfcraft-users',
+    issuer: 'pdflab-pro',
+    audience: 'pdflab-users',
   });
 };
 
@@ -128,8 +128,8 @@ export const generateResetToken = (userId: number, email: string): string => {
 export const verifyResetToken = (token: string): JWTPayload | null => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'pdfcraft-pro',
-      audience: 'pdfcraft-users',
+      issuer: 'pdflab-pro',
+      audience: 'pdflab-users',
     }) as JWTPayload;
 
     // Ensure it's a reset token

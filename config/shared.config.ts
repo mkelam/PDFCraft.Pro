@@ -40,10 +40,10 @@ export const SHARED_CONFIG: Record<'development' | 'production', ServiceConfig> 
   production: {
     BACKEND_PORT: 8080,
     FRONTEND_PORT: 80,
-    API_BASE_URL: 'https://api.pdfcraft.pro',
+    API_BASE_URL: 'https://api.pdflab.pro',
     CORS_ORIGINS: [
-      'https://pdfcraft.pro',
-      'https://www.pdfcraft.pro'
+      'https://pdflab.pro',
+      'https://www.pdflab.pro'
     ],
     DATABASE_PORT: 3306,
     REDIS_PORT: 6379

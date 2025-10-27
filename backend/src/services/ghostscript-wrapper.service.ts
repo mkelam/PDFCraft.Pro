@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 
 /**
  * Ghostscript Wrapper Service
- * Advanced PDF processing capabilities for PDFCraft.Pro
+ * Advanced PDF processing capabilities for pdflab.pro
  */
 export class GhostscriptWrapper {
   private static readonly GHOSTSCRIPT_PATHS = [

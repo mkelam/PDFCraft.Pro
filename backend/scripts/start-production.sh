@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# PDFCraft.Pro Production Startup Script
+# pdflab.pro Production Startup Script
 # This script starts the application in production mode
 
 set -e
 
-PROJECT_DIR="/var/www/pdfcraft/backend"
-LOG_DIR="/var/log/pdfcraft"
+PROJECT_DIR="/var/www/pdflab/backend"
+LOG_DIR="/var/log/pdflab"
 
-echo "🚀 Starting PDFCraft.Pro in production mode..."
+echo "🚀 Starting pdflab.pro in production mode..."
 
 # Change to project directory
 cd "$PROJECT_DIR"
@@ -49,7 +49,7 @@ npm run build
 # Create necessary directories
 echo "📁 Creating directories..."
 mkdir -p uploads temp logs
-sudo mkdir -p /var/www/pdfcraft/uploads /var/www/pdfcraft/temp
+sudo mkdir -p /var/www/pdflab/uploads /var/www/pdflab/temp
 
 # Set proper permissions
 echo "🔐 Setting permissions..."
@@ -70,7 +70,7 @@ fi
 echo "🚀 Starting application with PM2..."
 
 # Stop existing processes
-pm2 stop pdfcraft-api 2>/dev/null || echo "No existing process to stop"
+pm2 stop pdflab-api 2>/dev/null || echo "No existing process to stop"
 
 # Start application
 pm2 start ecosystem.config.js --env production
@@ -95,16 +95,16 @@ if curl -f http://localhost:${PORT:-3001}/health > /dev/null 2>&1; then
 else
     echo "❌ Health check failed!"
     echo "📋 Checking logs..."
-    pm2 logs pdfcraft-api --lines 20
+    pm2 logs pdflab-api --lines 20
     exit 1
 fi
 
 echo ""
-echo "🎉 PDFCraft.Pro is now running in production mode!"
+echo "🎉 pdflab.pro is now running in production mode!"
 echo ""
 echo "📋 Useful commands:"
-echo "   • View logs: pm2 logs pdfcraft-api"
-echo "   • Restart: pm2 restart pdfcraft-api"
-echo "   • Stop: pm2 stop pdfcraft-api"
+echo "   • View logs: pm2 logs pdflab-api"
+echo "   • Restart: pm2 restart pdflab-api"
+echo "   • Stop: pm2 stop pdflab-api"
 echo "   • Monitor: pm2 monit"
 echo "   • Status: pm2 status"

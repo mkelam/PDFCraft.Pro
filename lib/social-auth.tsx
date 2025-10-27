@@ -1,5 +1,5 @@
 /**
- * Social Authentication Utilities - PDFCraft.Pro
+ * Social Authentication Utilities - pdflab.pro
  * Integration utilities for NextAuth.js social providers
  */
 

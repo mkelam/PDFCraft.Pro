@@ -1,10 +1,10 @@
 @echo off
-REM PDFCraft.Pro Development Deployment Check Script (Windows)
+REM pdflab.pro Development Deployment Check Script (Windows)
 REM Prevents deployment of code with compilation errors
 
 setlocal enabledelayedexpansion
 
-echo 🔍 PDFCraft.Pro Deployment Check Starting...
+echo 🔍 pdflab.pro Deployment Check Starting...
 
 REM Step 1: TypeScript Compilation Check
 echo 📝 Step 1: Checking TypeScript compilation...
@@ -59,7 +59,7 @@ if %errorlevel% equ 0 (
 )
 
 echo.
-echo 🎉 PDFCraft.Pro Deployment Check PASSED!
+echo 🎉 pdflab.pro Deployment Check PASSED!
 echo ✅ Ready for deployment to production
 echo.
 echo Next steps:

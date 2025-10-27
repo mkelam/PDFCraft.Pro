@@ -67,8 +67,8 @@ export class VisualFidelityPDFService implements PDFConversionService {
 
       // Create PowerPoint with visual fidelity
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro Visual Fidelity Engine';
-      pptx.company = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro Visual Fidelity Engine';
+      pptx.company = 'pdflab.pro';
       pptx.subject = 'High-Fidelity Visual PDF Conversion';
 
       // Add slides with visual elements

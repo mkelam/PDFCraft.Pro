@@ -1,58 +1,41 @@
 @echo off
-echo Installing Ghostscript for PDFCraft.Pro...
+echo ========================================
+echo  pdflab.pro - Ghostscript Installation
+echo ========================================
 echo.
 
-REM Download Ghostscript
-echo Downloading Ghostscript installer...
-powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10030/gs10030w64.exe' -OutFile '%TEMP%\gs-installer.exe'}"
-
-if not exist "%TEMP%\gs-installer.exe" (
-    echo Failed to download Ghostscript installer
-    pause
-    exit /b 1
+echo Checking current Ghostscript status...
+gswin64c.exe -v 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo ✅ Ghostscript is already installed and working!
+    goto :end
 )
 
-echo Installing Ghostscript...
-"%TEMP%\gs-installer.exe" /S
-
-echo Waiting for installation to complete...
-timeout /t 15 /nobreak
-
-REM Clean up
-del "%TEMP%\gs-installer.exe"
-
-REM Find Ghostscript installation
-echo Locating Ghostscript installation...
-set GHOST_PATH=
-if exist "C:\Program Files\gs\gs10.03.0\bin\gswin64c.exe" (
-    set GHOST_PATH=C:\Program Files\gs\gs10.03.0\bin\gswin64c.exe
-) else if exist "C:\Program Files (x86)\gs\gs10.03.0\bin\gswin32c.exe" (
-    set GHOST_PATH=C:\Program Files (x86)\gs\gs10.03.0\bin\gswin32c.exe
-) else (
-    echo Ghostscript installation not found in expected locations
-    echo Please check installation manually
-    pause
-    exit /b 1
-)
-
-echo Ghostscript found at: %GHOST_PATH%
-
-REM Set environment variables
-echo Setting environment variables...
-setx GHOSTSCRIPT_PATH "%GHOST_PATH%"
-setx GHOSTSCRIPT_AVAILABLE "true"
-
-REM Test installation
-echo Testing Ghostscript...
-"%GHOST_PATH%" --version
-
+echo ❌ Ghostscript not found. Installation required.
 echo.
-echo Ghostscript installation completed!
+
+echo 📥 Download Ghostscript from:
+echo https://www.ghostscript.com/download/gsdnld.html
 echo.
-echo Benefits for PDFCraft.Pro:
-echo   - Advanced PDF manipulation
-echo   - Better quality rendering
-echo   - Support for complex PDF operations
-echo   - Industry-standard PDF processing
+echo 🎯 Choose: "GPL Ghostscript 10.04.0 for Windows (64 bit)"
+echo.
+
+echo Manual Installation Steps:
+echo 1. Download Ghostscript installer
+echo 2. Run installer as Administrator
+echo 3. Choose default installation path: C:\Program Files\gs\gs10.04.0\bin
+echo 4. Make sure "Add to PATH" is checked
+echo 5. Restart Command Prompt after installation
+echo.
+
+echo Alternative - Quick Install with winget (Windows 10/11):
+echo.
+echo winget install --id AGPL.Ghostscript
+echo.
+
+:end
+echo.
+echo After installation, run: node simple-image-test.js
+echo This will verify the image processing pipeline works correctly.
 echo.
 pause

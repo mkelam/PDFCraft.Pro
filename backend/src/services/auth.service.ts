@@ -6,6 +6,13 @@ import { logger } from '../utils/logger';
 import crypto from 'crypto';
 import { EmailService } from './email.service';
 
+/**
+ * Convert JavaScript Date to MySQL-compatible datetime format
+ */
+const toMySQLDateTime = (date: Date): string => {
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+};
+
 export interface CreateUserData {
   email: string;
   password: string;
@@ -66,14 +73,14 @@ export const createUser = async (userData: CreateUserData): Promise<AuthResult> 
         email,
         hashedPassword,
         full_name || null,
-        0, // email_verified = false (0 in SQLite)
+        0, // email_verified = false (0 in MySQL tinyint)
         verificationToken,
-        verificationExpires.toISOString(),
+        toMySQLDateTime(verificationExpires),
         plan,
         0, // conversions_used
         conversionsLimit,
-        new Date().toISOString(), // registration_date
-        usageResetDate.toISOString(),
+        toMySQLDateTime(new Date()), // registration_date
+        toMySQLDateTime(usageResetDate),
         fileSizeLimit,
         0 // login_attempts
       ]

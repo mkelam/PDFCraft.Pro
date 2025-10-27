@@ -42,7 +42,7 @@ export class EnhancedFallbackPDFService {
 
       // Step 3: Create PowerPoint with intelligent layout
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro Enhanced Fallback';
+      pptx.author = 'pdflab.pro Enhanced Fallback';
       pptx.title = `${originalPdfName} - Converted`;
       pptx.subject = 'PDF to PowerPoint Conversion with Content Preservation';
 

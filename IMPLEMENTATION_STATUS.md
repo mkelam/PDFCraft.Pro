@@ -235,7 +235,7 @@ locked_until TIMESTAMP
 ```bash
 # Delete old database
 cd backend
-rm -f data/pdfcraft.db
+rm -f data/pdflab.db
 
 # Rebuild TypeScript (ensures latest code)
 npm run build
@@ -257,7 +257,7 @@ ALTER TABLE users ADD COLUMN verification_token_expires DATETIME;
 ### Option 3: Use Production MySQL
 Configure MySQL locally and run the MySQL migration:
 ```bash
-mysql -u root -p pdfcraft_db < backend/src/migrations/003_auth_system.sql
+mysql -u root -p pdflab_db < backend/src/migrations/003_auth_system.sql
 ```
 
 **Recommended:** Option 1 (Manual Database Reset) - fastest and cleanest
@@ -296,7 +296,7 @@ mysql -u root -p pdfcraft_db < backend/src/migrations/003_auth_system.sql
 ### Step 1: Reset SQLite Database
 ```bash
 cd backend
-powershell -Command "Remove-Item -Path 'data/pdfcraft.db' -Force -ErrorAction SilentlyContinue"
+powershell -Command "Remove-Item -Path 'data/pdflab.db' -Force -ErrorAction SilentlyContinue"
 ```
 
 ### Step 2: Rebuild TypeScript

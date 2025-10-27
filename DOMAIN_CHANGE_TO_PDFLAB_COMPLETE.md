@@ -1,4 +1,4 @@
-# ✅ Domain Change Complete: pdfcraft.pro → pdflab.pro
+# ✅ Domain Change Complete: pdflab.pro → pdflab.pro
 
 **Date**: October 23, 2025
 **Status**: ✅ COMPLETE
@@ -8,7 +8,7 @@
 
 ## 📋 Changes Summary
 
-All references to `pdfcraft.pro` have been updated to `pdflab.pro` across the entire project.
+All references to `pdflab.pro` have been updated to `pdflab.pro` across the entire project.
 
 ### 🔧 Backend Configuration Files
 
@@ -45,12 +45,12 @@ All references to `pdfcraft.pro` have been updated to `pdflab.pro` across the en
 - ✅ Support: `support@pdflab.pro`
 
 #### Database Names
-- ✅ Production: `pdflab_prod` (from `pdfcraft_prod`)
-- ✅ Development: `pdflab_dev.db` (from `pdfcraft_dev.db`)
+- ✅ Production: `pdflab_prod` (from `pdflab_prod`)
+- ✅ Development: `pdflab_dev.db` (from `pdflab_dev.db`)
 
 #### Service Names
-- ✅ PM2 Process: `pdflab-api` (from `pdfcraft-api`)
-- ✅ Database User: `pdflab_user` (from `pdfcraft_user`)
+- ✅ PM2 Process: `pdflab-api` (from `pdflab-api`)
+- ✅ Database User: `pdflab_user` (from `pdflab_user`)
 
 ---
 
@@ -140,8 +140,8 @@ cat .env.production | grep pdflab
 pm2 restart pdflab-api
 
 # Or if using old name
-pm2 restart pdfcraft-api
-pm2 delete pdfcraft-api
+pm2 restart pdflab-api
+pm2 delete pdflab-api
 pm2 start ecosystem.config.js --name pdflab-api
 pm2 save
 ```
@@ -152,7 +152,7 @@ pm2 save
 sudo nano /etc/nginx/sites-available/pdflab
 
 # Change:
-# server_name api.pdfcraft.pro;
+# server_name api.pdflab.pro;
 # To:
 # server_name api.pdflab.pro;
 
@@ -230,12 +230,12 @@ curl -X POST https://api.pdflab.pro/api/payfast/initialize \
 
 | Category | Old Value | New Value |
 |----------|-----------|-----------|
-| **Domain** | pdfcraft.pro | pdflab.pro |
-| **API** | api.pdfcraft.pro | api.pdflab.pro |
-| **Email** | @pdfcraft.pro | @pdflab.pro |
-| **Database** | pdfcraft_* | pdflab_* |
-| **PM2 Process** | pdfcraft-api | pdflab-api |
-| **Project Name** | PDFCraft.Pro | PDFLab.Pro |
+| **Domain** | pdflab.pro | pdflab.pro |
+| **API** | api.pdflab.pro | api.pdflab.pro |
+| **Email** | @pdflab.pro | @pdflab.pro |
+| **Database** | pdflab_* | pdflab_* |
+| **PM2 Process** | pdflab-api | pdflab-api |
+| **Project Name** | pdflab.pro | PDFLab.Pro |
 
 ---
 
@@ -277,7 +277,7 @@ If you encounter any issues:
 
 ---
 
-**🎉 Domain change from pdfcraft.pro to pdflab.pro is COMPLETE!**
+**🎉 Domain change from pdflab.pro to pdflab.pro is COMPLETE!**
 
 All code and configuration files have been updated. Just need to:
 1. Update DNS

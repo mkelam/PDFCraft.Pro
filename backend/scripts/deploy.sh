@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# PDFCraft.Pro Production Deployment Script
+# pdflab.pro Production Deployment Script
 # Usage: ./scripts/deploy.sh [production|staging]
 
 set -e
 
 ENVIRONMENT=${1:-production}
-DEPLOY_DIR="/var/www/pdfcraft"
-LOG_DIR="/var/log/pdfcraft"
-SERVICE_NAME="pdfcraft-api"
+DEPLOY_DIR="/var/www/pdflab"
+LOG_DIR="/var/log/pdflab"
+SERVICE_NAME="pdflab-api"
 
 echo "🚀 Starting deployment to $ENVIRONMENT environment..."
 

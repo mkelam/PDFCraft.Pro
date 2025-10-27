@@ -61,8 +61,8 @@ export class ImprovedPDFService implements PDFConversionService {
 
       // Create PowerPoint presentation
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro';
-      pptx.company = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro';
+      pptx.company = 'pdflab.pro';
       pptx.title = path.basename(inputPath, '.pdf');
       pptx.subject = 'Converted from PDF';
 
@@ -470,7 +470,7 @@ export class ImprovedPDFService implements PDFConversionService {
       `📊 Pages: ${pageCount}`,
       `📝 Text Content: ${textData?.text ? `${textData.text.length} characters` : 'Visual content'}`,
       `🕒 Converted: ${new Date().toLocaleString()}`,
-      `⚙️ Engine: PDFCraft.Pro Improved Engine v2.1`
+      `⚙️ Engine: pdflab.pro Improved Engine v2.1`
     ].join('\n\n');
 
     slide.addText(info, {

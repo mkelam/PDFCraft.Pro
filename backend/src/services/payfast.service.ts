@@ -1,5 +1,5 @@
 /**
- * PayFast Payment Service - PDFCraft.Pro
+ * PayFast Payment Service - pdflab.pro
  * Enhanced payment processing for subscription plans
  * Supports South African payments via PayFast
  */
@@ -176,7 +176,7 @@ export class PayFastService {
         m_payment_id: paymentId,
         amount: plan.price.toFixed(2),
         item_name: `${plan.name} Subscription`,
-        item_description: `PDFCraft.Pro ${plan.name} Plan - ${plan.features.conversionsPerMonth === -1 ? 'Unlimited' : plan.features.conversionsPerMonth} conversions/month`,
+        item_description: `pdflab.pro ${plan.name} Plan - ${plan.features.conversionsPerMonth === -1 ? 'Unlimited' : plan.features.conversionsPerMonth} conversions/month`,
         custom_str1: userId,
         custom_str2: planId,
         custom_str3: 'subscription',

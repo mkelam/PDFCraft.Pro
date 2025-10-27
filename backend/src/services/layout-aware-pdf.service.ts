@@ -63,8 +63,8 @@ export class LayoutAwarePDFService {
 
       // Create PowerPoint with coordinate-based layout
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro Layout-Aware Engine';
-      pptx.company = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro Layout-Aware Engine';
+      pptx.company = 'pdflab.pro';
       pptx.subject = 'Layout-Preserved PDF Conversion';
 
       // Add slides with coordinate-based positioning

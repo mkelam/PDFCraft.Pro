@@ -139,8 +139,8 @@ export class EnhancedPPTXGenerator {
     (pptx as any).compression = false;
 
     // Set document properties
-    pptx.author = 'PDFCraft.Pro';
-    pptx.company = 'PDFCraft.Pro';
+    pptx.author = 'pdflab.pro';
+    pptx.company = 'pdflab.pro';
     pptx.revision = '1';
     pptx.subject = 'PDF to PowerPoint Conversion';
     pptx.title = originalFilename || 'Converted Document';

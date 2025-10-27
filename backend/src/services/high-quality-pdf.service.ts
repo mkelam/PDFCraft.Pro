@@ -39,8 +39,8 @@ export class HighQualityPDFService {
       const pptx = new PptxGenJS();
 
       // Set presentation metadata
-      pptx.author = 'PDFCraft.Pro';
-      pptx.company = 'PDFCraft.Pro - Premium Conversion';
+      pptx.author = 'pdflab.pro';
+      pptx.company = 'pdflab.pro - Premium Conversion';
       pptx.revision = '1.0';
       pptx.subject = 'Converted from PDF with high quality';
       pptx.title = path.basename(inputPath, '.pdf');
@@ -164,7 +164,7 @@ export class HighQualityPDFService {
         `Original Document: ${path.basename(inputPath)}`,
         `Total Pages: ${pageCount}`,
         `Conversion Date: ${new Date().toLocaleString()}`,
-        `Conversion Engine: PDFCraft.Pro High-Quality Engine`,
+        `Conversion Engine: pdflab.pro High-Quality Engine`,
         '',
         'This presentation was automatically generated from a PDF document.',
         'Text content has been preserved in slide notes for searchability.'
@@ -322,7 +322,7 @@ export class HighQualityPDFService {
   ): Promise<string> {
     const pptx = new PptxGenJS();
 
-    pptx.author = 'PDFCraft.Pro';
+    pptx.author = 'pdflab.pro';
     pptx.title = 'Converted from PDF';
     pptx.defineLayout({ name: 'CUSTOM', width: 10, height: 7.5 });
     pptx.layout = 'CUSTOM';

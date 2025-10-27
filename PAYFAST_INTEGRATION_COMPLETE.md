@@ -234,7 +234,7 @@ User gains access to paid features
 - **Hours**: Mon-Fri, 8am-5pm SAST
 
 ### Troubleshooting
-- **Server logs**: `pm2 logs pdfcraft-api`
+- **Server logs**: `pm2 logs pdflab-api`
 - **PayFast transaction history**: Dashboard → Transactions
 - **Webhook delivery**: Dashboard → Integrations → ITN Log
 - **Database transactions**: Query `payment_transactions` table

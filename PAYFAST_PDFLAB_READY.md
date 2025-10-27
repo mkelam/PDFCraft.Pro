@@ -11,7 +11,7 @@
 ### PayFast Configuration ✅
 - **Merchant ID**: `25263515`
 - **Merchant Key**: `cyxcghcf5hsbl`
-- **Domain**: `pdflab.pro` (Updated from pdfcraft.pro)
+- **Domain**: `pdflab.pro` (Updated from pdflab.pro)
 - **Mode**: Production
 
 ### URLs Configured ✅

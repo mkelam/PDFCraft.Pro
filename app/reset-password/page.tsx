@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowLeft, Eye, EyeOff, AlertCircle, Loader2, CheckCircle, Lock } from 'lucide-react'
 import AuthAPI from '@/lib/auth-api'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
@@ -301,5 +301,27 @@ export default function ResetPasswordPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="glass-strong border-border/50 shadow-2xl w-full max-w-md">
+          <CardHeader className="text-center space-y-4 pb-6">
+            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-purple-500/20">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl font-bold text-foreground">Loading...</CardTitle>
+              <CardDescription className="text-muted-foreground mt-2">Please wait</CardDescription>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }

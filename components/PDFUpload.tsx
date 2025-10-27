@@ -21,7 +21,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PDFCraftAPI, ConversionResponse, formatFileSize, validatePDFFile } from "@/lib/api"
+import { pdflabAPI, ConversionResponse, formatFileSize, validatePDFFile } from "@/lib/api"
 
 interface UploadedFile {
   file: File
@@ -156,11 +156,11 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
       let result: ConversionResponse
 
       if (mode === "convert") {
-        result = await PDFCraftAPI.convertPDFToOffice(validFiles[0].file, outputFormat)
+        result = await pdflabAPI.convertPDFToOffice(validFiles[0].file, outputFormat)
       } else if (mode === "image") {
-        result = await PDFCraftAPI.convertPDFToImages(validFiles[0].file)
+        result = await pdflabAPI.convertPDFToImages(validFiles[0].file)
       } else {
-        result = await PDFCraftAPI.mergePDFs(validFiles.map((f) => f.file))
+        result = await pdflabAPI.mergePDFs(validFiles.map((f) => f.file))
       }
 
       if (progressTimer) clearInterval(progressTimer)
@@ -187,7 +187,7 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
 
   const downloadFile = () => {
     if (processing.result?.outputFile) {
-      PDFCraftAPI.triggerDownload(
+      pdflabAPI.triggerDownload(
         processing.result.outputFile,
         processing.result.originalFile || processing.result.outputFile
       )

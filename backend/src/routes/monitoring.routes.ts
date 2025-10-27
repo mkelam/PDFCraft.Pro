@@ -1,5 +1,5 @@
 /**
- * Production Monitoring Routes for PDFCraft.Pro
+ * Production Monitoring Routes for pdflab.pro
  * API endpoints for monitoring dashboard and health checks
  */
 

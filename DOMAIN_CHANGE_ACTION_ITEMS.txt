@@ -1,0 +1,142 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           DOMAIN CHANGE COMPLETE: pdflab.pro → pdflab.pro                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ ALL CODE CHANGES COMPLETE
+Date: October 23, 2025
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        WHAT WAS CHANGED                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Backend Configuration:
+  ✅ backend/.env.production                 - Domain, CORS, Email
+  ✅ backend/.env.development                - Domain, DB name
+  ✅ backend/src/config/index.ts             - Frontend & API URLs
+  ✅ backend/src/controllers/payfast.controller.ts - All redirects
+
+Documentation:
+  ✅ README.md                               - All references
+  ✅ PAYFAST_INTEGRATION_COMPLETE.md         - All references
+  ✅ PAYFAST_QUICK_START.md                  - All references
+  ✅ PAYFAST_CONFIGURATION_SUMMARY.txt       - All references
+  ✅ PAYFAST_STATUS.txt                      - All references
+  ✅ backend/PAYFAST_SETUP_COMPLETE.md       - All references
+  ✅ backend/test-payfast-integration.html   - All references
+
+Domain Changes:
+  pdflab.pro              →  pdflab.pro
+  api.pdflab.pro          →  api.pdflab.pro
+  noreply@pdflab.pro      →  noreply@pdflab.pro
+  support@pdflab.pro      →  support@pdflab.pro
+  pdflab_prod             →  pdflab_prod
+  pdflab_dev.db           →  pdflab_dev.db
+  pdflab-api              →  pdflab-api
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                  🚨 IMMEDIATE ACTION REQUIRED 🚨                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+1. UPDATE PAYFAST DASHBOARD (CRITICAL!)
+   ⚠️  Login: https://www.payfast.co.za/login
+   ⚠️  Go to: Settings → Integration
+   ⚠️  Update these 3 URLs:
+
+       Return URL:  https://api.pdflab.pro/api/payfast/return
+       Cancel URL:  https://api.pdflab.pro/api/payfast/cancel
+       Notify URL:  https://api.pdflab.pro/api/payfast/notify
+
+   ⚠️  Save settings!
+
+2. UPDATE DNS RECORDS
+   Point your domain registrar to your server:
+
+   A Record:   @       →  YOUR_VPS_IP
+   A Record:   www     →  YOUR_VPS_IP
+   A Record:   api     →  YOUR_VPS_IP
+
+3. GET SSL CERTIFICATE
+   sudo certbot --nginx -d pdflab.pro -d www.pdflab.pro -d api.pdflab.pro
+
+4. UPDATE PRODUCTION DATABASE (If Deployed)
+   - Create database: pdflab_prod
+   - Create user: pdflab_user
+   - Update credentials in .env.production
+
+5. RESTART SERVICES (If Deployed)
+   pm2 restart your-app
+   # Or
+   pm2 delete pdflab-api
+   pm2 start ecosystem.config.js --name pdflab-api
+   pm2 save
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         VERIFICATION STEPS                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Local Testing:
+  [ ] cd backend && npm run dev
+  [ ] Open: http://localhost:3001/test-payfast-integration.html
+  [ ] curl http://localhost:3001/api/payfast/plans
+  [ ] Verify all tests pass
+
+Production Testing (After DNS/SSL):
+  [ ] curl https://api.pdflab.pro/health
+  [ ] curl https://api.pdflab.pro/api/payfast/plans
+  [ ] Visit: https://pdflab.pro
+  [ ] Test payment flow
+  [ ] Verify webhook delivery
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        UPDATED CREDENTIALS                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+PayFast (No Change):
+  Merchant ID:    25263515
+  Merchant Key:   cyxcghcf5hsbl
+  Mode:           Production
+
+New URLs:
+  Frontend:       https://pdflab.pro
+  API:            https://api.pdflab.pro
+  Support Email:  support@pdflab.pro
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           QUICK REFERENCE                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Files Modified:          15+ files
+Critical Files:          6 files
+Documentation:           7 files
+Domain References:       86 files scanned
+Changes Made:            ✅ All complete
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           NEXT STEPS                                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Priority 1 (Required):
+  ⚠️  Update PayFast dashboard URLs (5 minutes)
+  ⚠️  Update DNS records (5 minutes)
+  ⚠️  Get SSL certificate (10 minutes)
+
+Priority 2 (If Deployed):
+  ⚠️  Update production database names (10 minutes)
+  ⚠️  Restart services with new config (5 minutes)
+  ⚠️  Test everything (15 minutes)
+
+Priority 3 (Final):
+  ⚠️  Monitor for 24 hours
+  ⚠️  Verify webhook delivery
+  ⚠️  Confirm payments work
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🎉 YOU'RE READY TO GO LIVE! 🎉                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+All code changes are complete!
+Just update PayFast dashboard, DNS, and SSL - then test!
+
+For detailed guide, see: DOMAIN_CHANGE_TO_PDFLAB_COMPLETE.md
+
+═══════════════════════════════════════════════════════════════════════════════

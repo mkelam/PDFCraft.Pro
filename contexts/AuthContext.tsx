@@ -1,5 +1,5 @@
 /**
- * Authentication Context - PDFCraft.Pro
+ * Authentication Context - pdflab.pro
  * Global authentication state management using React Context
  */
 

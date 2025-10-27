@@ -1,0 +1,1 @@
+const fs = require('fs'); const PDFDocument = require('pdfkit'); const doc = new PDFDocument(); doc.pipe(fs.createWriteStream('test-sample.pdf')); doc.fontSize(20).text('pdflab.pro Test Document', 100, 100); doc.fontSize(12).text('Name: MalibongweMkela', 100, 150).text('ID: 8202035872088', 100, 170); doc.end(); console.log('Test PDF created');

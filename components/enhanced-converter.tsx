@@ -1,5 +1,5 @@
 /**
- * Enhanced Converter Component - PDFCraft.Pro
+ * Enhanced Converter Component - pdflab.pro
  * Revolutionary OCR Overlay conversion with real-time progress
  * Provides 90%+ text accuracy with 99% image preservation
  */
@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
-  EnhancedPDFCraftAPI,
+  EnhancedpdflabAPI,
   EnhancedConversionRequest,
   EnhancedConversionResponse,
   EnhancedJobStatus,
@@ -58,10 +58,10 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback((file: File) => {
-    console.log('🎯 File selected:', file.name, EnhancedPDFCraftAPI.formatFileSize(file.size));
+    console.log('🎯 File selected:', file.name, EnhancedpdflabAPI.formatFileSize(file.size));
 
     // Validate file
-    const validation = EnhancedPDFCraftAPI.validatePDFFile(file);
+    const validation = EnhancedpdflabAPI.validatePDFFile(file);
     if (!validation.valid) {
       setState(prev => ({
         ...prev,
@@ -73,7 +73,7 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
     }
 
     // Get performance recommendation
-    const recommendation = EnhancedPDFCraftAPI.getPerformanceModeRecommendation(file);
+    const recommendation = EnhancedpdflabAPI.getPerformanceModeRecommendation(file);
     setPerformanceMode(recommendation.mode);
 
     setState(prev => ({
@@ -133,7 +133,7 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
       };
 
       // Start conversion
-      const conversionResponse = await EnhancedPDFCraftAPI.convertPDFToPowerPoint(state.file, options);
+      const conversionResponse = await EnhancedpdflabAPI.convertPDFToPowerPoint(state.file, options);
 
       console.log('✅ Conversion started:', conversionResponse);
 
@@ -145,7 +145,7 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
       }));
 
       // Poll for progress
-      const result = await EnhancedPDFCraftAPI.pollConversionWithProgress(
+      const result = await EnhancedpdflabAPI.pollConversionWithProgress(
         conversionResponse.jobId,
         (progress: ConversionProgress) => {
           setState(prev => ({
@@ -188,7 +188,7 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
 
   const handleDownload = useCallback(() => {
     if (state.result?.job?.outputFile && state.file) {
-      EnhancedPDFCraftAPI.triggerDownload(state.result.job.outputFile, state.file.name);
+      EnhancedpdflabAPI.triggerDownload(state.result.job.outputFile, state.file.name);
     }
   }, [state.result, state.file]);
 
@@ -282,7 +282,7 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
                   <div>
                     <p className="font-medium text-blue-900">{state.file.name}</p>
                     <p className="text-sm text-blue-700">
-                      {EnhancedPDFCraftAPI.formatFileSize(state.file.size)}
+                      {EnhancedpdflabAPI.formatFileSize(state.file.size)}
                     </p>
                   </div>
                   <CheckCircle className="h-6 w-6 text-green-600" />
@@ -347,7 +347,7 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {EnhancedPDFCraftAPI.getPhaseIcon(state.currentPhase)}
+              {EnhancedpdflabAPI.getPhaseIcon(state.currentPhase)}
               OCR Overlay Processing
             </CardTitle>
             <CardDescription>
@@ -374,10 +374,10 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
               <div className="flex justify-between text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  <span>Elapsed: {EnhancedPDFCraftAPI.formatProcessingTime(state.timeElapsed)}</span>
+                  <span>Elapsed: {EnhancedpdflabAPI.formatProcessingTime(state.timeElapsed)}</span>
                 </div>
                 {state.estimatedTimeRemaining > 0 && (
-                  <span>Remaining: {EnhancedPDFCraftAPI.formatProcessingTime(state.estimatedTimeRemaining)}</span>
+                  <span>Remaining: {EnhancedpdflabAPI.formatProcessingTime(state.estimatedTimeRemaining)}</span>
                 )}
               </div>
             )}
@@ -445,7 +445,7 @@ export default function EnhancedConverter({ onConversionComplete, onConversionEr
                 <p className="font-medium">Processing Time</p>
                 <p className="text-sm text-gray-600">
                   {state.result.job.processingTime
-                    ? EnhancedPDFCraftAPI.formatProcessingTime(state.result.job.processingTime)
+                    ? EnhancedpdflabAPI.formatProcessingTime(state.result.job.processingTime)
                     : 'N/A'
                   }
                 </p>

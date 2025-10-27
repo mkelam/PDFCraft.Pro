@@ -58,7 +58,7 @@
 ### 3. Domain Migration ✅
 **Status**: 100% Complete
 
-**Old Domain**: pdfcraft.pro
+**Old Domain**: pdflab.pro
 **New Domain**: pdflab.pro
 
 - ✅ All backend URLs updated

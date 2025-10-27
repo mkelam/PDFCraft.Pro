@@ -10,7 +10,7 @@ import { PDFUpload } from "@/components/PDFUpload"
 import { UnifiedConversionInterface } from "@/components/UnifiedConversionInterface"
 import { TestimonialsCarousel } from "@/components/TestimonialsCarousel"
 
-export default function PDFCraftPro() {
+export default function pdflabPro() {
   const [uploadResult, setUploadResult] = useState(null)
   const [uploadError, setUploadError] = useState("")
 

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# PDFCraft.Pro Production Validation Script
+# pdflab.pro Production Validation Script
 # Validates that all production requirements are met
 
 set -e
 
-echo "🔍 Validating PDFCraft.Pro production readiness..."
+echo "🔍 Validating pdflab.pro production readiness..."
 
 ERRORS=0
 WARNINGS=0
@@ -44,10 +44,10 @@ check_requirement "Certbot" "certbot --version" false
 
 echo ""
 echo "📁 Directory Structure"
-check_requirement "Project directory" "test -d /var/www/pdfcraft" false
-check_requirement "Upload directory" "test -d uploads || test -d /var/www/pdfcraft/uploads" true
-check_requirement "Temp directory" "test -d temp || test -d /var/www/pdfcraft/temp" true
-check_requirement "Log directory" "test -d logs || test -d /var/log/pdfcraft" true
+check_requirement "Project directory" "test -d /var/www/pdflab" false
+check_requirement "Upload directory" "test -d uploads || test -d /var/www/pdflab/uploads" true
+check_requirement "Temp directory" "test -d temp || test -d /var/www/pdflab/temp" true
+check_requirement "Log directory" "test -d logs || test -d /var/log/pdflab" true
 
 echo ""
 echo "🔧 Configuration Files"

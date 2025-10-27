@@ -1,4 +1,4 @@
-# 🚀 PDFCraft.Pro Production Deployment Checklist
+# 🚀 pdflab.pro Production Deployment Checklist
 
 **Project Status**: 87% Complete | **Target Launch**: 7-10 Days
 **Last Updated**: October 23, 2025
@@ -73,27 +73,27 @@ sudo apt install -y nginx
 sudo mysql -u root -p
 
 # Create database
-CREATE DATABASE pdfcraft_prod CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE pdflab_prod CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # Create user
-CREATE USER 'pdfcraft_user'@'localhost' IDENTIFIED BY 'SECURE_PASSWORD_HERE';
+CREATE USER 'pdflab_user'@'localhost' IDENTIFIED BY 'SECURE_PASSWORD_HERE';
 
 # Grant privileges
-GRANT ALL PRIVILEGES ON pdfcraft_prod.* TO 'pdfcraft_user'@'localhost';
+GRANT ALL PRIVILEGES ON pdflab_prod.* TO 'pdflab_user'@'localhost';
 FLUSH PRIVILEGES;
 
 # Exit
 EXIT;
 ```
 
-- [ ] Database `pdfcraft_prod` created
-- [ ] User `pdfcraft_user` created with secure password
+- [ ] Database `pdflab_prod` created
+- [ ] User `pdflab_user` created with secure password
 - [ ] Privileges granted
-- [ ] Connection tested: `mysql -u pdfcraft_user -p pdfcraft_prod`
+- [ ] Connection tested: `mysql -u pdflab_user -p pdflab_prod`
 - [ ] **Record credentials**:
   - DB_HOST: `localhost`
-  - DB_NAME: `pdfcraft_prod`
-  - DB_USER: `pdfcraft_user`
+  - DB_NAME: `pdflab_prod`
+  - DB_USER: `pdflab_user`
   - DB_PASSWORD: `_________________`
 
 #### **1.4 Redis Configuration**
@@ -128,28 +128,28 @@ PING  # Should return "PONG"
 #### **2.1 Create Project Directory**
 ```bash
 # Create project directory
-sudo mkdir -p /var/www/pdfcraft
-sudo chown -R $USER:$USER /var/www/pdfcraft
+sudo mkdir -p /var/www/pdflab
+sudo chown -R $USER:$USER /var/www/pdflab
 
 # Create subdirectories
-mkdir -p /var/www/pdfcraft/{uploads,temp,output,logs}
+mkdir -p /var/www/pdflab/{uploads,temp,output,logs}
 
 # Set permissions
-chmod -R 755 /var/www/pdfcraft
+chmod -R 755 /var/www/pdflab
 ```
 
-- [ ] Directory `/var/www/pdfcraft` created
+- [ ] Directory `/var/www/pdflab` created
 - [ ] Upload, temp, output, logs subdirectories created
 - [ ] Permissions set correctly
 
 #### **2.2 Upload Code to VPS**
 ```bash
 # Option 1: Using Git (Recommended)
-cd /var/www/pdfcraft
-git clone https://github.com/YOUR_USERNAME/pdfcraft-pro.git .
+cd /var/www/pdflab
+git clone https://github.com/YOUR_USERNAME/pdflab-pro.git .
 
 # Option 2: Using SCP from local machine
-scp -r C:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro\backend root@YOUR_VPS_IP:/var/www/pdfcraft/
+scp -r C:\Users\Mac\OneDrive\Desktop\Projects\pdflab.pro\backend root@YOUR_VPS_IP:/var/www/pdflab/
 ```
 
 - [ ] Code uploaded to VPS
@@ -157,7 +157,7 @@ scp -r C:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro\backend root@YOUR_VPS
 
 #### **2.3 Install Dependencies**
 ```bash
-cd /var/www/pdfcraft/backend
+cd /var/www/pdflab/backend
 npm ci --production
 ```
 
@@ -166,7 +166,7 @@ npm ci --production
 
 #### **2.4 Build TypeScript**
 ```bash
-cd /var/www/pdfcraft/backend
+cd /var/www/pdflab/backend
 npm run build
 ```
 
@@ -180,7 +180,7 @@ npm run build
 
 #### **3.1 Create Production Environment File**
 ```bash
-cd /var/www/pdfcraft/backend
+cd /var/www/pdflab/backend
 cp .env.production.template .env.production
 nano .env.production
 ```
@@ -209,14 +209,14 @@ nano .env.production
   - SMTP_HOST, SMTP_USER, SMTP_PASS
 
 - [ ] **File paths** (should match VPS structure)
-  - UPLOAD_DIR=/var/www/pdfcraft/uploads
-  - TEMP_DIR=/var/www/pdfcraft/temp
-  - OUTPUT_DIR=/var/www/pdfcraft/output
-  - LOG_DIR=/var/www/pdfcraft/logs
+  - UPLOAD_DIR=/var/www/pdflab/uploads
+  - TEMP_DIR=/var/www/pdflab/temp
+  - OUTPUT_DIR=/var/www/pdflab/output
+  - LOG_DIR=/var/www/pdflab/logs
 
 - [ ] **Security settings**
-  - CORS_ORIGINS=https://pdfcraft.pro
-  - API_URL=https://api.pdfcraft.pro
+  - CORS_ORIGINS=https://pdflab.pro
+  - API_URL=https://api.pdflab.pro
   - FORCE_HTTPS=true
 
 #### **3.2 Generate Secrets**
@@ -239,11 +239,11 @@ echo "SESSION_SECRET=$SESSION_SECRET"
 #### **3.3 Database Migration**
 ```bash
 # Run database migrations
-cd /var/www/pdfcraft/backend
+cd /var/www/pdflab/backend
 NODE_ENV=production node dist/config/migrate.js
 
 # Or manually run SQL migration
-mysql -u pdfcraft_user -p pdfcraft_prod < src/migrations/001_initial_schema.sql
+mysql -u pdflab_user -p pdflab_prod < src/migrations/001_initial_schema.sql
 ```
 
 - [ ] Database tables created
@@ -260,9 +260,9 @@ mysql -u pdfcraft_user -p pdfcraft_prod < src/migrations/001_initial_schema.sql
 3. [ ] Copy **Merchant ID**: `_________________`
 4. [ ] Copy **Merchant Key**: `_________________`
 5. [ ] Generate **Passphrase**: `_________________`
-6. [ ] Set **Return URL**: `https://pdfcraft.pro/payment/success`
-7. [ ] Set **Cancel URL**: `https://pdfcraft.pro/payment/cancel`
-8. [ ] Set **Notify URL**: `https://api.pdfcraft.pro/api/payfast/webhook`
+6. [ ] Set **Return URL**: `https://pdflab.pro/payment/success`
+7. [ ] Set **Cancel URL**: `https://pdflab.pro/payment/cancel`
+8. [ ] Set **Notify URL**: `https://api.pdflab.pro/api/payfast/webhook`
 9. [ ] Enable **Instant Transaction Notification (ITN)**
 10. [ ] Switch to **Live Mode** (not Sandbox)
 
@@ -303,9 +303,9 @@ A       www     YOUR_VPS_IP         3600
 A       api     YOUR_VPS_IP         3600
 ```
 
-- [ ] A record for `pdfcraft.pro` → VPS IP
-- [ ] A record for `www.pdfcraft.pro` → VPS IP
-- [ ] A record for `api.pdfcraft.pro` → VPS IP
+- [ ] A record for `pdflab.pro` → VPS IP
+- [ ] A record for `www.pdflab.pro` → VPS IP
+- [ ] A record for `api.pdflab.pro` → VPS IP
 - [ ] DNS propagation tested (dig/nslookup)
 - [ ] Wait 30-60 minutes for propagation
 
@@ -315,7 +315,7 @@ A       api     YOUR_VPS_IP         3600
 sudo apt install -y certbot python3-certbot-nginx
 
 # Get SSL certificate
-sudo certbot --nginx -d pdfcraft.pro -d www.pdfcraft.pro -d api.pdfcraft.pro
+sudo certbot --nginx -d pdflab.pro -d www.pdflab.pro -d api.pdflab.pro
 
 # Test auto-renewal
 sudo certbot renew --dry-run
@@ -329,19 +329,19 @@ sudo certbot renew --dry-run
 
 #### **5.3 Nginx Configuration** (Optional - Reverse Proxy)
 ```nginx
-# /etc/nginx/sites-available/pdfcraft
+# /etc/nginx/sites-available/pdflab
 server {
     listen 80;
-    server_name api.pdfcraft.pro;
+    server_name api.pdflab.pro;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name api.pdfcraft.pro;
+    server_name api.pdflab.pro;
 
-    ssl_certificate /etc/letsencrypt/live/pdfcraft.pro/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pdfcraft.pro/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/pdflab.pro/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pdflab.pro/privkey.pem;
 
     location / {
         proxy_pass http://localhost:3010;
@@ -356,7 +356,7 @@ server {
 
 ```bash
 # Enable site
-sudo ln -s /etc/nginx/sites-available/pdfcraft /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/pdflab /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -373,14 +373,14 @@ sudo systemctl reload nginx
 #### **6.1 PM2 Configuration**
 ```bash
 # Create PM2 ecosystem file
-cd /var/www/pdfcraft/backend
+cd /var/www/pdflab/backend
 nano ecosystem.config.js
 ```
 
 ```javascript
 module.exports = {
   apps: [{
-    name: 'pdfcraft-api',
+    name: 'pdflab-api',
     script: './dist/server.js',
     instances: 2,
     exec_mode: 'cluster',
@@ -388,8 +388,8 @@ module.exports = {
       NODE_ENV: 'production',
       PORT: 3010
     },
-    error_file: '/var/www/pdfcraft/logs/pm2-error.log',
-    out_file: '/var/www/pdfcraft/logs/pm2-out.log',
+    error_file: '/var/www/pdflab/logs/pm2-error.log',
+    out_file: '/var/www/pdflab/logs/pm2-out.log',
     log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     merge_logs: true,
     autorestart: true,
@@ -418,7 +418,7 @@ pm2 monit
 - [ ] Application started with PM2
 - [ ] 2 instances running (cluster mode)
 - [ ] PM2 startup script configured
-- [ ] Logs accessible: `pm2 logs pdfcraft-api`
+- [ ] Logs accessible: `pm2 logs pdflab-api`
 
 #### **6.2 Health Check**
 ```bash
@@ -441,15 +441,15 @@ curl http://localhost:3010/health
 #### **7.1 API Endpoint Testing**
 ```bash
 # Test PDF upload
-curl -X POST https://api.pdfcraft.pro/api/convert/pdf-to-ppt \
+curl -X POST https://api.pdflab.pro/api/convert/pdf-to-ppt \
   -F "files=@test.pdf" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 
 # Test job status
-curl https://api.pdfcraft.pro/api/job/JOB_ID/status
+curl https://api.pdflab.pro/api/job/JOB_ID/status
 
 # Test file download
-curl https://api.pdfcraft.pro/api/download/OUTPUT_FILE
+curl https://api.pdflab.pro/api/download/OUTPUT_FILE
 ```
 
 - [ ] PDF upload working
@@ -461,12 +461,12 @@ curl https://api.pdfcraft.pro/api/download/OUTPUT_FILE
 #### **7.2 Authentication Testing**
 ```bash
 # Test user registration
-curl -X POST https://api.pdfcraft.pro/api/auth/register \
+curl -X POST https://api.pdflab.pro/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"Test123!@#"}'
 
 # Test login
-curl -X POST https://api.pdfcraft.pro/api/auth/login \
+curl -X POST https://api.pdflab.pro/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"Test123!@#"}'
 ```
@@ -487,7 +487,7 @@ curl -X POST https://api.pdfcraft.pro/api/auth/login \
 #### **7.4 Performance Testing**
 ```bash
 # Run load test (if you have Apache Bench)
-ab -n 100 -c 10 https://api.pdfcraft.pro/health
+ab -n 100 -c 10 https://api.pdflab.pro/health
 
 # Or use the comprehensive test script
 npm run test:production
@@ -500,7 +500,7 @@ npm run test:production
 - [ ] CPU usage <80%
 
 #### **7.5 End-to-End User Flow**
-- [ ] User visits pdfcraft.pro
+- [ ] User visits pdflab.pro
 - [ ] User signs up (free tier)
 - [ ] User uploads PDF
 - [ ] Conversion completes successfully
@@ -536,7 +536,7 @@ pm2 set pm2-logrotate:retain 7
 crontab -e
 
 # Add this line (check every 5 minutes)
-*/5 * * * * curl -f http://localhost:3010/health || systemctl restart pdfcraft-api
+*/5 * * * * curl -f http://localhost:3010/health || systemctl restart pdflab-api
 ```
 
 - [ ] Cron job for health checks
@@ -549,7 +549,7 @@ crontab -e
 sudo apt install -y mailutils
 
 # Test email
-echo "Test email from PDFCraft.Pro server" | mail -s "Test" your@email.com
+echo "Test email from pdflab.pro server" | mail -s "Test" your@email.com
 ```
 
 - [ ] Email alerts configured
@@ -624,17 +624,17 @@ sudo dpkg-reconfigure --priority=low unattended-upgrades
 #### **10.1 Database Backup Script**
 ```bash
 # Create backup script
-sudo nano /var/www/pdfcraft/scripts/backup-db.sh
+sudo nano /var/www/pdflab/scripts/backup-db.sh
 ```
 
 ```bash
 #!/bin/bash
-BACKUP_DIR="/var/backups/pdfcraft"
+BACKUP_DIR="/var/backups/pdflab"
 DATE=$(date +%Y%m%d_%H%M%S)
 mkdir -p $BACKUP_DIR
 
 # Backup database
-mysqldump -u pdfcraft_user -p'YOUR_PASSWORD' pdfcraft_prod > $BACKUP_DIR/db_$DATE.sql
+mysqldump -u pdflab_user -p'YOUR_PASSWORD' pdflab_prod > $BACKUP_DIR/db_$DATE.sql
 
 # Keep only last 7 days
 find $BACKUP_DIR -name "db_*.sql" -mtime +7 -delete
@@ -644,14 +644,14 @@ echo "Backup completed: db_$DATE.sql"
 
 ```bash
 # Make executable
-chmod +x /var/www/pdfcraft/scripts/backup-db.sh
+chmod +x /var/www/pdflab/scripts/backup-db.sh
 
 # Test backup
-sudo /var/www/pdfcraft/scripts/backup-db.sh
+sudo /var/www/pdflab/scripts/backup-db.sh
 
 # Setup daily backup cron
 crontab -e
-# Add: 0 2 * * * /var/www/pdfcraft/scripts/backup-db.sh
+# Add: 0 2 * * * /var/www/pdflab/scripts/backup-db.sh
 ```
 
 - [ ] Backup script created
@@ -662,16 +662,16 @@ crontab -e
 #### **10.2 Application Backup**
 ```bash
 # Create app backup script
-sudo nano /var/www/pdfcraft/scripts/backup-app.sh
+sudo nano /var/www/pdflab/scripts/backup-app.sh
 ```
 
 ```bash
 #!/bin/bash
-BACKUP_DIR="/var/backups/pdfcraft"
+BACKUP_DIR="/var/backups/pdflab"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 # Backup application code
-tar -czf $BACKUP_DIR/app_$DATE.tar.gz /var/www/pdfcraft/backend
+tar -czf $BACKUP_DIR/app_$DATE.tar.gz /var/www/pdflab/backend
 
 # Keep only last 3 backups
 ls -t $BACKUP_DIR/app_*.tar.gz | tail -n +4 | xargs rm -f
@@ -773,5 +773,5 @@ _______________________________________________________________________
 
 ---
 
-**🎉 CONGRATULATIONS! PDFCraft.Pro is now LIVE!** 🎉
+**🎉 CONGRATULATIONS! pdflab.pro is now LIVE!** 🎉
 

@@ -1,5 +1,5 @@
 /**
- * Usage Tracking Service - PDFCraft.Pro
+ * Usage Tracking Service - pdflab.pro
  * CRITICAL FIX: Atomic usage tracking to prevent race conditions
  * Prevents revenue loss from unlimited free tier abuse
  */

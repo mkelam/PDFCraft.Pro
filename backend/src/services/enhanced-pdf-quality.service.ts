@@ -148,8 +148,8 @@ export class EnhancedPDFQualityService {
 
       // Step 4: OPTIMIZED POWERPOINT CREATION
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro Enhanced Engine';
-      pptx.company = 'PDFCraft.Pro - Publication Quality Conversion';
+      pptx.author = 'pdflab.pro Enhanced Engine';
+      pptx.company = 'pdflab.pro - Publication Quality Conversion';
       pptx.title = path.basename(inputPath, '.pdf');
       pptx.subject = `Enhanced ${contentAnalysis.type} conversion with ${qualityProfile.dpi}DPI quality`;
 

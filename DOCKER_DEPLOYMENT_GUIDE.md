@@ -1,6 +1,6 @@
-# PDFCraft.Pro Docker Deployment Guide
+# pdflab.pro Docker Deployment Guide
 
-This guide explains how to run PDFCraft.Pro using Docker containers.
+This guide explains how to run pdflab.pro using Docker containers.
 
 ## 📋 Prerequisites
 
@@ -15,8 +15,8 @@ This guide explains how to run PDFCraft.Pro using Docker containers.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/mkelam/PDFCraft.Pro.git
-cd PDFCraft.Pro
+git clone https://github.com/mkelam/pdflab.pro.git
+cd pdflab.pro
 ```
 
 ### 2. Configure Environment Variables
@@ -59,7 +59,7 @@ docker-compose -f docker-compose.simple.yml logs -f
 
 The Docker setup includes:
 
-### Backend Container (`pdfcraft-backend`)
+### Backend Container (`pdflab-backend`)
 - **Node.js 20 Alpine**
 - **LibreOffice** - For Office file conversions
 - **ImageMagick** - For image processing
@@ -67,16 +67,16 @@ The Docker setup includes:
 - **Ghostscript** - For PDF manipulation
 - **All fonts** - For proper text rendering
 
-### Frontend Container (`pdfcraft-frontend`)
+### Frontend Container (`pdflab-frontend`)
 - **Node.js 20 Alpine**
 - **Next.js Production Build**
 - **Optimized static assets**
 
 ### Persistent Data Volumes
-- `pdfcraft_uploads` - User uploaded files
-- `pdfcraft_temp` - Temporary processing files
-- `pdfcraft_logs` - Application logs
-- `pdfcraft_data` - SQLite database
+- `pdflab_uploads` - User uploaded files
+- `pdflab_temp` - Temporary processing files
+- `pdflab_logs` - Application logs
+- `pdflab_data` - SQLite database
 
 ## 🔧 Docker Commands
 
@@ -123,10 +123,10 @@ docker-compose -f docker-compose.simple.yml up -d --build
 
 ```bash
 # Backend container
-docker exec -it pdfcraft-backend sh
+docker exec -it pdflab-backend sh
 
 # Frontend container
-docker exec -it pdfcraft-frontend sh
+docker exec -it pdflab-frontend sh
 ```
 
 ### Check Container Status
@@ -136,18 +136,18 @@ docker exec -it pdfcraft-frontend sh
 docker-compose -f docker-compose.simple.yml ps
 
 # Check health status
-docker inspect pdfcraft-backend --format='{{.State.Health.Status}}'
+docker inspect pdflab-backend --format='{{.State.Health.Status}}'
 ```
 
 ## 🗄️ Database Management
 
-PDFCraft.Pro uses SQLite by default in Docker.
+pdflab.pro uses SQLite by default in Docker.
 
 ### Backup Database
 
 ```bash
 # Create backup
-docker cp pdfcraft-backend:/app/data/pdfcraft.db ./backup-$(date +%Y%m%d).db
+docker cp pdflab-backend:/app/data/pdflab.db ./backup-$(date +%Y%m%d).db
 
 # Verify backup
 ls -lh backup-*.db
@@ -160,7 +160,7 @@ ls -lh backup-*.db
 docker-compose -f docker-compose.simple.yml stop backend
 
 # Restore from backup
-docker cp ./backup-20250126.db pdfcraft-backend:/app/data/pdfcraft.db
+docker cp ./backup-20250126.db pdflab-backend:/app/data/pdflab.db
 
 # Restart backend
 docker-compose -f docker-compose.simple.yml start backend
@@ -170,10 +170,10 @@ docker-compose -f docker-compose.simple.yml start backend
 
 ```bash
 # Access SQLite database
-docker exec -it pdfcraft-backend sqlite3 /app/data/pdfcraft.db
+docker exec -it pdflab-backend sqlite3 /app/data/pdflab.db
 
 # Run SQL query
-docker exec pdfcraft-backend sqlite3 /app/data/pdfcraft.db "SELECT * FROM users LIMIT 5;"
+docker exec pdflab-backend sqlite3 /app/data/pdflab.db "SELECT * FROM users LIMIT 5;"
 ```
 
 ## 📊 Monitoring
@@ -182,13 +182,13 @@ docker exec pdfcraft-backend sqlite3 /app/data/pdfcraft.db "SELECT * FROM users 
 
 ```bash
 # Real-time stats
-docker stats pdfcraft-backend pdfcraft-frontend
+docker stats pdflab-backend pdflab-frontend
 
 # Disk usage
 docker system df
 
 # Container resource limits
-docker inspect pdfcraft-backend --format='{{.HostConfig.Memory}}'
+docker inspect pdflab-backend --format='{{.HostConfig.Memory}}'
 ```
 
 ### Health Checks
@@ -198,13 +198,13 @@ docker inspect pdfcraft-backend --format='{{.HostConfig.Memory}}'
 curl http://localhost:3016/api/health
 
 # Check if LibreOffice is available
-docker exec pdfcraft-backend libreoffice --version
+docker exec pdflab-backend libreoffice --version
 
 # Check if ImageMagick is available
-docker exec pdfcraft-backend convert --version
+docker exec pdflab-backend convert --version
 
 # Check if Tesseract OCR is available
-docker exec pdfcraft-backend tesseract --version
+docker exec pdflab-backend tesseract --version
 ```
 
 ## 🔒 Production Deployment
@@ -278,10 +278,10 @@ docker-compose -f docker-compose.simple.yml up -d
 
 ```bash
 # Verify LibreOffice is installed
-docker exec pdfcraft-backend libreoffice --version
+docker exec pdflab-backend libreoffice --version
 
 # Check temp directory permissions
-docker exec pdfcraft-backend ls -la /app/temp
+docker exec pdflab-backend ls -la /app/temp
 
 # View backend logs during conversion
 docker-compose -f docker-compose.simple.yml logs -f backend
@@ -291,10 +291,10 @@ docker-compose -f docker-compose.simple.yml logs -f backend
 
 ```bash
 # Check SMTP configuration
-docker exec pdfcraft-backend printenv | grep SMTP
+docker exec pdflab-backend printenv | grep SMTP
 
 # Test SMTP connection manually
-docker exec -it pdfcraft-backend sh
+docker exec -it pdflab-backend sh
 # Inside container:
 telnet smtp.hostinger.com 587
 ```
@@ -306,7 +306,7 @@ telnet smtp.hostinger.com 587
 docker-compose -f docker-compose.simple.yml down
 
 # Remove temp files
-docker volume rm pdfcraft_temp
+docker volume rm pdflab_temp
 
 # Restart
 docker-compose -f docker-compose.simple.yml up -d
@@ -344,13 +344,13 @@ docker-compose -f docker-compose.simple.yml up -d
 
 ```bash
 # Remove old uploaded files (older than 7 days)
-docker exec pdfcraft-backend find /app/uploads -type f -mtime +7 -delete
+docker exec pdflab-backend find /app/uploads -type f -mtime +7 -delete
 
 # Remove temp files
-docker exec pdfcraft-backend rm -rf /app/temp/*
+docker exec pdflab-backend rm -rf /app/temp/*
 
 # Clean up logs (keep last 7 days)
-docker exec pdfcraft-backend find /app/logs -type f -mtime +7 -delete
+docker exec pdflab-backend find /app/logs -type f -mtime +7 -delete
 ```
 
 ## 📈 Performance Optimization
@@ -370,7 +370,7 @@ docker-compose -f docker-compose.simple.yml build
 
 ```bash
 # View image sizes
-docker images | grep pdfcraft
+docker images | grep pdflab
 
 # Remove unused layers
 docker image prune
@@ -417,7 +417,7 @@ If you encounter issues:
 
 1. Check the logs: `docker-compose logs -f`
 2. Review this guide
-3. Check [GitHub Issues](https://github.com/mkelam/PDFCraft.Pro/issues)
+3. Check [GitHub Issues](https://github.com/mkelam/pdflab.pro/issues)
 4. Contact support
 
 ## 📝 Additional Resources
@@ -431,4 +431,4 @@ If you encounter issues:
 
 **Last Updated**: January 2025
 **Version**: 1.0
-**Maintainer**: PDFCraft.Pro Team
+**Maintainer**: pdflab.pro Team

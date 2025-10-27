@@ -88,14 +88,14 @@ export default function LoginPage() {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          Back to PDF Craft Pro
+          Back to PDF Lab Pro
         </Link>
 
         {/* Login form card */}
         <Card className="glass-strong border-border/50">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-2xl font-bold text-foreground">Welcome back</CardTitle>
-            <CardDescription className="text-muted-foreground">Sign in to your PDF Craft Pro account</CardDescription>
+            <CardDescription className="text-muted-foreground">Sign in to your PDF Lab Pro account</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
