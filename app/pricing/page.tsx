@@ -1,79 +1,147 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Check, Zap, Shield, Infinity } from "lucide-react"
+import { Check, Zap, Shield, Infinity, Sparkles, Loader2 } from "lucide-react"
 import { Navigation } from "@/components/Navigation"
-// Using PayFast for payments instead of Stripe
 
-const pricingPlans = [
-  {
-    name: "Free",
-    price: "Free",
+interface PlanFeatures {
+  conversionsPerMonth: number
+  maxFileSize: number
+  ocrOverlayAccess: boolean
+  advancedFeatures: boolean
+  priorityProcessing: boolean
+  apiAccess: boolean
+}
+
+interface PricingPlan {
+  id: string
+  name: string
+  price: number
+  currency: string
+  interval: string
+  features: PlanFeatures
+  description?: string
+  icon?: JSX.Element
+  buttonText?: string
+  buttonVariant?: "default" | "outline"
+  popular?: boolean
+}
+
+const planDescriptions: Record<string, { description: string; icon: JSX.Element; popular: boolean }> = {
+  free: {
     description: "Perfect for occasional PDF tasks",
     icon: <Zap className="w-6 h-6" />,
-    features: [
-      "3 conversions per month",
-      "Basic PDF-to-PowerPoint",
-      "Standard processing speed",
-      "Email support",
-      "10MB file size limit",
-    ],
-    buttonText: "Get Started",
-    buttonVariant: "outline" as const,
     popular: false,
-    planId: "free",
   },
-  {
-    name: "Starter",
-    price: "$5.99",
-    period: "/month",
+  starter: {
     description: "Ideal for professionals and small teams",
     icon: <Shield className="w-6 h-6" />,
-    features: [
-      "100 conversions per month",
-      "OCR-Enhanced PDF conversion",
-      "Priority processing",
-      "Priority support",
-      "25MB file size limit",
-      "PDF merging",
-      "Batch processing",
-    ],
-    buttonText: "Choose Starter",
-    buttonVariant: "default" as const,
     popular: true,
-    planId: "starter",
   },
-  {
-    name: "Pro",
-    price: "$29.99",
-    period: "/month",
+  pro: {
     description: "Advanced features for power users",
     icon: <Infinity className="w-6 h-6" />,
-    features: [
-      "Unlimited conversions",
-      "All premium features",
-      "API access",
-      "Dedicated support",
-      "100MB file size limit",
-      "White-label options",
-      "Advanced analytics",
-      "Team management",
-    ],
-    buttonText: "Choose Pro",
-    buttonVariant: "outline" as const,
     popular: false,
-    planId: "pro",
   },
-]
+  enterprise: {
+    description: "For large organizations with custom needs",
+    icon: <Sparkles className="w-6 h-6" />,
+    popular: false,
+  },
+}
+
+const formatFileSize = (bytes: number): string => {
+  const mb = bytes / (1024 * 1024)
+  return `${mb}MB`
+}
+
+const formatConversions = (count: number): string => {
+  if (count === -1) return "Unlimited"
+  return `${count} conversions`
+}
+
+const getPlanFeaturesList = (plan: PricingPlan): string[] => {
+  const features: string[] = []
+
+  features.push(`${formatConversions(plan.features.conversionsPerMonth)} per month`)
+
+  if (plan.features.ocrOverlayAccess) {
+    features.push("OCR-Enhanced PDF conversion")
+  } else {
+    features.push("Basic PDF-to-PowerPoint")
+  }
+
+  features.push(`${formatFileSize(plan.features.maxFileSize)} file size limit`)
+
+  if (plan.features.priorityProcessing) {
+    features.push("Priority processing")
+  } else {
+    features.push("Standard processing speed")
+  }
+
+  if (plan.features.advancedFeatures) {
+    features.push("Advanced analytics")
+    features.push("Batch processing")
+    features.push("PDF merging")
+  }
+
+  if (plan.features.apiAccess) {
+    features.push("API access")
+    features.push("White-label options")
+  }
+
+  features.push(plan.features.priorityProcessing ? "Priority support" : "Email support")
+
+  return features
+}
 
 export default function PricingPage() {
   const [isLoading, setIsLoading] = useState<string | null>(null)
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010'
+        const response = await fetch(`${apiUrl}/api/payfast/plans`)
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch pricing plans')
+        }
+
+        const result = await response.json()
+
+        if (result.success && result.data) {
+          const enhancedPlans = result.data.map((plan: PricingPlan) => ({
+            ...plan,
+            ...planDescriptions[plan.id],
+            buttonText: plan.id === 'free' ? 'Get Started' : `Choose ${plan.name}`,
+            buttonVariant: plan.id === 'starter' ? 'default' as const : 'outline' as const,
+          }))
+          setPricingPlans(enhancedPlans)
+        }
+      } catch (err) {
+        console.error('Error fetching plans:', err)
+        setError('Failed to load pricing plans. Please refresh the page.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPlans()
+  }, [])
+
+  const formatPrice = (plan: PricingPlan): string => {
+    if (plan.price === 0) return "Free"
+    return `$${plan.price}`
+  }
 
   const handlePlanSelection = async (planId: string) => {
     if (planId === "free") {
-      // For free plan, redirect to signup
       window.location.href = "/signup"
       return
     }
@@ -81,7 +149,6 @@ export default function PricingPage() {
     setIsLoading(planId)
 
     try {
-      // Collect basic user information for PayFast
       const email = prompt("Please enter your email address:")
       if (!email) {
         setIsLoading(null)
@@ -100,7 +167,6 @@ export default function PricingPage() {
         return
       }
 
-      // Initialize PayFast payment
       const response = await fetch('/api/payfast/initialize', {
         method: 'POST',
         headers: {
@@ -117,7 +183,6 @@ export default function PricingPage() {
       const result = await response.json()
 
       if (result.success && result.paymentUrl) {
-        // Redirect to PayFast payment page
         window.location.href = result.paymentUrl
       } else {
         throw new Error(result.message || 'Payment initialization failed')
@@ -129,13 +194,47 @@ export default function PricingPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <Navigation />
+        <div className="pt-32 pb-12 px-6">
+          <div className="container mx-auto max-w-7xl flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground">Loading pricing plans...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen">
+        <Navigation />
+        <div className="pt-32 pb-12 px-6">
+          <div className="container mx-auto max-w-7xl">
+            <div className="text-center">
+              <Card className="glass-strong border-border/50 max-w-md mx-auto p-8">
+                <CardTitle className="text-xl text-foreground mb-4">Error Loading Plans</CardTitle>
+                <CardDescription className="text-muted-foreground mb-6">{error}</CardDescription>
+                <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen">
       <Navigation />
 
       <div className="pt-32 pb-12 px-6">
         <div className="container mx-auto max-w-7xl">
-          {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Choose Your Plan</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -143,11 +242,10 @@ export default function PricingPage() {
             </p>
           </div>
 
-          {/* Pricing cards */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {pricingPlans.map((plan, index) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            {pricingPlans.map((plan) => (
               <Card
-                key={plan.name}
+                key={plan.id}
                 className={`glass-strong border-border/50 relative transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-primary/10 ${
                   plan.popular ? "ring-2 ring-primary/50" : ""
                 }`}
@@ -165,17 +263,17 @@ export default function PricingPage() {
                   <CardTitle className="text-2xl font-bold text-foreground">{plan.name}</CardTitle>
                   <CardDescription className="text-muted-foreground">{plan.description}</CardDescription>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                    {plan.period && <span className="text-muted-foreground">{plan.period}</span>}
+                    <span className="text-4xl font-bold text-foreground">{formatPrice(plan)}</span>
+                    {plan.price > 0 && <span className="text-muted-foreground">/{plan.interval}</span>}
                   </div>
                 </CardHeader>
 
                 <CardContent className="space-y-6">
                   <ul className="space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
+                    {getPlanFeaturesList(plan).map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">{feature}</span>
+                        <span className="text-foreground text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -187,17 +285,16 @@ export default function PricingPage() {
                         ? "bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-lg hover:shadow-primary/20"
                         : "glass-subtle border-primary/50 text-primary hover:bg-primary/10"
                     }`}
-                    onClick={() => handlePlanSelection(plan.planId)}
+                    onClick={() => handlePlanSelection(plan.id)}
                     disabled={isLoading !== null}
                   >
-                    {isLoading === plan.planId ? "Processing..." : plan.buttonText}
+                    {isLoading === plan.id ? "Processing..." : plan.buttonText}
                   </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* FAQ Section */}
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-center text-foreground mb-8">Frequently Asked Questions</h2>
 
@@ -239,7 +336,6 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* CTA Section */}
           <div className="text-center mt-16">
             <Card className="glass-strong border-border/50 max-w-2xl mx-auto">
               <CardContent className="p-8">
