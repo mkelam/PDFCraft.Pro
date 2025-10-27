@@ -26,7 +26,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ENV SKIP_ENV_VALIDATION=true
 
 # Build-time environment variable for API URL
-ARG NEXT_PUBLIC_API_URL=http://localhost:3001
+ARG NEXT_PUBLIC_API_URL=http://localhost:3010
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Build Next.js app

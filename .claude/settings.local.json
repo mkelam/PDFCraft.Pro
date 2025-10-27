@@ -184,7 +184,12 @@
       "Bash(break)",
       "Bash(done)",
       "Bash(while read chunk)",
-      "Bash(do echo \"Checking $chunk\")"
+      "Bash(do echo \"Checking $chunk\")",
+      "Bash(python3:*)",
+      "Bash(if exist \".ts-node\" rmdir /s /q \".ts-node\")",
+      "Bash(set PORT=3002)",
+      "Bash(for route in \"\" \"features\" \"pricing\" \"terms\" \"privacy\")",
+      "Bash(do echo -n \"/$route: \")"
     ],
     "deny": [],
     "ask": []

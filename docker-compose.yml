@@ -72,7 +72,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-production}
-      - NEXT_PUBLIC_API_URL=${BACKEND_URL:-http://localhost:3001}
+      - NEXT_PUBLIC_API_URL=${BACKEND_URL:-http://localhost:3010}
       - SKIP_ENV_VALIDATION=${SKIP_ENV_VALIDATION:-false}
     depends_on:
       - backend
