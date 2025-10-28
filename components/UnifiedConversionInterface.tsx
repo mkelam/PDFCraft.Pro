@@ -36,7 +36,7 @@ interface ProcessingState {
 }
 
 export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConversionInterfaceProps) {
-  const [activeTab, setActiveTab] = useState<TabMode>("convert")
+  const [activeTab, setActiveTab] = useState<TabMode>("convert") // Auto-select Convert mode (most popular)
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("powerpoint")
   const [showFutureFeatureAlert, setShowFutureFeatureAlert] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -226,6 +226,13 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
     setProcessing({ isProcessing: false, progress: 0, stage: "" })
   }
 
+  const retryConversion = () => {
+    // Clear error state and retry with existing files
+    setProcessing({ isProcessing: false, progress: 0, stage: "" })
+    // Automatically start processing again
+    processFiles()
+  }
+
   const handleOutputFormatChange = (format: OutputFormat) => {
     setOutputFormat(format)
     setShowFutureFeatureAlert(false) // All formats now supported via CloudConvert
@@ -248,6 +255,34 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
 
   return (
     <div className="space-y-6">
+      {/* Trust Banner */}
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+          <div className="flex items-center justify-center gap-3 text-sm flex-wrap">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium text-foreground">Files deleted after 1 hour</span>
+            </div>
+            <span className="text-muted-foreground">•</span>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium text-foreground">Bank-grade encryption</span>
+            </div>
+            <span className="text-muted-foreground">•</span>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium text-foreground">GDPR/POPIA compliant</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 3-Card Pipeline Interface - Responsive Design */}
       <div className="flex flex-col lg:flex-row gap-6 items-stretch justify-center max-w-7xl mx-auto">
         {/* CARD 1: Setup */}
@@ -265,14 +300,19 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                   onClick={() => handleTabChange("convert")}
                   data-testid="convert-mode-button"
                   className={`
-                    p-3 rounded-lg text-center font-medium transition-all duration-300 border
+                    p-3 rounded-lg text-center font-medium transition-all duration-300 border relative
                     ${activeTab === "convert"
                       ? "bg-primary/20 border-primary text-primary shadow-lg shadow-primary/20"
                       : "bg-muted/30 border-border text-muted-foreground hover:bg-primary/10 hover:border-primary/50"
                     }
                   `}
                 >
-                  Convert
+                  <div className="flex items-center justify-center gap-2">
+                    <span>Convert</span>
+                    <Badge className="bg-primary/30 text-primary text-[10px] px-1.5 py-0.5 font-normal">
+                      Most popular
+                    </Badge>
+                  </div>
                 </button>
                 <button
                   onClick={() => handleTabChange("merge")}
@@ -325,6 +365,9 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                     </Badge>
                   )}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  PDF files only • Free: 10MB max • Pro: 100MB
+                </p>
               </div>
             </div>
           </CardContent>
@@ -557,8 +600,27 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
         <div className="max-w-7xl mx-auto">
           <Alert className="border-red-200" data-testid="conversion-error-message">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-red-700">
-              {processing.error}
+            <AlertDescription className="text-red-700 flex items-center justify-between gap-4">
+              <span>{processing.error}</span>
+              <div className="flex gap-2 flex-shrink-0">
+                <Button
+                  onClick={retryConversion}
+                  data-testid="retry-conversion-button"
+                  size="sm"
+                  variant="outline"
+                  className="border-red-300 text-red-700 hover:bg-red-50"
+                >
+                  Try Again
+                </Button>
+                <Button
+                  onClick={reset}
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-700 hover:bg-red-50"
+                >
+                  Start Over
+                </Button>
+              </div>
             </AlertDescription>
           </Alert>
         </div>

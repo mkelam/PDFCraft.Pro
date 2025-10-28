@@ -331,6 +331,8 @@ export default function SignupPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     data-testid="toggle-signup-password-visibility"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    title={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -360,6 +362,8 @@ export default function SignupPage() {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     data-testid="toggle-confirm-password-visibility"
+                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                    title={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -376,6 +380,9 @@ export default function SignupPage() {
                   type="button"
                   onClick={() => handleInputChange("acceptTerms", !formData.acceptTerms)}
                   data-testid="accept-terms-checkbox"
+                  role="checkbox"
+                  aria-checked={formData.acceptTerms}
+                  aria-label="Accept terms and conditions"
                   className={`flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
                     formData.acceptTerms
                       ? "bg-primary border-primary text-primary-foreground"
