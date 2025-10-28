@@ -1,0 +1,95 @@
+# pdflab.pro - Simple Docker Compose Configuration
+# This version uses SQLite (no external database needed)
+
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pdflab-backend
+    restart: unless-stopped
+    ports:
+      - "3016:3016"
+    environment:
+      - NODE_ENV=production
+      - PORT=3016
+      # Database (SQLite)
+      - DB_PATH=/app/data/pdflab.db
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - JWT_EXPIRES_IN=7d
+      # Email Configuration
+      - SMTP_HOST=${SMTP_HOST:-smtp.hostinger.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM:-PDFLab.Pro <registration@pdflab.pro>}
+      # File Processing
+      - UPLOAD_DIR=/app/uploads
+      - TEMP_DIR=/app/temp
+      - MAX_FILE_SIZE=104857600
+      - LIBREOFFICE_PATH=/usr/bin/libreoffice
+      - LIBREOFFICE_AVAILABLE=true
+      - IMAGEMAGICK_AVAILABLE=true
+      - IMAGEMAGICK_PATH=/usr/bin/convert
+      - GHOSTSCRIPT_AVAILABLE=true
+      # URLs
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - BACKEND_URL=${BACKEND_URL:-http://localhost:3016}
+      # CloudConvert (optional)
+      - CLOUDCONVERT_API_KEY=${CLOUDCONVERT_API_KEY:-}
+      - CLOUDCONVERT_SANDBOX=false
+    volumes:
+      - pdflab_uploads:/app/uploads
+      - pdflab_temp:/app/temp
+      - pdflab_logs:/app/logs
+      - pdflab_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3016/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - pdflab-network
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: pdflab-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:3016
+    depends_on:
+      - backend
+    networks:
+      - pdflab-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Named volumes for persistent storage
+volumes:
+  pdflab_uploads:
+    driver: local
+  pdflab_temp:
+    driver: local
+  pdflab_logs:
+    driver: local
+  pdflab_data:
+    driver: local
+
+# Custom network
+networks:
+  pdflab-network:
+    driver: bridge

@@ -44,11 +44,18 @@ export class EmailService {
       });
 
       // Verify SMTP connection
-      if (process.env.NODE_ENV === 'production') {
-        await this.transporter.verify();
-        logger.info('✅ SMTP connection verified');
+      const hasSmtpConfig = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+
+      if (hasSmtpConfig) {
+        try {
+          await this.transporter.verify();
+          logger.info('✅ SMTP connection verified - Emails will be sent');
+        } catch (error) {
+          logger.warn('⚠️  SMTP verification failed - Check your email credentials');
+          logger.error('SMTP error:', error);
+        }
       } else {
-        logger.info('📧 Email service initialized (development mode)');
+        logger.info('📧 Email service initialized (dev mode - emails will be logged only)');
       }
 
       this.isInitialized = true;
@@ -65,7 +72,7 @@ export class EmailService {
       }
 
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'PDFCraft.Pro <noreply@pdfcraft.pro>',
+        from: process.env.SMTP_FROM || 'pdflab.pro <noreply@pdflab.pro>',
         to: options.to,
         subject: options.subject,
         html: options.html,
@@ -73,9 +80,12 @@ export class EmailService {
         attachments: options.attachments,
       };
 
-      // In development, just log the email
-      if (process.env.NODE_ENV !== 'production') {
-        logger.info('📧 [DEV] Email would be sent:', {
+      // Check if SMTP credentials are configured
+      const hasSmtpConfig = process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+
+      // In development without SMTP config, just log the email
+      if (process.env.NODE_ENV !== 'production' && !hasSmtpConfig) {
+        logger.info('📧 [DEV] Email would be sent (SMTP not configured):', {
           to: mailOptions.to,
           subject: mailOptions.subject,
           hasAttachments: !!mailOptions.attachments?.length,
@@ -83,7 +93,7 @@ export class EmailService {
         return true;
       }
 
-      // Send email in production
+      // Send email if SMTP is configured (works in both dev and production)
       const result = await this.transporter.sendMail(mailOptions);
 
       logger.info('📧 Email sent successfully:', {
@@ -106,14 +116,14 @@ export class EmailService {
   // Email Templates
   static getWelcomeEmail(userEmail: string, userName: string): EmailTemplate {
     return {
-      subject: 'Welcome to PDFCraft.Pro - Your PDF Processing Journey Begins!',
+      subject: 'Welcome to pdflab.pro - Your PDF Processing Journey Begins!',
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to PDFCraft.Pro</title>
+          <title>Welcome to pdflab.pro</title>
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
             .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
@@ -128,7 +138,7 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1 style="margin: 0; font-size: 32px;">Welcome to PDFCraft.Pro!</h1>
+              <h1 style="margin: 0; font-size: 32px;">Welcome to pdflab.pro!</h1>
               <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">Lightning-fast PDF processing at your fingertips</p>
             </div>
 
@@ -136,7 +146,7 @@ export class EmailService {
               <h2 style="color: #1e293b; margin-bottom: 20px;">Hi ${userName}! 👋</h2>
 
               <p style="color: #475569; line-height: 1.6; font-size: 16px;">
-                Thank you for joining PDFCraft.Pro! You now have access to the world's fastest PDF processing platform.
+                Thank you for joining pdflab.pro! You now have access to the world's fastest PDF processing platform.
               </p>
 
               <div style="margin: 30px 0;">
@@ -166,28 +176,28 @@ export class EmailService {
               </div>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://pdfcraft.pro/dashboard" class="button">Start Converting PDFs</a>
+                <a href="https://pdflab.pro/dashboard" class="button">Start Converting PDFs</a>
               </div>
 
               <p style="color: #475569; line-height: 1.6;">
                 Your <strong>Free Plan</strong> includes 3 conversions per day. Ready for more?
-                <a href="https://pdfcraft.pro/pricing" style="color: #667eea;">Upgrade to Pro</a> for unlimited processing.
+                <a href="https://pdflab.pro/pricing" style="color: #667eea;">Upgrade to Pro</a> for unlimited processing.
               </p>
             </div>
 
             <div class="footer">
-              <p>Questions? Reply to this email or visit our <a href="https://pdfcraft.pro/support">support center</a>.</p>
-              <p>PDFCraft.Pro - The fastest PDF processor on the planet 🌍</p>
+              <p>Questions? Reply to this email or visit our <a href="https://pdflab.pro/support">support center</a>.</p>
+              <p>pdflab.pro - The fastest PDF processor on the planet 🌍</p>
             </div>
           </div>
         </body>
         </html>
       `,
-      text: `Welcome to PDFCraft.Pro!
+      text: `Welcome to pdflab.pro!
 
 Hi ${userName}!
 
-Thank you for joining PDFCraft.Pro! You now have access to the world's fastest PDF processing platform.
+Thank you for joining pdflab.pro! You now have access to the world's fastest PDF processing platform.
 
 What you can do:
 • Convert PDFs to PowerPoint presentations in under 5 seconds
@@ -196,10 +206,10 @@ What you can do:
 
 Your Free Plan includes 3 conversions per day. Ready for more? Upgrade to Pro for unlimited processing.
 
-Get started: https://pdfcraft.pro/dashboard
-Questions? Visit: https://pdfcraft.pro/support
+Get started: https://pdflab.pro/dashboard
+Questions? Visit: https://pdflab.pro/support
 
-PDFCraft.Pro - The fastest PDF processor on the planet!`,
+pdflab.pro - The fastest PDF processor on the planet!`,
     };
   }
 
@@ -207,7 +217,7 @@ PDFCraft.Pro - The fastest PDF processor on the planet!`,
     const operationType = jobType === 'pdf-to-ppt' ? 'PDF to PowerPoint conversion' : 'PDF merge';
 
     return {
-      subject: `Your ${operationType} is ready! - PDFCraft.Pro`,
+      subject: `Your ${operationType} is ready! - pdflab.pro`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -249,13 +259,13 @@ PDFCraft.Pro - The fastest PDF processor on the planet!`,
 
               <p style="color: #475569; line-height: 1.6; font-size: 14px;">
                 Need to process more files?
-                <a href="https://pdfcraft.pro/dashboard" style="color: #667eea;">Upload another PDF</a> or
-                <a href="https://pdfcraft.pro/pricing" style="color: #667eea;">upgrade your plan</a> for unlimited processing.
+                <a href="https://pdflab.pro/dashboard" style="color: #667eea;">Upload another PDF</a> or
+                <a href="https://pdflab.pro/pricing" style="color: #667eea;">upgrade your plan</a> for unlimited processing.
               </p>
             </div>
 
             <div class="footer">
-              <p>Thanks for using PDFCraft.Pro!</p>
+              <p>Thanks for using pdflab.pro!</p>
             </div>
           </div>
         </body>
@@ -270,9 +280,9 @@ Download your file: ${downloadUrl}
 
 ⏰ Download expires in 24 hours - Save your file now!
 
-Need to process more files? Visit: https://pdfcraft.pro/dashboard
+Need to process more files? Visit: https://pdflab.pro/dashboard
 
-Thanks for using PDFCraft.Pro!`,
+Thanks for using pdflab.pro!`,
     };
   }
 
@@ -280,7 +290,7 @@ Thanks for using PDFCraft.Pro!`,
     const operationType = jobType === 'pdf-to-ppt' ? 'PDF to PowerPoint conversion' : 'PDF merge';
 
     return {
-      subject: `Conversion failed - We're here to help! - PDFCraft.Pro`,
+      subject: `Conversion failed - We're here to help! - pdflab.pro`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -321,8 +331,8 @@ Thanks for using PDFCraft.Pro!`,
               </ul>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://pdfcraft.pro/dashboard" class="button">Try Again</a>
-                <a href="https://pdfcraft.pro/support" class="button" style="background: #64748b; margin-left: 10px;">Get Support</a>
+                <a href="https://pdflab.pro/dashboard" class="button">Try Again</a>
+                <a href="https://pdflab.pro/support" class="button" style="background: #64748b; margin-left: 10px;">Get Support</a>
               </div>
 
               <p style="color: #475569; line-height: 1.6; font-size: 14px;">
@@ -331,7 +341,7 @@ Thanks for using PDFCraft.Pro!`,
             </div>
 
             <div class="footer">
-              <p>PDFCraft.Pro Support Team</p>
+              <p>pdflab.pro Support Team</p>
               <p>We're committed to making PDF processing effortless for you!</p>
             </div>
           </div>
@@ -351,12 +361,12 @@ Common Solutions:
 • Try uploading the file again - temporary network issues can cause failures
 • For merge operations, ensure all files are valid PDF documents
 
-Try again: https://pdfcraft.pro/dashboard
-Get support: https://pdfcraft.pro/support
+Try again: https://pdflab.pro/dashboard
+Get support: https://pdflab.pro/support
 
 Still having trouble? Reply to this email and our team will help you resolve the issue quickly.
 
-PDFCraft.Pro Support Team`,
+pdflab.pro Support Team`,
     };
   }
 
@@ -401,7 +411,7 @@ PDFCraft.Pro Support Team`,
               </div>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://pdfcraft.pro/pricing" class="button">Upgrade Now - $19/month</a>
+                <a href="https://pdflab.pro/pricing" class="button">Upgrade Now - $19/month</a>
               </div>
 
               <p style="color: #475569; line-height: 1.6; font-size: 14px; text-align: center;">
@@ -411,7 +421,7 @@ PDFCraft.Pro Support Team`,
             </div>
 
             <div class="footer">
-              <p>Need help choosing a plan? <a href="mailto:support@pdfcraft.pro">Contact our team</a></p>
+              <p>Need help choosing a plan? <a href="mailto:support@pdflab.pro">Contact our team</a></p>
             </div>
           </div>
         </body>
@@ -427,19 +437,19 @@ Upgrade to Pro Plan - $19/month:
 • Priority processing queue
 • Advanced features coming soon
 
-Upgrade now: https://pdfcraft.pro/pricing
+Upgrade now: https://pdflab.pro/pricing
 
 Your conversions will reset ${currentPlan === 'free' ? 'tomorrow' : 'next month'}.
 
-Need help? Contact: support@pdfcraft.pro`,
+Need help? Contact: support@pdflab.pro`,
     };
   }
 
   static getPasswordResetEmail(userEmail: string, resetToken: string): EmailTemplate {
-    const resetUrl = `https://pdfcraft.pro/reset-password?token=${resetToken}`;
+    const resetUrl = `https://pdflab.pro/reset-password?token=${resetToken}`;
 
     return {
-      subject: 'Reset Your PDFCraft.Pro Password',
+      subject: 'Reset Your pdflab.pro Password',
       html: `
         <!DOCTYPE html>
         <html>
@@ -459,12 +469,12 @@ Need help? Contact: support@pdfcraft.pro`,
           <div class="container">
             <div class="header">
               <h1 style="margin: 0; font-size: 28px;">🔐 Password Reset</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.9;">Secure access to your PDFCraft.Pro account</p>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">Secure access to your pdflab.pro account</p>
             </div>
 
             <div class="content">
               <p style="color: #475569; line-height: 1.6; font-size: 16px;">
-                We received a request to reset your PDFCraft.Pro password. Click the button below to create a new password:
+                We received a request to reset your pdflab.pro password. Click the button below to create a new password:
               </p>
 
               <div style="text-align: center; margin: 30px 0;">
@@ -484,21 +494,21 @@ Need help? Contact: support@pdfcraft.pro`,
             </div>
 
             <div class="footer">
-              <p>PDFCraft.Pro Security Team</p>
+              <p>pdflab.pro Security Team</p>
             </div>
           </div>
         </body>
         </html>
       `,
-      text: `Password Reset - PDFCraft.Pro
+      text: `Password Reset - pdflab.pro
 
-We received a request to reset your PDFCraft.Pro password.
+We received a request to reset your pdflab.pro password.
 
 Reset your password: ${resetUrl}
 
 ⚠️ Security Notice: This link expires in 1 hour. If you didn't request this reset, please ignore this email.
 
-PDFCraft.Pro Security Team`,
+pdflab.pro Security Team`,
     };
   }
 
@@ -564,6 +574,109 @@ PDFCraft.Pro Security Team`,
       subject: template.subject,
       html: template.html,
       text: template.text,
+    });
+  }
+
+  /**
+   * Send email verification
+   */
+  static async sendVerificationEmail(user: { email: string; full_name?: string | null }, token: string): Promise<boolean> {
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3020'}/verify-email?token=${token}`;
+    const userName = user.full_name || user.email.split('@')[0];
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-top: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center; color: white; }
+          .content { padding: 40px 30px; }
+          .button { display: inline-block; background: #667eea; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; font-size: 16px; }
+          .footer { background: #f8fafc; padding: 30px; text-align: center; color: #64748b; font-size: 14px; }
+          .badge { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 4px; font-size: 14px; font-weight: 600; margin: 5px; display: inline-block; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 style="margin: 0; font-size: 32px;">Welcome to PDFLab.Pro! 🎉</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">Verify your email to start converting</p>
+          </div>
+
+          <div class="content">
+            <h2 style="color: #1e293b; margin-bottom: 20px;">Hi ${userName}!</h2>
+
+            <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+              Thanks for signing up! We're excited to have you on board.
+            </p>
+
+            <p style="color: #475569; line-height: 1.6; font-size: 16px;">
+              Click the button below to verify your email address and unlock your free conversions:
+            </p>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationUrl}" class="button">Verify Email Address</a>
+            </div>
+
+            <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 4px; margin: 30px 0;">
+              <p style="margin: 0; color: #047857; font-weight: 600; margin-bottom: 10px;">Once verified, you'll get:</p>
+              <div>
+                <span class="badge">3 free conversions/month</span>
+                <span class="badge">PowerPoint, Word, Excel</span>
+                <span class="badge">96% OCR accuracy</span>
+                <span class="badge">Privacy-first</span>
+              </div>
+            </div>
+
+            <p style="color: #475569; line-height: 1.6; font-size: 14px;">
+              <strong>Link expires in 24 hours.</strong><br>
+              If the button doesn't work, copy and paste this URL into your browser:<br>
+              <a href="${verificationUrl}" style="color: #667eea; word-break: break-all;">${verificationUrl}</a>
+            </p>
+
+            <p style="margin-top: 30px; color: #64748b; font-size: 14px;">
+              If you didn't create an account, you can safely ignore this email.
+            </p>
+          </div>
+
+          <div class="footer">
+            <p>© 2024 PDFLab.Pro. All rights reserved.</p>
+            <p>Privacy-First PDF Conversion</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `Welcome to PDFLab.Pro!
+
+Hi ${userName}!
+
+Thanks for signing up! We're excited to have you on board.
+
+Verify your email address to unlock your free conversions:
+${verificationUrl}
+
+Once verified, you'll get:
+• 3 free conversions/month
+• Convert to PowerPoint, Word, Excel
+• 96% OCR accuracy
+• Privacy-first processing
+
+Link expires in 24 hours.
+
+If you didn't create an account, you can safely ignore this email.
+
+© 2024 PDFLab.Pro - Privacy-First PDF Conversion`;
+
+    return this.sendEmail({
+      to: user.email,
+      subject: 'Verify your email - Start converting PDFs!',
+      html,
+      text,
     });
   }
 }

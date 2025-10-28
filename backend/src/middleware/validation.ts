@@ -21,10 +21,10 @@ export const registerSchema = Joi.object({
     }),
   confirmPassword: Joi.string()
     .valid(Joi.ref('password'))
-    .required()
+    .optional()
+    .allow('')
     .messages({
       'any.only': 'Passwords must match',
-      'any.required': 'Password confirmation is required',
     }),
 });
 

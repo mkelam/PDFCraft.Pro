@@ -1,0 +1,54 @@
+# Quick Start Docker Compose - No Build Required!
+# Uses pre-built Node images - starts in under 2 minutes
+
+services:
+  # Backend API (Basic Node - No PDF tools for quick testing)
+  backend:
+    image: node:20-alpine
+    container_name: pdflab-backend-quick
+    working_dir: /app
+    command: sh -c "npm install && npx ts-node --transpile-only src/server.ts"
+    ports:
+      - "3020:3016"
+    environment:
+      - NODE_ENV=development
+      - PORT=3016
+      - DB_PATH=/app/data/pdflab.db
+      - JWT_SECRET=quickstart-dev-secret
+      - SKIP_ENV_VALIDATION=true
+      - CLOUDCONVERT_API_KEY=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYmUzMzgxMmRkZWY4YTliN2JiOTIzYmY5MTMyOTM2OGIyNjJiMzdkODlkZmFlN2FlMmJkNDA5NTVlY2VjZjcwZDUxOTI4NTJhNmIyYTQ3ZDkiLCJpYXQiOjE3NjEyNDQyNTQuNTA2MDAzLCJuYmYiOjE3NjEyNDQyNTQuNTA2MDA0LCJleHAiOjQ5MTY5MTc4NTQuNDk5OTU0LCJzdWIiOiI3MzAzMjA4MCIsInNjb3BlcyI6WyJ3ZWJob29rLndyaXRlIiwid2ViaG9vay5yZWFkIiwidGFzay53cml0ZSIsInRhc2sucmVhZCIsInVzZXIud3JpdGUiLCJ1c2VyLnJlYWQiLCJwcmVzZXQucmVhZCIsInByZXNldC53cml0ZSJdfQ.bYu1XCp5kaX7t8iX-lATNDDCE_Hwm8xLD5kvKuZzKA4X3ALnejMkXAtC2NTbeEknTxUQwzyQ46733XiVcwIIxJzz49UmqTX8roJF6UTHkMkyNfOzO8H8STGYONoPSLl0ZqfAtvyK2wrXiqRhOBivgKyaB-ZCMwD1gEOGzNGKZSyvKD4DyY8D5JVVx4B9uD9N6MBwzJ08jeOT3MIAGIEJ8uqSwt25hekbdmeJgR4od-3c1GR52NDd6sPpgmvbL7ednMDeZbaXwO3KaPdyE9WuHge4zGHQKnVZpLAB25fWS-9zF-6Noe4Rl1J6UBX2sAXzug_-rChvsT0EqQveQlJIJiaAP-q21Jq2XlfohCAWnWzx7UYTaFZ9wI9239TgWtP3ZlenD1o3STvpZ_dF11h7HGZi1csyBCG8MOxpUKbb0w0WAP7ChAfVnSHwsMldxm6XocmsKn4xCQcMa0aEhPRfKKz9WmR96_5Xwc_5nSjMaL8XSwNAC5ELGENiJaUWTL7vpV78m5U1qF-w2SOJlgpCJ-V4lHwBn9gJAc2DTEaYVUjmFpWe1e37PXqPWUWoXTMlCz7tgTMx9pllFVZmJbspkvKBhwy3-EmwTqlU18d_SAuJJfbNHLNUhcEzlPPUPfaTfWl8hXenQBOX9uiXmikqwgpfaVS7gHGYGb6LM7nVG-Y
+      - CLOUDCONVERT_SANDBOX=false
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    networks:
+      - pdflab-quick
+
+  # Frontend (Basic Node)
+  frontend:
+    image: node:20-alpine
+    container_name: pdflab-frontend-quick
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - SKIP_ENV_VALIDATION=true
+      - NEXT_PUBLIC_API_URL=http://backend:3016
+    volumes:
+      - .:/app
+      - frontend_node_modules:/app/node_modules
+      - /app/backend
+    depends_on:
+      - backend
+    networks:
+      - pdflab-quick
+
+volumes:
+  backend_node_modules:
+  frontend_node_modules:
+
+networks:
+  pdflab-quick:
+    driver: bridge
