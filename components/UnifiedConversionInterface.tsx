@@ -263,6 +263,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
               <div className="flex flex-col gap-2 flex-1 justify-center">
                 <button
                   onClick={() => handleTabChange("convert")}
+                  data-testid="convert-mode-button"
                   className={`
                     p-3 rounded-lg text-center font-medium transition-all duration-300 border
                     ${activeTab === "convert"
@@ -275,6 +276,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                 </button>
                 <button
                   onClick={() => handleTabChange("merge")}
+                  data-testid="merge-mode-button"
                   className={`
                     p-3 rounded-lg text-center font-medium transition-all duration-300 border
                     ${activeTab === "merge"
@@ -293,6 +295,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
               <h4 className="text-primary/90 text-xs font-semibold mb-2">2. Drag and Drop</h4>
               <div
                 {...getRootProps()}
+                data-testid="file-upload-dropzone"
                 className={`
                   border-2 border-dashed rounded-lg p-6 lg:p-4 text-center cursor-pointer transition-all flex-1 flex flex-col justify-center min-h-[120px] lg:min-h-auto
                   ${isDragActive ? "border-primary bg-primary/5" : "border-border"}
@@ -342,6 +345,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     disabled={activeTab === "merge"}
+                    data-testid="output-format-dropdown"
                     className={`
                       w-full p-3 rounded-lg border text-foreground transition-all flex items-center justify-between
                       ${activeTab === "merge"
@@ -378,6 +382,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                             handleOutputFormatChange(format)
                             setIsDropdownOpen(false)
                           }}
+                          data-testid={`output-format-option-${format}`}
                           className="w-full p-3 text-left hover:bg-white/10 first:rounded-t-lg last:rounded-b-lg transition-colors text-foreground"
                         >
                           {format === "image" && "📷 Image"}
@@ -401,6 +406,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                     {uploadedFiles.map((fileItem) => (
                       <div
                         key={fileItem.id}
+                        data-testid="uploaded-file-item"
                         className="flex items-center justify-between p-2 bg-muted/30 rounded-lg"
                       >
                         <div className="flex items-center space-x-2 min-w-0 flex-1">
@@ -422,6 +428,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                           size="sm"
                           onClick={() => removeFile(fileItem.id)}
                           disabled={processing.isProcessing}
+                          data-testid="remove-file-button"
                           className="p-1 h-6 w-6"
                         >
                           <X className="w-3 h-3" />
@@ -475,6 +482,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                           onClick={processFiles}
                           disabled={uploadedFiles.filter(f => f.valid).length === 0 ||
                             (activeTab === "merge" && uploadedFiles.filter(f => f.valid).length < 2)}
+                          data-testid="process-files-button"
                           className="bg-primary hover:bg-primary/90"
                         >
                           {activeTab === "convert" ? (
@@ -524,11 +532,11 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                       <p>Output: {processing.result.outputFile}</p>
                     </div>
                     <div className="flex space-x-2">
-                      <Button onClick={downloadFile} className="bg-green-600 hover:bg-green-700 text-xs px-3 py-2">
+                      <Button onClick={downloadFile} data-testid="download-button" className="bg-green-600 hover:bg-green-700 text-xs px-3 py-2">
                         <Download className="w-3 h-3 mr-1" />
                         Download
                       </Button>
-                      <Button variant="outline" onClick={reset} className="text-xs px-3 py-2">
+                      <Button variant="outline" onClick={reset} data-testid="reset-button" className="text-xs px-3 py-2">
                         Process Another
                       </Button>
                     </div>
@@ -547,7 +555,7 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
       {/* Error State */}
       {processing.error && (
         <div className="max-w-7xl mx-auto">
-          <Alert className="border-red-200">
+          <Alert className="border-red-200" data-testid="conversion-error-message">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription className="text-red-700">
               {processing.error}

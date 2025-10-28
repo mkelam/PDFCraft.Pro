@@ -1,0 +1,201 @@
+name: pdfcraftpro
+services:
+  backend:
+    build:
+      context: c:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro\backend
+      dockerfile: Dockerfile
+    container_name: pdflab-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+        required: true
+      redis:
+        condition: service_healthy
+        required: true
+    deploy:
+      resources:
+        limits:
+          cpus: 2
+          memory: "4294967296"
+        reservations:
+          cpus: 1
+          memory: "2147483648"
+    environment:
+      BACKEND_URL: http://localhost:3001
+      CLOUDCONVERT_API_KEY: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYmUzMzgxMmRkZWY4YTliN2JiOTIzYmY5MTMyOTM2OGIyNjJiMzdkODlkZmFlN2FlMmJkNDA5NTVlY2VjZjcwZDUxOTI4NTJhNmIyYTQ3ZDkiLCJpYXQiOjE3NjEyNDQyNTQuNTA2MDAzLCJuYmYiOjE3NjEyNDQyNTQuNTA2MDA0LCJleHAiOjQ5MTY5MTc4NTQuNDk5OTU0LCJzdWIiOiI3MzAzMjA4MCIsInNjb3BlcyI6WyJ3ZWJob29rLndyaXRlIiwid2ViaG9vay5yZWFkIiwidGFzay53cml0ZSIsInRhc2sucmVhZCIsInVzZXIud3JpdGUiLCJ1c2VyLnJlYWQiLCJwcmVzZXQucmVhZCIsInByZXNldC53cml0ZSJdfQ.bYu1XCp5kaX7t8iX-lATNDDCE_Hwm8xLD5kvKuZzKA4X3ALnejMkXAtC2NTbeEknTxUQwzyQ46733XiVcwIIxJzz49UmqTX8roJF6UTHkMkyNfOzO8H8STGYONoPSLl0ZqfAtvyK2wrXiqRhOBivgKyaB-ZCMwD1gEOGzNGKZSyvKD4DyY8D5JVVx4B9uD9N6MBwzJ08jeOT3MIAGIEJ8uqSwt25hekbdmeJgR4od-3c1GR52NDd6sPpgmvbL7ednMDeZbaXwO3KaPdyE9WuHge4zGHQKnVZpLAB25fWS-9zF-6Noe4Rl1J6UBX2sAXzug_-rChvsT0EqQveQlJIJiaAP-q21Jq2XlfohCAWnWzx7UYTaFZ9wI9239TgWtP3ZlenD1o3STvpZ_dF11h7HGZi1csyBCG8MOxpUKbb0w0WAP7ChAfVnSHwsMldxm6XocmsKn4xCQcMa0aEhPRfKKz9WmR96_5Xwc_5nSjMaL8XSwNAC5ELGENiJaUWTL7vpV78m5U1qF-w2SOJlgpCJ-V4lHwBn9gJAc2DTEaYVUjmFpWe1e37PXqPWUWoXTMlCz7tgTMx9pllFVZmJbspkvKBhwy3-EmwTqlU18d_SAuJJfbNHLNUhcEzlPPUPfaTfWl8hXenQBOX9uiXmikqwgpfaVS7gHGYGb6LM7nVG-Y
+      CLOUDCONVERT_SANDBOX: "false"
+      CORS_ORIGIN: http://localhost:3000
+      DATABASE_URL: mysql://pdflab_user:pdflab_db_pass_2025_secure@mysql:3306/pdflab_db
+      DB_HOST: mysql
+      DB_NAME: pdflab_db
+      DB_PASSWORD: pdflab_db_pass_2025_secure
+      DB_PORT: "3306"
+      DB_USER: pdflab_user
+      FRONTEND_URL: http://localhost:3000
+      GHOSTSCRIPT_AVAILABLE: "false"
+      JWT_EXPIRES_IN: 24h
+      JWT_SECRET: docker-dev-secret-12345678901234567890123456789012
+      LIBREOFFICE_AVAILABLE: "false"
+      MAX_FILE_SIZE: "104857600"
+      NODE_ENV: production
+      PAYFAST_MERCHANT_ID: "25263515"
+      PAYFAST_MERCHANT_KEY: cyxcghcf5hsbl
+      PAYFAST_MODE: sandbox
+      PAYFAST_PASSPHRASE: ""
+      PORT: "3001"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://redis:6379
+      SMTP_FROM: PDFLab.Pro <noreply@pdflab.pro>
+      SMTP_HOST: smtp.hostinger.com
+      SMTP_PASSWORD: your-email-password-here
+      SMTP_PORT: "587"
+      SMTP_USER: noreply@pdflab.pro
+      TEMP_DIR: /app/temp
+      UPLOAD_DIR: /app/uploads
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:3001/health
+      timeout: 10s
+      interval: 30s
+      retries: 3
+      start_period: 1m0s
+    networks:
+      pdflab-network: null
+    ports:
+      - mode: ingress
+        target: 3001
+        published: "3001"
+        protocol: tcp
+    restart: unless-stopped
+    stop_grace_period: 30s
+    volumes:
+      - type: volume
+        source: uploads
+        target: /app/uploads
+        volume: {}
+      - type: volume
+        source: temp
+        target: /app/temp
+        volume: {}
+      - type: volume
+        source: logs
+        target: /app/logs
+        volume: {}
+  frontend:
+    build:
+      context: c:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro
+      dockerfile: Dockerfile.frontend
+    container_name: pdflab-frontend
+    depends_on:
+      backend:
+        condition: service_started
+        required: true
+    environment:
+      NODE_ENV: production
+      SKIP_ENV_VALIDATION: "false"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - 'require(''http'').get(''http://localhost:3000'', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})'
+      timeout: 10s
+      interval: 30s
+      retries: 3
+      start_period: 40s
+    networks:
+      pdflab-network: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+    restart: unless-stopped
+  mysql:
+    command:
+      - --default-authentication-plugin=mysql_native_password
+    container_name: pdflab-mysql
+    environment:
+      MYSQL_DATABASE: pdflab_db
+      MYSQL_PASSWORD: pdflab_db_pass_2025_secure
+      MYSQL_ROOT_PASSWORD: pdflab_root_pass_2025_secure
+      MYSQL_USER: pdflab_user
+    expose:
+      - "3306"
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - -h
+        - localhost
+        - -u
+        - root
+        - -ppdflab_root_pass_2025_secure
+      timeout: 10s
+      interval: 30s
+      retries: 3
+      start_period: 40s
+    image: mysql:8.0
+    networks:
+      pdflab-network: null
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: mysql_data
+        target: /var/lib/mysql
+        volume: {}
+      - type: bind
+        source: c:\Users\Mac\OneDrive\Desktop\Projects\PDFCraft.Pro\mysql\init
+        target: /docker-entrypoint-initdb.d
+        bind:
+          create_host_path: true
+  redis:
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+    container_name: pdflab-redis
+    expose:
+      - "6379"
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      timeout: 10s
+      interval: 30s
+      retries: 3
+    image: redis:7-alpine
+    networks:
+      pdflab-network: null
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: redis_data
+        target: /data
+        volume: {}
+networks:
+  pdflab-network:
+    name: pdfcraftpro_pdflab-network
+    driver: bridge
+volumes:
+  logs:
+    name: pdfcraftpro_logs
+    driver: local
+  mysql_data:
+    name: pdfcraftpro_mysql_data
+    driver: local
+  redis_data:
+    name: pdfcraftpro_redis_data
+    driver: local
+  temp:
+    name: pdfcraftpro_temp
+    driver: local
+  uploads:
+    name: pdfcraftpro_uploads
+    driver: local

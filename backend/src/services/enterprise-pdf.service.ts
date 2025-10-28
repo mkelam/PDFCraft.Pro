@@ -139,7 +139,7 @@ export class EnterprisePDFService {
       console.log(`🔄 [LIBREOFFICE] Converting: ${path.basename(inputPath)}`);
 
       // Use our Windows-native LibreOffice wrapper
-      const outputFilename = await LibreOfficeWrapper.convertPDFToPPT(inputPath, outputDir);
+      const outputFilename = await LibreOfficeWrapper.convertPDFToOffice(inputPath, outputDir);
 
       console.log(`✅ [LIBREOFFICE] Conversion completed: ${outputFilename}`);
       return outputFilename;

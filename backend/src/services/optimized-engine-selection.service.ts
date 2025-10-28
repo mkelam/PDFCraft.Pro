@@ -177,7 +177,7 @@ export class OptimizedEngineSelectionService implements PDFConversionService, En
 
       // Ultimate fallback - use semantic validation
       console.log('🔄 [ULTIMATE-FALLBACK] Using semantic validation engine...');
-      return await this.semanticValidationService.convertPDFToPPT(inputPath, outputDir, options);
+      return await this.semanticValidationService.convertPDFToOffice(inputPath, outputDir, options);
     }
   }
 
@@ -513,32 +513,32 @@ export class OptimizedEngineSelectionService implements PDFConversionService, En
     try {
       switch (engine) {
         case 'semantic-validation':
-          const semanticResult = await this.semanticValidationService.convertPDFToPPT(inputPath, outputDir, options);
+          const semanticResult = await this.semanticValidationService.convertPDFToOffice(inputPath, outputDir, options);
           outputFile = semanticResult.filename;
           break;
 
         case 'visual-fidelity':
           const visualService = new VisualFidelityPDFService();
-          const visualResult = await visualService.convertPDFToPPT(inputPath, outputDir, options);
+          const visualResult = await visualService.convertPDFToOffice(inputPath, outputDir, options);
           outputFile = visualResult.filename;
           break;
 
         case 'layout-aware':
-          outputFile = await LayoutAwarePDFService.convertPDFToPPT(inputPath, outputDir);
+          outputFile = await LayoutAwarePDFService.convertPDFToOffice(inputPath, outputDir);
           break;
 
         case 'enhanced-spacing':
-          outputFile = await EnhancedSpacingPDFService.convertPDFToPPT(inputPath, outputDir);
+          outputFile = await EnhancedSpacingPDFService.convertPDFToOffice(inputPath, outputDir);
           break;
 
         case 'improved':
           const improvedService = new ImprovedPDFService();
-          const improvedResult = await improvedService.convertPDFToPPT(inputPath, outputDir, options);
+          const improvedResult = await improvedService.convertPDFToOffice(inputPath, outputDir, options);
           outputFile = improvedResult.filename;
           break;
 
         default:
-          const defaultResult = await this.semanticValidationService.convertPDFToPPT(inputPath, outputDir, options);
+          const defaultResult = await this.semanticValidationService.convertPDFToOffice(inputPath, outputDir, options);
           outputFile = defaultResult.filename;
       }
 

@@ -95,7 +95,7 @@ export class HybridEditablePDFService {
     process.env.LIBREOFFICE_TIMEOUT = '15000'; // 15 seconds
 
     try {
-      const outputFilename = await LibreOfficeWrapper.convertPDFToPPT(inputPath, outputDir);
+      const outputFilename = await LibreOfficeWrapper.convertPDFToOffice(inputPath, outputDir);
 
       // If original filename provided, rename to preserve it
       if (originalFilename) {
@@ -181,11 +181,11 @@ export class HybridEditablePDFService {
     let visualResult: string;
     try {
       console.log(`📸 [LEGACY-HYBRID] Getting high-quality visual conversion...`);
-      const visualConversion = await VisualFidelityPDFService.convertPDFToPPT(inputPath, outputDir);
+      const visualConversion = await VisualFidelityPDFService.convertPDFToOffice(inputPath, outputDir);
       visualResult = visualConversion.filename;
     } catch (error) {
       console.log(`📸 [LEGACY-HYBRID] Visual fidelity failed, using improved PDF service...`);
-      const improvedConversion = await ImprovedPDFService.convertPDFToPPT(inputPath, outputDir);
+      const improvedConversion = await ImprovedPDFService.convertPDFToOffice(inputPath, outputDir);
       visualResult = improvedConversion.filename;
     }
 
@@ -330,11 +330,11 @@ export class HybridEditablePDFService {
     console.log(`🖼️ [VISUAL-FALLBACK] Using high-quality visual conversion...`);
 
     try {
-      const result = await VisualFidelityPDFService.convertPDFToPPT(inputPath, outputDir);
+      const result = await VisualFidelityPDFService.convertPDFToOffice(inputPath, outputDir);
       return result.filename;
     } catch (error) {
       console.log(`🖼️ [VISUAL-FALLBACK] Visual fidelity failed, using improved service...`);
-      const result = await ImprovedPDFService.convertPDFToPPT(inputPath, outputDir);
+      const result = await ImprovedPDFService.convertPDFToOffice(inputPath, outputDir);
       return result.filename;
     }
   }

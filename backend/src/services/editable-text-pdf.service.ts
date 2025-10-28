@@ -69,7 +69,7 @@ export class EditableTextPDFService {
    * Convert using LibreOffice (preserves native editability)
    */
   private static async convertWithLibreOffice(inputPath: string, outputDir: string, originalFilename?: string): Promise<string> {
-    const outputFilename = await LibreOfficeWrapper.convertPDFToPPT(inputPath, outputDir);
+    const outputFilename = await LibreOfficeWrapper.convertPDFToOffice(inputPath, outputDir);
 
     // If original filename provided, rename to preserve it
     if (originalFilename) {

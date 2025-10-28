@@ -107,6 +107,7 @@ export default function LoginPage() {
                   variant="outline"
                   onClick={() => handleSocialLogin(provider.id)}
                   disabled={socialLoading !== null}
+                  data-testid={`social-login-${provider.id}`}
                   className="w-full glass-subtle border-border/40 hover:border-primary/50 text-foreground hover:text-primary transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {socialLoading === provider.id ? (
@@ -135,7 +136,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Error message */}
               {error && (
-                <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                <div data-testid="login-error-message" className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                   <AlertCircle className="w-4 h-4" />
                   <span>{error}</span>
                 </div>
@@ -152,6 +153,7 @@ export default function LoginPage() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  data-testid="login-email-input"
                   className="glass-subtle bg-input/50 border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                   required
                 />
@@ -169,12 +171,14 @@ export default function LoginPage() {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    data-testid="login-password-input"
                     className="glass-subtle bg-input/50 border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 pr-10"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    data-testid="toggle-login-password-visibility"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -193,6 +197,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
+                data-testid="sign-in-button"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5 transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (

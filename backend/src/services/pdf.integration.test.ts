@@ -207,7 +207,7 @@ describe('PDF Service Integration Tests', () => {
   describe('PDF to PowerPoint Conversion', () => {
     it('should convert PDF to PowerPoint (mock mode)', async () => {
       const startTime = Date.now();
-      const outputFilename = await PDFService.convertPDFToPPT(testPDFPath, outputDir);
+      const outputFilename = await PDFService.convertPDFToOffice(testPDFPath, outputDir);
       const endTime = Date.now();
 
       expect(outputFilename).toBeTruthy();
@@ -233,13 +233,13 @@ describe('PDF Service Integration Tests', () => {
     it('should handle conversion errors gracefully', async () => {
       const nonExistentPath = '/non/existent/file.pdf';
 
-      await expect(PDFService.convertPDFToPPT(nonExistentPath, outputDir))
+      await expect(PDFService.convertPDFToOffice(nonExistentPath, outputDir))
         .rejects.toThrow();
     });
 
     it('should generate unique output filenames', async () => {
-      const filename1 = await PDFService.convertPDFToPPT(testPDFPath, outputDir);
-      const filename2 = await PDFService.convertPDFToPPT(testPDFPath, outputDir);
+      const filename1 = await PDFService.convertPDFToOffice(testPDFPath, outputDir);
+      const filename2 = await PDFService.convertPDFToOffice(testPDFPath, outputDir);
 
       expect(filename1).not.toBe(filename2);
       expect(filename1).toMatch(/\.pptx$/);
@@ -426,7 +426,7 @@ describe('PDF Service Integration Tests', () => {
     });
 
     it('should produce consistent mock PowerPoint files', async () => {
-      const outputFilename = await MockPDFService.convertPDFToPPT(testPDFPath, outputDir);
+      const outputFilename = await MockPDFService.convertPDFToOffice(testPDFPath, outputDir);
       const outputPath = path.join(outputDir, outputFilename);
 
       const content = await fs.readFile(outputPath, 'utf8');
@@ -443,7 +443,7 @@ describe('PDF Service Integration Tests', () => {
 
     it('should simulate realistic processing time', async () => {
       const startTime = Date.now();
-      await MockPDFService.convertPDFToPPT(testPDFPath, outputDir);
+      await MockPDFService.convertPDFToOffice(testPDFPath, outputDir);
       const endTime = Date.now();
 
       const processingTime = endTime - startTime;
@@ -460,7 +460,7 @@ describe('PDF Service Integration Tests', () => {
       await expect(fs.stat(newOutputDir)).rejects.toThrow();
 
       // Service should create it
-      const outputFilename = await PDFService.convertPDFToPPT(testPDFPath, newOutputDir);
+      const outputFilename = await PDFService.convertPDFToOffice(testPDFPath, newOutputDir);
       const outputPath = path.join(newOutputDir, outputFilename);
 
       // Verify directory and file exist
@@ -474,7 +474,7 @@ describe('PDF Service Integration Tests', () => {
 
     it('should handle concurrent operations', async () => {
       const promises = Array.from({ length: 5 }, (_, i) =>
-        PDFService.convertPDFToPPT(testPDFPath, outputDir)
+        PDFService.convertPDFToOffice(testPDFPath, outputDir)
       );
 
       const results = await Promise.all(promises);
@@ -500,7 +500,7 @@ describe('PDF Service Integration Tests', () => {
       const minimalPath = path.join(outputDir, 'minimal.pdf');
       await fs.writeFile(minimalPath, minimalBuffer);
 
-      const outputFilename = await PDFService.convertPDFToPPT(minimalPath, outputDir);
+      const outputFilename = await PDFService.convertPDFToOffice(minimalPath, outputDir);
       expect(outputFilename).toBeTruthy();
 
       // Cleanup

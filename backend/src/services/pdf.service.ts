@@ -108,7 +108,7 @@ export class PDFService {
 
       // Fallback to standard conversion methods
       console.log(`🔄 [FALLBACK] Attempting standard conversion methods...`);
-      return this.convertPDFToPPT(inputPath, outputDir, originalFilename);
+      return this.convertPDFToOffice(inputPath, outputDir, originalFilename);
     }
   }
 
@@ -154,7 +154,7 @@ export class PDFService {
     } else if (ocrOptions?.ocrEnabled && (process.env.DISABLE_OCR_ENGINE === 'true' || process.env.DISABLE_PARALLEL_OCR === 'true')) {
       console.log(`🚫 [OCR-DISABLED] OCR engine disabled by environment variable, using reliable Puppeteer engine instead`);
       console.log(`⚡ [PUPPETEER-FORCE] Forcing conversion through Puppeteer High-Fidelity Engine to avoid hangs`);
-      return await PuppeteerPDFService.convertPDFToPPT(inputPath, outputDir);
+      return await PuppeteerPDFService.convertPDFToOffice(inputPath, outputDir);
     }
 
     // PRIORITY: IMAGE EXTRACTION & VISUAL FIDELITY FIRST
@@ -206,7 +206,7 @@ export class PDFService {
       console.log(`🔄 [FALLBACK-HYBRID] Trying hybrid approach as fallback...`);
       console.log(`   📝 Goal: Editable text + Best effort image preservation`);
 
-      // const hybridResult = await HybridEditablePDFService.convertPDFToPPT(inputPath, outputDir, originalFilename);
+      // const hybridResult = await HybridEditablePDFService.convertPDFToOffice(inputPath, outputDir, originalFilename);
       throw new Error('HybridEditablePDFService temporarily disabled');
 
       // Validate that conversion succeeded
@@ -252,49 +252,49 @@ export class PDFService {
       {
         name: 'Puppeteer High-Fidelity Engine (FULL VISUAL CAPTURE)',
         emoji: '[PUP]',
-        convert: () => PuppeteerPDFService.convertPDFToPPT(inputPath, outputDir),
+        convert: () => PuppeteerPDFService.convertPDFToOffice(inputPath, outputDir),
         description: 'Headless Chrome rendering preserves images, charts, and layout before any scripted fallbacks.',
         available: isPuppeteerEngineEnabled()
       },
       {
         name: 'Optimized Engine Selection (EXPERT PRIORITY 5 - FINAL)',
         emoji: '🎯',
-        convert: () => serviceContainer.getService('optimized-engine').convertPDFToPPT(inputPath, outputDir),
+        convert: () => serviceContainer.getService('optimized-engine').convertPDFToOffice(inputPath, outputDir),
         description: 'EXPERT PRIORITY 5: Advanced engine prioritization, uncertainty resolution, performance-quality optimization matrix, and complete expert implementation with working image processing',
         available: true
       },
       {
         name: 'Semantic Validation PDF Engine (EXPERT PRIORITY 4)',
         emoji: '🧠',
-        convert: () => serviceContainer.getService('semantic-validation').convertPDFToPPT(inputPath, outputDir),
+        convert: () => serviceContainer.getService('semantic-validation').convertPDFToOffice(inputPath, outputDir),
         description: 'EXPERT PRIORITY 4: OCR baseline validation, semantic content analysis, intelligent engine selection, and quality metrics with Priority 1+2+3 foundation',
         available: true
       },
       {
         name: 'Visual Fidelity PDF Engine (EXPERT PRIORITY 3)',
         emoji: '🎨',
-        convert: () => serviceContainer.getService('visual-fidelity').convertPDFToPPT(inputPath, outputDir),
+        convert: () => serviceContainer.getService('visual-fidelity').convertPDFToOffice(inputPath, outputDir),
         description: 'EXPERT PRIORITY 3: Enhanced image extraction, QR code/logo preservation, and visual element integration with Priority 1+2 foundation',
         available: true
       },
       {
         name: 'Layout-Aware PDF Engine (EXPERT PRIORITY 2)',
         emoji: '🏗️',
-        convert: () => LayoutAwarePDFService.convertPDFToPPT(inputPath, outputDir),
+        convert: () => LayoutAwarePDFService.convertPDFToOffice(inputPath, outputDir),
         description: 'EXPERT PRIORITY 2: Coordinate-based PPTX layout mapping with form structure preservation and key-value pair detection',
         available: true
       },
       {
         name: 'Enhanced Spacing PDF Engine (EXPERT PRIORITY 1)',
         emoji: '🎯',
-        convert: () => EnhancedSpacingPDFService.convertPDFToPPT(inputPath, outputDir),
+        convert: () => EnhancedSpacingPDFService.convertPDFToOffice(inputPath, outputDir),
         description: 'EXPERT PRIORITY 1: Addresses text concatenation problems (MalibongweMkela → Malibongwe Mkela) with intelligent spacing algorithms',
         available: true
       },
       {
         name: 'Improved PDF Engine (VERIFIED STABLE FOUNDATION)',
         emoji: '✨',
-        convert: () => serviceContainer.getService('improved').convertPDFToPPT(inputPath, outputDir),
+        convert: () => serviceContainer.getService('improved').convertPDFToOffice(inputPath, outputDir),
         description: 'VERIFIED STABLE with robust error handling, graceful degradation, and multiple fallback strategies',
         available: true
       },
@@ -302,7 +302,7 @@ export class PDFService {
       // {
       //   name: 'Expert Enhanced PDF Engine (TRUE LAYOUT PRESERVATION)',
       //   emoji: '🎯',
-      //   convert: () => ExpertEnhancedPDFService.convertPDFToPPT(inputPath, outputDir, originalFilename),
+      //   convert: () => ExpertEnhancedPDFService.convertPDFToOffice(inputPath, outputDir, originalFilename),
       //   description: 'WORLD-CLASS layout preservation with position-aware text extraction, coordinate mapping, and structure detection using pdf.js',
       //   available: true
       // },
@@ -310,14 +310,14 @@ export class PDFService {
       // ...(canvasAvailable ? [{
       //   name: 'Fixed Canvas PDF Engine (ACTUAL HIGH-QUALITY RENDERING)',
       //   emoji: '🎨',
-      //   convert: () => FixedCanvasPDFService.convertPDFToPPT(inputPath, outputDir, originalFilename),
+      //   convert: () => FixedCanvasPDFService.convertPDFToOffice(inputPath, outputDir, originalFilename),
       //   description: 'ACTUAL HIGH-QUALITY rendering with 300 DPI PDF content conversion (NOT placeholder)',
       //   available: true
       // }] : []),
       {
         name: 'Enhanced Fallback PDF Engine (NO DEPENDENCIES)',
         emoji: '🛡️',
-        convert: () => EnhancedFallbackPDFService.convertPDFToPPT(inputPath, outputDir, originalFilename),
+        convert: () => EnhancedFallbackPDFService.convertPDFToOffice(inputPath, outputDir, originalFilename),
         description: 'RELIABLE conversion with intelligent structure detection, no external dependencies required',
         available: true
       },
@@ -339,7 +339,7 @@ export class PDFService {
         {
           name: 'Working PDF Engine (VISUAL + CONTENT)',
           emoji: '💎',
-          convert: () => WorkingPDFService.convertPDFToPPT(inputPath, outputDir),
+          convert: () => WorkingPDFService.convertPDFToOffice(inputPath, outputDir),
           description: 'GUARANTEED content preservation with visual structure extraction',
           available: true
         }
@@ -347,14 +347,14 @@ export class PDFService {
       {
         name: 'Enterprise Engine (LibreOffice + High-Quality)',
         emoji: '🚀',
-        convert: () => EnterprisePDFService.convertPDFToPPT(inputPath, outputDir),
+        convert: () => EnterprisePDFService.convertPDFToOffice(inputPath, outputDir),
         description: 'Attempts editable content conversion with LibreOffice, falls back to image-based',
         available: isLibreOfficeAvailable()
       },
       {
         name: 'Mock Service (Always Reliable)',
         emoji: '🔄',
-        convert: () => MockPDFService.convertPDFToPPT(inputPath, outputDir),
+        convert: () => MockPDFService.convertPDFToOffice(inputPath, outputDir),
         description: 'Always works - creates functional presentation structure',
         available: true
       }

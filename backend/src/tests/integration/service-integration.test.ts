@@ -275,7 +275,7 @@ describe('Service Integration Tests', () => {
         validateQuality: true
       };
 
-      const result = await VisualFidelityPDFService.convertPDFToPPT(
+      const result = await VisualFidelityPDFService.convertPDFToOffice(
         inputPath,
         TEST_CONFIG.outputDir,
         qualityOptions
@@ -302,7 +302,7 @@ describe('Service Integration Tests', () => {
         validateQuality: true
       };
 
-      const result = await ImprovedPDFService.convertPDFToPPT(
+      const result = await ImprovedPDFService.convertPDFToOffice(
         inputPath,
         TEST_CONFIG.outputDir,
         qualityOptions
@@ -331,7 +331,7 @@ describe('Service Integration Tests', () => {
       };
 
       // Should not throw, but should handle gracefully
-      const result = await VisualFidelityPDFService.convertPDFToPPT(
+      const result = await VisualFidelityPDFService.convertPDFToOffice(
         inputPath,
         TEST_CONFIG.outputDir,
         qualityOptions
@@ -361,7 +361,7 @@ describe('Service Integration Tests', () => {
         validateQuality: true
       };
 
-      const result = await VisualFidelityPDFService.convertPDFToPPT(
+      const result = await VisualFidelityPDFService.convertPDFToOffice(
         inputPath,
         TEST_CONFIG.outputDir,
         qualityOptions
@@ -443,7 +443,7 @@ describe('Service Integration Tests', () => {
       console.log('🚀 Starting end-to-end quality validation workflow...');
 
       // Step 1: Convert PDF with quality validation
-      const conversionResult = await VisualFidelityPDFService.convertPDFToPPT(
+      const conversionResult = await VisualFidelityPDFService.convertPDFToOffice(
         inputPath,
         TEST_CONFIG.outputDir,
         {
@@ -524,7 +524,7 @@ describe('Service Integration Tests', () => {
 
         const inputPath = path.join(TEST_CONFIG.testFilesDir, 'test-document.pdf');
 
-        const result = await VisualFidelityPDFService.convertPDFToPPT(
+        const result = await VisualFidelityPDFService.convertPDFToOffice(
           inputPath,
           TEST_CONFIG.outputDir,
           scenario.options
@@ -560,7 +560,7 @@ describe('Service Integration Tests', () => {
       const invalidPath = path.join(TEST_CONFIG.testFilesDir, 'nonexistent.pdf');
 
       await expect(async () => {
-        await VisualFidelityPDFService.convertPDFToPPT(
+        await VisualFidelityPDFService.convertPDFToOffice(
           invalidPath,
           TEST_CONFIG.outputDir,
           { validateQuality: true }
@@ -594,7 +594,7 @@ describe('Service Integration Tests', () => {
 
       // Start multiple conversions concurrently
       const concurrentPromises = Array.from({ length: 3 }, (_, index) =>
-        VisualFidelityPDFService.convertPDFToPPT(
+        VisualFidelityPDFService.convertPDFToOffice(
           inputPath,
           TEST_CONFIG.outputDir,
           {

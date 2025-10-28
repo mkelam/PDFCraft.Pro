@@ -62,7 +62,7 @@ export class PDFServiceAdapter implements PDFConversionService {
         }
       } else {
         // Fallback to convertPDFToPPT for backward compatibility
-        return this.convertPDFToPPT(inputPath, outputDir, options);
+        return this.convertPDFToOffice(inputPath, outputDir, options);
       }
 
       // Convert result to standardized format
@@ -90,7 +90,7 @@ export class PDFServiceAdapter implements PDFConversionService {
       switch (this.serviceType) {
         case 'modern':
           // Service already returns ConversionResult
-          result = await this.service.convertPDFToPPT(inputPath, outputDir, options);
+          result = await this.service.convertPDFToOffice(inputPath, outputDir, options);
           if (ConversionTypeGuards.isConversionResult(result)) {
             return result;
           }
@@ -98,13 +98,13 @@ export class PDFServiceAdapter implements PDFConversionService {
 
         case 'enhanced':
           // Service returns {filename, qualityResult?}
-          result = await this.service.convertPDFToPPT(inputPath, outputDir, options);
+          result = await this.service.convertPDFToOffice(inputPath, outputDir, options);
           break;
 
         case 'legacy':
         default:
           // Service returns string filename
-          const filename = await this.service.convertPDFToPPT(inputPath, outputDir);
+          const filename = await this.service.convertPDFToOffice(inputPath, outputDir);
           result = { filename };
           break;
       }

@@ -1,21 +1,37 @@
-# PDFCraft.Pro Docker Ignore File
-# Excludes files and directories from Docker build context
+# ============================================
+# PDFCraft.Pro Root .dockerignore
+# For frontend builds (Dockerfile.frontend)
+# ============================================
 
-# Node modules (will be installed in container)
+# Dependencies (reinstalled in container)
 node_modules/
 backend/node_modules/
+BMAD-METHOD/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# Backend files (not needed for frontend build)
+backend/
+!backend/.env.example
+
+# Build outputs (created in container)
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files (passed as build args)
+.env*
+!.env.example
 
 # Development files
 .git/
 .gitignore
-README.md
-.env
-.env.local
-.env.development
-.env.test
+.gitattributes
+.github/
 
 # IDE and editor files
 .vscode/
@@ -23,8 +39,9 @@ README.md
 *.swp
 *.swo
 *~
+.editorconfig
 
-# OS generated files
+# OS files
 .DS_Store
 .DS_Store?
 ._*
@@ -32,79 +49,91 @@ README.md
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Development and testing
-backend/test-*
-backend/uploads/
-backend/temp/
-backend/logs/
-backend/dist/
-backend/coverage/
-test-output/
+# Testing
+coverage/
+.nyc_output/
 *.test.ts
+*.test.js
 *.spec.ts
+*.spec.js
 __tests__/
+jest.config.*
+playwright.config.*
+e2e/
 
-# Documentation and assets
+# Documentation
 docs/
 Docs/
 *.md
+!README.md
 *.txt
-!package.json
-!package-lock.json
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
 
-# Build outputs (Next.js)
-.next/
-out/
-build/
+# Logs and runtime data
+logs/
+*.log
+pids/
+*.pid
 
-# Temporary files
-*.tmp
-*.temp
+# Temporary and upload files
 temp/
 tmp/
+uploads/
+*.tmp
+*.temp
+test-*
+demo-*
+example-*
 
 # Database files
 *.sqlite
 *.db
-
-# Log files
-*.log
-logs/
+*.sqlite3
+data/
 
 # Docker files
 Dockerfile
+Dockerfile.*
 docker-compose*.yml
 .dockerignore
+*.dockerfile
+nginx/
 
-# Development scripts (keep scripts/ for build validation)
+# Development scripts
 .bmad-core/
 BMAD-METHOD/
+scripts/
+*.bat
+*.sh
 
-# Test and demo files
-test-*
-demo-*
-example-*
-sample-*
+# Certificates and secrets
+*.pem
+*.key
+*.cert
+*.crt
+ssl/
+secrets/
 
-# Documentation files
-CHANGELOG.md
-CONTRIBUTING.md
-LICENSE
-*.md
-!README.md
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+.circleci/
+azure-pipelines.yml
 
 # Backup files
 *.bak
 *.backup
 backup/
 
-# Certificates and keys (should be mounted as volumes)
-*.pem
-*.key
-*.cert
-ssl/
-
-# Environment specific files
-.env.*
-!.env.production
+# Large binary files
+*.pdf
+*.pptx
+*.docx
+*.xlsx
+*.zip
+*.tar
+*.gz

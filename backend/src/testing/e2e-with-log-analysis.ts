@@ -151,7 +151,7 @@ export class E2ETestingFramework {
 
     try {
       // Execute the actual conversion
-      const outputFile = await PDFService.convertPDFToPPT(config.pdfPath, this.outputDir);
+      const outputFile = await PDFService.convertPDFToOffice(config.pdfPath, this.outputDir);
       const processingTime = Date.now() - conversionStart;
 
       winston.info(`✅ [E2E-LOG-ANALYSIS] Conversion completed in ${processingTime}ms`);

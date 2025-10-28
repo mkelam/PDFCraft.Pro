@@ -191,7 +191,14 @@
       "Bash(for route in \"\" \"features\" \"pricing\" \"terms\" \"privacy\")",
       "Bash(do echo -n \"/$route: \")",
       "Bash(NEXT_PUBLIC_API_URL=http://localhost:3010 npm run dev)",
-      "Bash(SKIP_ENV_VALIDATION=true NEXT_PUBLIC_API_URL=http://localhost:3010 npm run dev:*)"
+      "Bash(SKIP_ENV_VALIDATION=true NEXT_PUBLIC_API_URL=http://localhost:3010 npm run dev:*)",
+      "Bash(if [ -f \"backend/Dockerfile\" ])",
+      "Bash(then echo \"✅ backend/Dockerfile exists\")",
+      "Bash(else echo \"❌ backend/Dockerfile missing\")",
+      "Bash(fi)",
+      "Bash(if [ -f \"Dockerfile.frontend\" ])",
+      "Bash(then echo \"✅ Dockerfile.frontend exists\")",
+      "Bash(else echo \"❌ Dockerfile.frontend missing\")"
     ],
     "deny": [],
     "ask": []

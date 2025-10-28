@@ -225,6 +225,7 @@ export default function SignupPage() {
                   variant="outline"
                   onClick={() => handleSocialSignup(provider.id)}
                   disabled={socialLoading !== null}
+                  data-testid={`social-signup-${provider.id}`}
                   className="w-full glass-subtle border-border/40 hover:border-primary/50 text-foreground hover:text-primary transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {socialLoading === provider.id ? (
@@ -253,7 +254,7 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Error message */}
               {error && (
-                <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                <div data-testid="signup-error-message" className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                   <AlertCircle className="w-4 h-4" />
                   <span>{error}</span>
                 </div>
@@ -271,6 +272,7 @@ export default function SignupPage() {
                     placeholder="John"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    data-testid="signup-first-name-input"
                     className="glass-subtle bg-input/50 border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                     required
                   />
@@ -285,6 +287,7 @@ export default function SignupPage() {
                     placeholder="Doe"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange("lastName", e.target.value)}
+                    data-testid="signup-last-name-input"
                     className="glass-subtle bg-input/50 border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                     required
                   />
@@ -302,6 +305,7 @@ export default function SignupPage() {
                   placeholder="john@example.com"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
+                  data-testid="signup-email-input"
                   className="glass-subtle bg-input/50 border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                   required
                 />
@@ -319,12 +323,14 @@ export default function SignupPage() {
                     placeholder="Create a strong password"
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
+                    data-testid="signup-password-input"
                     className="glass-subtle bg-input/50 border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 pr-10"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    data-testid="toggle-signup-password-visibility"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -344,6 +350,7 @@ export default function SignupPage() {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                    data-testid="signup-confirm-password-input"
                     className={`glass-subtle bg-input/50 border-border/40 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 pr-10 ${
                       formData.confirmPassword && !passwordsMatch ? "border-red-500/50" : ""
                     }`}
@@ -352,6 +359,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    data-testid="toggle-confirm-password-visibility"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -367,6 +375,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => handleInputChange("acceptTerms", !formData.acceptTerms)}
+                  data-testid="accept-terms-checkbox"
                   className={`flex-shrink-0 w-5 h-5 rounded border-2 transition-all duration-200 ${
                     formData.acceptTerms
                       ? "bg-primary border-primary text-primary-foreground"
@@ -391,6 +400,7 @@ export default function SignupPage() {
               <Button
                 type="submit"
                 disabled={!isFormValid || isLoading}
+                data-testid="create-account-button"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5 transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (

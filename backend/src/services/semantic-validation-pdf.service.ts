@@ -134,7 +134,7 @@ export class SemanticValidationPDFService implements PDFConversionService {
 
       // Fallback to visual fidelity engine
       console.log('🔄 [FALLBACK] Using visual fidelity engine...');
-      const fallbackResult = await this.visualFidelityService.convertPDFToPPT(inputPath, outputDir, options);
+      const fallbackResult = await this.visualFidelityService.convertPDFToOffice(inputPath, outputDir, options);
       return fallbackResult;
     }
   }
@@ -393,20 +393,20 @@ export class SemanticValidationPDFService implements PDFConversionService {
 
     switch (engine) {
       case 'visual-fidelity':
-        const visualResult = await this.visualFidelityService.convertPDFToPPT(inputPath, outputDir, options);
+        const visualResult = await this.visualFidelityService.convertPDFToOffice(inputPath, outputDir, options);
         return path.join(outputDir, visualResult.filename);
 
       case 'layout-aware':
-        const layoutResult = await LayoutAwarePDFService.convertPDFToPPT(inputPath, outputDir);
+        const layoutResult = await LayoutAwarePDFService.convertPDFToOffice(inputPath, outputDir);
         return path.join(outputDir, layoutResult);
 
       case 'enhanced-spacing':
-        const spacingResult = await EnhancedSpacingPDFService.convertPDFToPPT(inputPath, outputDir);
+        const spacingResult = await EnhancedSpacingPDFService.convertPDFToOffice(inputPath, outputDir);
         return path.join(outputDir, spacingResult);
 
       default:
         // Fallback to visual fidelity
-        const fallbackResult = await this.visualFidelityService.convertPDFToPPT(inputPath, outputDir, options);
+        const fallbackResult = await this.visualFidelityService.convertPDFToOffice(inputPath, outputDir, options);
         return path.join(outputDir, fallbackResult.filename);
     }
   }

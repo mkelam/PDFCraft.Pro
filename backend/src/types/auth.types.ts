@@ -4,6 +4,7 @@ export interface User {
   id: number;
   email: string;
   password: string; // bcrypt hashed
+  email_verified: boolean; // Email verification status
   plan: 'free' | 'starter' | 'pro' | 'enterprise';
   conversions_used: number;
   conversions_limit: number;

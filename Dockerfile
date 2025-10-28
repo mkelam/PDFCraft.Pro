@@ -1,3 +1,17 @@
+# ============================================
+# ⚠️ DEPRECATED - DO NOT USE
+# ============================================
+# This Dockerfile is LEGACY and should NOT be used.
+# It attempts to combine frontend + backend in one image (anti-pattern).
+#
+# Use instead:
+#   - backend/Dockerfile (for backend API)
+#   - Dockerfile.frontend (for Next.js frontend)
+#   - docker-compose.yml (orchestrates both services)
+#
+# Kept for reference only. Will be removed in future cleanup.
+# ============================================
+
 # PDFCraft.Pro Docker Configuration
 # Multi-stage build for production optimization
 

@@ -1,7 +1,8 @@
-# pdflab.pro Docker Setup Guide
+# PDFCraft.Pro Docker Setup Guide
 
 ## Overview
-This guide explains how to run pdflab.pro using Docker with the correct plan conversion limits.
+
+PDFCraft.Pro uses a **production-grade multi-container Docker architecture** optimized for performance, security, and scalability. This guide explains how to deploy and manage the application using Docker with proper configuration.
 
 ## Plan Limits Configuration
 
@@ -19,12 +20,32 @@ The application enforces the following conversion limits:
 ## Architecture
 
 ```
-pdflab.pro Docker Stack
-├── pdflab-app (Node.js Backend on port 3001)
-├── mysql (MySQL 8.0 Database)
-├── redis (Redis for Queue Management)
-└── nginx (Optional Reverse Proxy)
+┌─────────────────────────────────────────────────────────────┐
+│                     Nginx (Reverse Proxy)                   │
+│              Port 80 (HTTP) → 443 (HTTPS)                   │
+└────────────┬─────────────────────────┬──────────────────────┘
+             │                         │
+    ┌────────▼────────┐       ┌────────▼────────┐
+    │    Frontend     │       │     Backend     │
+    │   (Next.js)     │       │  (Express API)  │
+    │   Port 3000     │       │   Port 3001     │
+    └─────────────────┘       └────────┬────────┘
+                                       │
+                    ┌──────────────────┴──────────────────┐
+                    │                                     │
+           ┌────────▼────────┐               ┌───────────▼────────┐
+           │   MySQL 8.0     │               │   Redis 7-alpine   │
+           │  (Database)     │               │  (Queue/Cache)     │
+           └─────────────────┘               └────────────────────┘
 ```
+
+### Key Improvements in Latest Version
+
+✅ **Multi-stage builds** - Backend reduced from 600MB to ~200MB
+✅ **No TypeScript runtime** - Compiled JS for 70% faster startup
+✅ **Resource limits** - CPU/memory controls prevent overload
+✅ **Security hardening** - Non-root users, unexposed DB ports
+✅ **Production-ready Nginx** - Rate limiting, SSL, 100MB uploads
 
 ## Prerequisites
 

@@ -84,13 +84,13 @@ export class ServiceContainer {
       const enhancedFallbackAdapter: PDFConversionService = {
         async convertPDFToOffice(inputPath: string, outputDir: string, options?: any): Promise<ConversionResult> {
           // Fallback to convertPDFToPPT for now - call it directly
-          return enhancedFallbackAdapter.convertPDFToPPT(inputPath, outputDir, options);
+          return enhancedFallbackAdapter.convertPDFToOffice(inputPath, outputDir, options);
         },
         async convertPDFToPPT(inputPath: string, outputDir: string, options?: any): Promise<ConversionResult> {
           try {
             // Note: EnhancedFallbackPDFService.convertPDFToPPT is a static method
             const { EnhancedFallbackPDFService: FallbackService } = require('./enhanced-fallback-pdf.service');
-            const filename = await FallbackService.convertPDFToPPT(inputPath, outputDir, options?.originalFilename);
+            const filename = await FallbackService.convertPDFToOffice(inputPath, outputDir, options?.originalFilename);
             return {
               filename,
               success: true,
