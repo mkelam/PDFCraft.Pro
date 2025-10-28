@@ -201,7 +201,21 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
 
       onSuccess?.(result)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Processing failed"
+      let errorMessage = error instanceof Error ? error.message : "Processing failed"
+
+      // Enhanced error messages with actionable suggestions
+      if (errorMessage.includes("File too large") || errorMessage.includes("exceeds")) {
+        const fileSize = validFiles[0]?.file.size
+        const sizeMB = fileSize ? (fileSize / (1024 * 1024)).toFixed(1) : "unknown"
+        errorMessage = `File too large (${sizeMB}MB). Free plan limit: 10MB.`
+      } else if (errorMessage.includes("corrupt") || errorMessage.includes("invalid") || errorMessage.includes("parse")) {
+        errorMessage = "This PDF appears to be corrupted or password-protected. Try a different file or remove the password first."
+      } else if (errorMessage.includes("timeout") || errorMessage.includes("timed out")) {
+        errorMessage = "Conversion timed out. This usually happens with large or complex files. Try converting to images instead."
+      } else if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+        errorMessage = "Network error. Please check your connection and try again."
+      }
+
       setProcessing({
         isProcessing: false,
         progress: 0,
@@ -257,8 +271,15 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
     <div className="space-y-6">
       {/* Trust Banner */}
       <div className="max-w-7xl mx-auto">
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+        <div className="bg-gradient-to-r from-primary/10 via-blue-500/10 to-purple-500/10 border border-primary/30 rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-center gap-3 text-sm flex-wrap">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="font-semibold text-primary">Free: 3 conversions/day</span>
+            </div>
+            <span className="text-muted-foreground">•</span>
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -271,13 +292,6 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
                 <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <span className="font-medium text-foreground">Bank-grade encryption</span>
-            </div>
-            <span className="text-muted-foreground">•</span>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium text-foreground">GDPR/POPIA compliant</span>
             </div>
           </div>
         </div>
@@ -383,60 +397,48 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
             {/* Subsection 3: Select Output */}
             <div className="flex-1 flex flex-col">
               <h4 className="text-primary/90 text-xs font-semibold mb-2">3. Select Output</h4>
-              <div className="flex flex-col justify-center flex-1">
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    disabled={activeTab === "merge"}
-                    data-testid="output-format-dropdown"
-                    className={`
-                      w-full p-3 rounded-lg border text-foreground transition-all flex items-center justify-between
-                      ${activeTab === "merge"
-                        ? "opacity-40 cursor-not-allowed border-muted"
-                        : "border-border hover:border-primary focus:border-primary focus:outline-none hover:bg-white/5"
-                      }
-                    `}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      backdropFilter: 'blur(8px)'
-                    }}
-                  >
-                    <span>
-                      {outputFormat === "image" && "📷 Image"}
-                      {outputFormat === "powerpoint" && "📊 PowerPoint"}
-                      {outputFormat === "word" && "📝 Word"}
-                      {outputFormat === "excel" && "📈 Excel"}
-                    </span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {isDropdownOpen && activeTab !== "merge" && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-border z-50"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        backdropFilter: 'blur(8px)'
-                      }}
-                    >
-                      {(["image", "powerpoint", "word", "excel"] as OutputFormat[]).map((format) => (
-                        <button
-                          key={format}
-                          onClick={() => {
-                            handleOutputFormatChange(format)
-                            setIsDropdownOpen(false)
-                          }}
-                          data-testid={`output-format-option-${format}`}
-                          className="w-full p-3 text-left hover:bg-white/10 first:rounded-t-lg last:rounded-b-lg transition-colors text-foreground"
-                        >
-                          {format === "image" && "📷 Image"}
-                          {format === "powerpoint" && "📊 PowerPoint"}
-                          {format === "word" && "📝 Word"}
-                          {format === "excel" && "📈 Excel"}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              <div className="flex flex-col justify-center flex-1 space-y-2">
+                {activeTab === "merge" ? (
+                  <div className="text-center py-4 text-muted-foreground text-sm">
+                    PDF output format
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["powerpoint", "word", "excel", "image"] as OutputFormat[]).map((format) => (
+                      <button
+                        key={format}
+                        onClick={() => handleOutputFormatChange(format)}
+                        data-testid={`output-format-option-${format}`}
+                        className={`
+                          p-3 rounded-lg border transition-all duration-200 flex flex-col items-center gap-1
+                          ${outputFormat === format
+                            ? "bg-primary/20 border-primary text-primary shadow-md"
+                            : "bg-muted/20 border-border text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
+                          }
+                        `}
+                      >
+                        <span className="text-2xl">
+                          {format === "image" && "📷"}
+                          {format === "powerpoint" && "📊"}
+                          {format === "word" && "📝"}
+                          {format === "excel" && "📈"}
+                        </span>
+                        <span className="text-xs font-medium">
+                          {format === "image" && "Image"}
+                          {format === "powerpoint" && "PowerPoint"}
+                          {format === "word" && "Word"}
+                          {format === "excel" && "Excel"}
+                        </span>
+                        {format === "powerpoint" && (
+                          <span className="text-[10px] text-primary/70">Slides/Images</span>
+                        )}
+                        {format === "word" && (
+                          <span className="text-[10px] text-primary/70">Text-heavy</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -600,26 +602,107 @@ export function UnifiedConversionInterface({ onSuccess, onError }: UnifiedConver
         <div className="max-w-7xl mx-auto">
           <Alert className="border-red-200" data-testid="conversion-error-message">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-red-700 flex items-center justify-between gap-4">
-              <span>{processing.error}</span>
-              <div className="flex gap-2 flex-shrink-0">
-                <Button
-                  onClick={retryConversion}
-                  data-testid="retry-conversion-button"
-                  size="sm"
-                  variant="outline"
-                  className="border-red-300 text-red-700 hover:bg-red-50"
-                >
-                  Try Again
-                </Button>
-                <Button
-                  onClick={reset}
-                  size="sm"
-                  variant="ghost"
-                  className="text-red-700 hover:bg-red-50"
-                >
-                  Start Over
-                </Button>
+            <AlertDescription className="text-red-700">
+              <div className="flex flex-col gap-3">
+                <span>{processing.error}</span>
+                <div className="flex flex-wrap gap-2">
+                  {/* File too large error */}
+                  {processing.error.includes("File too large") && (
+                    <>
+                      <Button
+                        onClick={() => window.open("/pricing", "_blank")}
+                        size="sm"
+                        variant="outline"
+                        className="border-primary text-primary hover:bg-primary/10"
+                      >
+                        Upgrade to Pro (100MB)
+                      </Button>
+                      <Button
+                        onClick={reset}
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-700 hover:bg-red-50"
+                      >
+                        Try Different File
+                      </Button>
+                    </>
+                  )}
+
+                  {/* Corrupted file error */}
+                  {processing.error.includes("corrupted") && (
+                    <>
+                      <Button
+                        onClick={reset}
+                        size="sm"
+                        variant="outline"
+                        className="border-red-300 text-red-700 hover:bg-red-50"
+                      >
+                        Upload Different File
+                      </Button>
+                      <Button
+                        onClick={() => window.open("mailto:support@pdflab.pro?subject=Corrupted PDF Help", "_blank")}
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-700 hover:bg-red-50"
+                      >
+                        Contact Support
+                      </Button>
+                    </>
+                  )}
+
+                  {/* Timeout error */}
+                  {processing.error.includes("timed out") && (
+                    <>
+                      <Button
+                        onClick={() => {
+                          setOutputFormat("image")
+                          retryConversion()
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="border-primary text-primary hover:bg-primary/10"
+                        data-testid="try-images-button"
+                      >
+                        Try Converting to Images
+                      </Button>
+                      <Button
+                        onClick={retryConversion}
+                        data-testid="retry-conversion-button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-700 hover:bg-red-50"
+                      >
+                        Retry
+                      </Button>
+                    </>
+                  )}
+
+                  {/* Network error or generic error */}
+                  {(processing.error.includes("Network") ||
+                    (!processing.error.includes("File too large") &&
+                     !processing.error.includes("corrupted") &&
+                     !processing.error.includes("timed out"))) && (
+                    <>
+                      <Button
+                        onClick={retryConversion}
+                        data-testid="retry-conversion-button"
+                        size="sm"
+                        variant="outline"
+                        className="border-red-300 text-red-700 hover:bg-red-50"
+                      >
+                        Try Again
+                      </Button>
+                      <Button
+                        onClick={reset}
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-700 hover:bg-red-50"
+                      >
+                        Start Over
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             </AlertDescription>
           </Alert>
