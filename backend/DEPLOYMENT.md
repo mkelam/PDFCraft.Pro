@@ -1,4 +1,4 @@
-# PDFCraft.Pro Backend Deployment Guide
+# pdflab.pro Backend Deployment Guide
 
 ## Prerequisites
 
@@ -41,9 +41,9 @@ sudo apt-get install -y certbot python3-certbot-nginx
 1. **Clone Repository**
 ```bash
 cd /var/www
-sudo git clone https://github.com/yourusername/pdfcraft-pro.git pdfcraft
-cd pdfcraft/backend
-sudo chown -R $USER:$USER /var/www/pdfcraft
+sudo git clone https://github.com/yourusername/pdflab-pro.git pdflab
+cd pdflab/backend
+sudo chown -R $USER:$USER /var/www/pdflab
 ```
 
 2. **Configure Environment**
@@ -91,8 +91,8 @@ PORT=3001
 
 # Database (Hostinger MySQL)
 DB_HOST=your-mysql-host.hostinger.com
-DB_NAME=u123456789_pdfcraft
-DB_USER=u123456789_pdfcraft
+DB_NAME=u123456789_pdflab
+DB_USER=u123456789_pdflab
 DB_PASSWORD=your-secure-password
 DB_PORT=3306
 
@@ -112,26 +112,26 @@ STRIPE_PUBLISHABLE_KEY=pk_live_your_publishable_key
 
 # File Configuration
 MAX_FILE_SIZE=104857600
-UPLOAD_DIR=/var/www/pdfcraft/uploads
-TEMP_DIR=/var/www/pdfcraft/temp
+UPLOAD_DIR=/var/www/pdflab/uploads
+TEMP_DIR=/var/www/pdflab/temp
 
 # LibreOffice
 LIBREOFFICE_PATH=/usr/bin/libreoffice
 LIBREOFFICE_AVAILABLE=true
 
 # Security
-CORS_ORIGIN=https://pdfcraft.pro,https://www.pdfcraft.pro
+CORS_ORIGIN=https://pdflab.pro,https://www.pdflab.pro
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 
 # Logging
 LOG_LEVEL=info
-LOG_DIR=/var/log/pdfcraft
+LOG_DIR=/var/log/pdflab
 
 # Email (Hostinger SMTP)
 SMTP_HOST=smtp.hostinger.com
 SMTP_PORT=587
-SMTP_USER=noreply@pdfcraft.pro
+SMTP_USER=noreply@pdflab.pro
 SMTP_PASSWORD=your-email-password
 ```
 
@@ -143,7 +143,7 @@ SMTP_PASSWORD=your-email-password
 sudo apt install certbot python3-certbot-nginx
 
 # Obtain certificate
-sudo certbot --nginx -d pdfcraft.pro -d www.pdfcraft.pro
+sudo certbot --nginx -d pdflab.pro -d www.pdflab.pro
 
 # Auto-renewal (check)
 sudo certbot renew --dry-run
@@ -153,8 +153,8 @@ sudo certbot renew --dry-run
 ```bash
 # Copy certificate files
 sudo mkdir -p /etc/nginx/ssl
-sudo cp your-certificate.crt /etc/nginx/ssl/pdfcraft.pro.crt
-sudo cp your-private-key.key /etc/nginx/ssl/pdfcraft.pro.key
+sudo cp your-certificate.crt /etc/nginx/ssl/pdflab.pro.crt
+sudo cp your-private-key.key /etc/nginx/ssl/pdflab.pro.key
 sudo chmod 600 /etc/nginx/ssl/*
 ```
 
@@ -166,31 +166,31 @@ sudo chmod 600 /etc/nginx/ssl/*
 mysql -h your-mysql-host -u your-user -p
 
 # Create database and run initialization
-mysql> CREATE DATABASE pdfcraft_db;
-mysql> USE pdfcraft_db;
-mysql> source /var/www/pdfcraft/backend/init.sql;
+mysql> CREATE DATABASE pdflab_db;
+mysql> USE pdflab_db;
+mysql> source /var/www/pdflab/backend/init.sql;
 ```
 
 ### Backup Strategy
 ```bash
 # Daily backup script
-cat > /var/www/pdfcraft/scripts/backup-db.sh << 'EOF'
+cat > /var/www/pdflab/scripts/backup-db.sh << 'EOF'
 #!/bin/bash
-BACKUP_DIR="/var/backups/pdfcraft"
+BACKUP_DIR="/var/backups/pdflab"
 DATE=$(date +%Y%m%d_%H%M%S)
 mkdir -p $BACKUP_DIR
 
-mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD pdfcraft_db > $BACKUP_DIR/pdfcraft_$DATE.sql
-gzip $BACKUP_DIR/pdfcraft_$DATE.sql
+mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD pdflab_db > $BACKUP_DIR/pdflab_$DATE.sql
+gzip $BACKUP_DIR/pdflab_$DATE.sql
 
 # Keep only last 7 days of backups
 find $BACKUP_DIR -name "*.sql.gz" -mtime +7 -delete
 EOF
 
-chmod +x /var/www/pdfcraft/scripts/backup-db.sh
+chmod +x /var/www/pdflab/scripts/backup-db.sh
 
 # Add to crontab (daily at 2 AM)
-(crontab -l 2>/dev/null; echo "0 2 * * * /var/www/pdfcraft/scripts/backup-db.sh") | crontab -
+(crontab -l 2>/dev/null; echo "0 2 * * * /var/www/pdflab/scripts/backup-db.sh") | crontab -
 ```
 
 ## Performance Optimization
@@ -210,8 +210,8 @@ pm2 start ecosystem.config.js --env production
 ### Nginx Configuration
 ```bash
 # Copy Nginx configuration
-sudo cp nginx.conf /etc/nginx/sites-available/pdfcraft.pro
-sudo ln -s /etc/nginx/sites-available/pdfcraft.pro /etc/nginx/sites-enabled/
+sudo cp nginx.conf /etc/nginx/sites-available/pdflab.pro
+sudo ln -s /etc/nginx/sites-available/pdflab.pro /etc/nginx/sites-enabled/
 sudo rm /etc/nginx/sites-enabled/default
 
 # Test and reload Nginx
@@ -230,13 +230,13 @@ sudo systemctl reload nginx
 ### Log Monitoring
 ```bash
 # View real-time application logs
-pm2 logs pdfcraft-api
+pm2 logs pdflab-api
 
 # View system logs
-tail -f /var/log/pdfcraft/combined.log
+tail -f /var/log/pdflab/combined.log
 
 # Error logs only
-tail -f /var/log/pdfcraft/error.log
+tail -f /var/log/pdflab/error.log
 ```
 
 ### Performance Monitoring
@@ -245,7 +245,7 @@ tail -f /var/log/pdfcraft/error.log
 pm2 monit
 
 # Custom monitoring dashboard
-/var/www/pdfcraft/monitoring/dashboard.sh
+/var/www/pdflab/monitoring/dashboard.sh
 
 # System resources
 htop
@@ -266,9 +266,9 @@ sudo ufw allow 3001/tcp  # Only if direct access needed
 ### File Permissions
 ```bash
 # Set secure permissions
-sudo chown -R www-data:www-data /var/www/pdfcraft
-sudo chmod -R 755 /var/www/pdfcraft
-sudo chmod 600 /var/www/pdfcraft/backend/.env
+sudo chown -R www-data:www-data /var/www/pdflab
+sudo chmod -R 755 /var/www/pdflab
+sudo chmod 600 /var/www/pdflab/backend/.env
 ```
 
 ### Database Security
@@ -278,8 +278,8 @@ sudo mysql_secure_installation
 
 # Create dedicated database user (don't use root)
 mysql -u root -p << EOF
-CREATE USER 'pdfcraft'@'localhost' IDENTIFIED BY 'secure-password';
-GRANT ALL PRIVILEGES ON pdfcraft_db.* TO 'pdfcraft'@'localhost';
+CREATE USER 'pdflab'@'localhost' IDENTIFIED BY 'secure-password';
+GRANT ALL PRIVILEGES ON pdflab_db.* TO 'pdflab'@'localhost';
 FLUSH PRIVILEGES;
 EOF
 ```
@@ -304,7 +304,7 @@ sudo apt-get install fonts-noto fonts-dejavu
 ps aux --sort=-%mem | head -10
 
 # Restart PM2 cluster
-pm2 restart pdfcraft-api
+pm2 restart pdflab-api
 ```
 
 **Queue Processing Issues**
@@ -325,7 +325,7 @@ redis-cli FLUSHDB
 sudo certbot renew
 
 # Check certificate expiry
-openssl x509 -in /etc/nginx/ssl/pdfcraft.pro.crt -text -noout | grep "Not After"
+openssl x509 -in /etc/nginx/ssl/pdflab.pro.crt -text -noout | grep "Not After"
 ```
 
 ### Performance Tuning
@@ -357,7 +357,7 @@ maxmemory-policy allkeys-lru
 ### Regular Maintenance Tasks
 ```bash
 # Weekly maintenance script
-cat > /var/www/pdfcraft/scripts/weekly-maintenance.sh << 'EOF'
+cat > /var/www/pdflab/scripts/weekly-maintenance.sh << 'EOF'
 #!/bin/bash
 
 echo "🧹 Running weekly maintenance..."
@@ -366,8 +366,8 @@ echo "🧹 Running weekly maintenance..."
 sudo apt-get update && sudo apt-get upgrade -y
 
 # Clean up old uploads
-find /var/www/pdfcraft/uploads -type f -mtime +7 -delete
-find /var/www/pdfcraft/temp -type f -mtime +1 -delete
+find /var/www/pdflab/uploads -type f -mtime +7 -delete
+find /var/www/pdflab/temp -type f -mtime +1 -delete
 
 # Restart PM2 processes
 pm2 restart all
@@ -378,26 +378,26 @@ df -h
 echo "✅ Weekly maintenance completed"
 EOF
 
-chmod +x /var/www/pdfcraft/scripts/weekly-maintenance.sh
+chmod +x /var/www/pdflab/scripts/weekly-maintenance.sh
 
 # Add to crontab (weekly on Sunday at 3 AM)
-(crontab -l 2>/dev/null; echo "0 3 * * 0 /var/www/pdfcraft/scripts/weekly-maintenance.sh") | crontab -
+(crontab -l 2>/dev/null; echo "0 3 * * 0 /var/www/pdflab/scripts/weekly-maintenance.sh") | crontab -
 ```
 
 ## Rollback Procedure
 
 ```bash
 # Emergency rollback script
-cat > /var/www/pdfcraft/scripts/rollback.sh << 'EOF'
+cat > /var/www/pdflab/scripts/rollback.sh << 'EOF'
 #!/bin/bash
 
-BACKUP_DIR="/var/backups/pdfcraft/code"
-CURRENT_DIR="/var/www/pdfcraft"
+BACKUP_DIR="/var/backups/pdflab/code"
+CURRENT_DIR="/var/www/pdflab"
 
 echo "🔄 Starting emergency rollback..."
 
 # Stop application
-pm2 stop pdfcraft-api
+pm2 stop pdflab-api
 
 # Restore previous version
 if [[ -d "$BACKUP_DIR/previous" ]]; then
@@ -409,12 +409,12 @@ else
 fi
 
 # Restart application
-pm2 start pdfcraft-api
+pm2 start pdflab-api
 
 echo "✅ Rollback completed"
 EOF
 
-chmod +x /var/www/pdfcraft/scripts/rollback.sh
+chmod +x /var/www/pdflab/scripts/rollback.sh
 ```
 
 ## Go-Live Checklist
@@ -437,12 +437,12 @@ chmod +x /var/www/pdfcraft/scripts/rollback.sh
 ## Support
 
 For deployment issues:
-1. Check application logs: `pm2 logs pdfcraft-api`
+1. Check application logs: `pm2 logs pdflab-api`
 2. Check system logs: `journalctl -u nginx -f`
 3. Run health check: `curl http://localhost:3001/health`
 4. Check PM2 status: `pm2 status`
 
 ---
 
-*Generated for PDFCraft.Pro v1.0.0*
+*Generated for pdflab.pro v1.0.0*
 *Last Updated: December 2024*

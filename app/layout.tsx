@@ -4,7 +4,7 @@ import ClientLayout from "./ClientLayout"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "PDF Craft Pro - Premium Document Processing",
+  title: "PDF Lab Pro - Premium Document Processing",
   description: "Convert PDFs in seconds with our premium glassmorphic interface",
   generator: "v0.app",
 }

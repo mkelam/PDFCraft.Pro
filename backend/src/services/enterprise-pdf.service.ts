@@ -9,6 +9,8 @@ import PptxGenJS from 'pptxgenjs';
 import { fromBuffer } from 'pdf2pic';
 import pdf from 'pdf-parse';
 import sharp from 'sharp';
+import { LibreOfficeWrapper } from './libreoffice-wrapper.service';
+import { QualityValidatorService } from './quality-validator.service';
 
 /**
  * Enterprise-Grade PDF Processing Service
@@ -20,22 +22,108 @@ export class EnterprisePDFService {
   private static readonly CLEANUP_DELAY = 30 * 60 * 1000; // 30 minutes
 
   /**
-   * Convert PDF to PowerPoint with multiple engine fallback
+   * Convert PDF to PowerPoint with quality validation and multiple engine fallback
    */
-  static async convertPDFToPPT(inputPath: string, outputDir: string): Promise<string> {
+  static async convertPDFToOffice(
+    inputPath: string,
+    outputDir: string,
+    options: {
+      validateQuality?: boolean;
+      qualityThreshold?: number;
+      monitorPerformance?: boolean;
+    } = {}
+  ): Promise<{
+    filename: string;
+    processingTime: number;
+    qualityReport?: any;
+    performanceGrade?: string;
+  }> {
+    const {
+      validateQuality = true,
+      qualityThreshold = 80,
+      monitorPerformance = true
+    } = options;
+
     const startTime = Date.now();
     const jobId = uuidv4();
 
     console.log(`🚀 [ENTERPRISE] Starting PDF→PPT conversion: ${path.basename(inputPath)}`);
+    console.log(`   🔍 Quality validation: ${validateQuality ? 'ENABLED' : 'DISABLED'}`);
+    console.log(`   📊 Quality threshold: ${qualityThreshold}%`);
 
     try {
+      let outputFilename: string;
+
       // First, try LibreOffice if available
       if (await this.isLibreOfficeAvailable()) {
-        return await this.convertWithLibreOffice(inputPath, outputDir, jobId);
+        outputFilename = await this.convertWithLibreOffice(inputPath, outputDir, jobId);
+      } else {
+        // Fallback 1: PDF to Images + PowerPoint creation
+        outputFilename = await this.convertWithImageEngine(inputPath, outputDir, jobId);
       }
 
-      // Fallback 1: PDF to Images + PowerPoint creation
-      return await this.convertWithImageEngine(inputPath, outputDir, jobId);
+      const processingTime = Date.now() - startTime;
+      const outputPath = path.join(outputDir, outputFilename);
+
+      // Quality validation if enabled
+      let qualityReport;
+      if (validateQuality) {
+        console.log(`🔍 [ENTERPRISE] Running quality validation...`);
+
+        // Quick quality check first
+        const quickCheck = await QualityValidatorService.quickQualityCheck(inputPath, outputPath);
+        console.log(`   ⚡ Quick check: ${quickCheck.message}`);
+
+        if (quickCheck.passed) {
+          // Full quality analysis
+          qualityReport = await QualityValidatorService.validateConversionQuality(
+            inputPath,
+            outputPath,
+            { qualityThreshold }
+          );
+
+          console.log(`   📋 Quality score: ${qualityReport.overallQuality}%`);
+          console.log(`   🎯 Quality check: ${qualityReport.passed ? '✅ PASSED' : '❌ FAILED'}`);
+
+          if (!qualityReport.passed) {
+            console.warn(`⚠️ [ENTERPRISE] Quality below threshold (${qualityReport.overallQuality}% < ${qualityThreshold}%)`);
+            console.warn(`   📝 Recommendations:`, qualityReport.recommendations);
+          }
+        } else {
+          qualityReport = {
+            overallQuality: quickCheck.score,
+            passed: false,
+            error: quickCheck.message
+          };
+        }
+      }
+
+      // Performance monitoring
+      let performanceGrade;
+      if (monitorPerformance) {
+        const monitoring = await QualityValidatorService.monitorProcessingQuality(
+          inputPath,
+          outputPath,
+          processingTime
+        );
+
+        performanceGrade = monitoring.performanceGrade;
+        console.log(`   🏆 Performance grade: ${performanceGrade}`);
+
+        if (monitoring.qualityFlags.length > 0) {
+          console.log(`   🏁 Quality flags:`, monitoring.qualityFlags);
+        }
+      }
+
+      const result = {
+        filename: outputFilename,
+        processingTime,
+        qualityReport,
+        performanceGrade
+      };
+
+      console.log(`✅ [ENTERPRISE] Conversion completed with quality validation`);
+      return result;
 
     } catch (error) {
       console.error('❌ [ENTERPRISE] All conversion engines failed:', error);
@@ -44,24 +132,14 @@ export class EnterprisePDFService {
   }
 
   /**
-   * LibreOffice conversion engine (Primary)
+   * LibreOffice conversion engine (Primary) - Windows Native
    */
   private static async convertWithLibreOffice(inputPath: string, outputDir: string, jobId: string): Promise<string> {
     try {
       console.log(`🔄 [LIBREOFFICE] Converting: ${path.basename(inputPath)}`);
 
-      // Use libreoffice-convert for real conversion
-      const libre = await import('libreoffice-convert');
-      const { promisify } = require('util');
-      const libreConvert = promisify(libre.default || libre.convert || libre);
-
-      const pdfBuffer = await fs.readFile(inputPath);
-      const pptBuffer = await libreConvert(pdfBuffer, '.pptx', undefined);
-
-      const outputFilename = `converted_${jobId}.pptx`;
-      const outputPath = path.join(outputDir, outputFilename);
-
-      await fs.writeFile(outputPath, pptBuffer);
+      // Use our Windows-native LibreOffice wrapper
+      const outputFilename = await LibreOfficeWrapper.convertPDFToOffice(inputPath, outputDir);
 
       console.log(`✅ [LIBREOFFICE] Conversion completed: ${outputFilename}`);
       return outputFilename;
@@ -88,8 +166,8 @@ export class EnterprisePDFService {
       const pptx = new PptxGenJS();
 
       // Set presentation properties
-      pptx.author = 'PDFCraft.Pro';
-      pptx.company = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro';
+      pptx.company = 'pdflab.pro';
       pptx.title = 'Converted from PDF';
       pptx.subject = 'PDF to PowerPoint Conversion';
 
@@ -119,11 +197,20 @@ export class EnterprisePDFService {
           });
         }
 
-        // Extract and add text overlay if possible
+        // ENHANCED: Extract and preserve text content for functionality
         const textContent = await this.extractTextFromPage(pdfDoc, i);
         if (textContent && textContent.trim().length > 0) {
-          // Store text in slide notes for searchability
-          slide.addNotes(textContent);
+          // Store text in slide notes for PowerPoint search functionality
+          slide.addNotes(`Page ${i + 1} Content:\n\n${textContent.trim()}\n\n--- Extracted from PDF ---`);
+
+          // Add invisible searchable text element for enhanced accessibility
+          slide.addText(`Page content: ${textContent.substring(0, 100)}${textContent.length > 100 ? '...' : ''}`, {
+            x: 0, y: 0, w: 0.01, h: 0.01,
+            fontSize: 1,
+            color: 'FFFFFF' // White text - invisible but searchable
+          });
+
+          console.log(`📝 [ENTERPRISE] Preserved ${textContent.length} characters of text for page ${i + 1}`);
         }
       }
 
@@ -260,7 +347,7 @@ export class EnterprisePDFService {
       // Create optimized merged PDF
       const mergedPdf = await PDFDocument.create();
       mergedPdf.setTitle('Merged PDF Document');
-      mergedPdf.setProducer('PDFCraft.Pro Enterprise');
+      mergedPdf.setProducer('pdflab.pro Enterprise');
       mergedPdf.setCreationDate(new Date());
 
       let totalPages = 0;
@@ -328,9 +415,8 @@ export class EnterprisePDFService {
    */
   private static async isLibreOfficeAvailable(): Promise<boolean> {
     try {
-      // Check if libreoffice-convert is available
-      await import('libreoffice-convert');
-      return process.env.LIBREOFFICE_AVAILABLE === 'true';
+      // Use our LibreOffice wrapper to check availability
+      return await LibreOfficeWrapper.isAvailable();
     } catch {
       return false;
     }
@@ -349,7 +435,7 @@ export class EnterprisePDFService {
 
       // Create PowerPoint with advanced options
       const pptx = new PptxGenJS();
-      pptx.author = 'PDFCraft.Pro';
+      pptx.author = 'pdflab.pro';
       pptx.company = 'Premium PDF Conversion';
       pptx.title = path.basename(inputPath, '.pdf');
 

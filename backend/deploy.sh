@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PDFCraft.Pro Backend Deployment Script for Hostinger VPS
+# pdflab.pro Backend Deployment Script for Hostinger VPS
 # Usage: ./deploy.sh [production|staging]
 
 set -e  # Exit on any error
@@ -8,8 +8,8 @@ set -e  # Exit on any error
 ENVIRONMENT=${1:-production}
 VPS_HOST="your-vps-ip"
 VPS_USER="your-username"
-DEPLOY_PATH="/var/www/pdfcraft"
-APP_NAME="pdfcraft-api"
+DEPLOY_PATH="/var/www/pdflab"
+APP_NAME="pdflab-api"
 
 echo "🚀 Starting deployment to $ENVIRONMENT environment..."
 

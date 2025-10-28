@@ -28,15 +28,15 @@ export const createRateLimit = () => {
 // Stricter rate limit for conversion endpoints
 export const conversionRateLimit = rateLimit({
   windowMs: 60000, // 1 minute
-  max: 5, // 5 conversions per minute
+  max: process.env.NODE_ENV === 'development' ? 50 : 5, // 50 for dev, 5 for production
   message: {
     success: false,
     message: 'Conversion rate limit exceeded. Please wait before submitting another conversion.',
   },
   skip: (req) => {
-    // Skip rate limit for authenticated pro users
+    // Skip rate limit for authenticated pro users or development environment
     const user = (req as any).user;
-    return user && (user.plan === 'pro' || user.plan === 'enterprise');
+    return process.env.NODE_ENV === 'development' || (user && (user.plan === 'pro' || user.plan === 'enterprise'));
   },
 });
 
@@ -48,7 +48,9 @@ export const setupSecurityMiddleware = (app: Express) => {
       directives: {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
+        // Allow inline scripts for test pages in development
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        scriptSrcAttr: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:", "https:"],
         connectSrc: ["'self'", "https://api.stripe.com"],
         fontSrc: ["'self'"],

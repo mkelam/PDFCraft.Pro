@@ -16,8 +16,12 @@ import {
   X,
   Merge,
   Zap,
+  Image,
+  FilePresentation,
+  FileSpreadsheet,
 } from "lucide-react"
-import { PDFCraftAPI, ConversionResponse, formatFileSize, validatePDFFile } from "@/lib/api"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { pdflabAPI, ConversionResponse, formatFileSize, validatePDFFile } from "@/lib/api"
 
 interface UploadedFile {
   file: File
@@ -35,20 +39,21 @@ interface ProcessingState {
 }
 
 interface PDFUploadProps {
-  mode?: "convert" | "merge"
+  mode?: "convert" | "merge" | "image"
   onSuccess?: (result: ConversionResponse) => void
   onError?: (error: string) => void
 }
 
 export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
+  const [outputFormat, setOutputFormat] = useState<"pptx" | "docx" | "xlsx">("pptx")
   const [processing, setProcessing] = useState<ProcessingState>({
     isProcessing: false,
     progress: 0,
     stage: "",
   })
 
-  const maxFiles = mode === "convert" ? 1 : 10
+  const maxFiles = mode === "convert" || mode === "image" ? 1 : 10
   const acceptedFiles = { "application/pdf": [".pdf"] }
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -62,7 +67,7 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
       }
     })
 
-    if (mode === "convert") {
+    if (mode === "convert" || mode === "image") {
       setUploadedFiles(newFiles.slice(0, 1))
     } else {
       setUploadedFiles((prev) => [...prev, ...newFiles].slice(0, maxFiles))
@@ -93,30 +98,72 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
       return
     }
 
+    if (mode === "image" && validFiles.length !== 1) {
+      onError?.("Please select one PDF file for image export")
+      return
+    }
+
     setProcessing({
       isProcessing: true,
       progress: 0,
-      stage: mode === "convert" ? "Converting PDF to PowerPoint..." : "Merging PDF files...",
+      stage: mode === "convert" ? "Processing PDF conversion..." : mode === "image" ? "Extracting images from PDF..." : "Merging PDF files...",
     })
 
     try {
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setProcessing((prev) => ({
-          ...prev,
-          progress: Math.min(prev.progress + 20, 90),
-        }))
-      }, 400)
+      // Progress updates for conversion mode
+      let progressTimer: NodeJS.Timeout | null = null;
+      let currentStage = 0;
+
+      const formatName = outputFormat === "pptx" ? "PowerPoint" : outputFormat === "docx" ? "Word" : "Excel";
+      const conversionStages = mode === "convert" ? [
+        { progress: 20, stage: "Analyzing PDF structure..." },
+        { progress: 40, stage: "Extracting text content..." },
+        { progress: 60, stage: "Processing layout..." },
+        { progress: 80, stage: `Creating editable ${formatName}...` },
+        { progress: 90, stage: "Finalizing conversion..." }
+      ] : [];
+
+      if (mode === "convert") {
+        progressTimer = setInterval(() => {
+          if (currentStage < conversionStages.length) {
+            const currentStageData = conversionStages[currentStage];
+            if (currentStageData) {
+              setProcessing((prev) => ({
+                ...prev,
+                progress: currentStageData.progress,
+                stage: currentStageData.stage,
+              }))
+              currentStage++;
+            }
+          } else {
+            // Clear the timer once we've gone through all stages
+            if (progressTimer) {
+              clearInterval(progressTimer);
+              progressTimer = null;
+            }
+          }
+        }, 800)
+      } else {
+        // Simple progress for non-convert modes
+        progressTimer = setInterval(() => {
+          setProcessing((prev) => ({
+            ...prev,
+            progress: Math.min(prev.progress + 20, 90),
+          }))
+        }, 400)
+      }
 
       let result: ConversionResponse
 
       if (mode === "convert") {
-        result = await PDFCraftAPI.convertPDFToPPT(validFiles[0].file)
+        result = await pdflabAPI.convertPDFToOffice(validFiles[0].file, outputFormat)
+      } else if (mode === "image") {
+        result = await pdflabAPI.convertPDFToImages(validFiles[0].file)
       } else {
-        result = await PDFCraftAPI.mergePDFs(validFiles.map((f) => f.file))
+        result = await pdflabAPI.mergePDFs(validFiles.map((f) => f.file))
       }
 
-      clearInterval(progressInterval)
+      if (progressTimer) clearInterval(progressTimer)
 
       setProcessing({
         isProcessing: false,
@@ -140,7 +187,7 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
 
   const downloadFile = () => {
     if (processing.result?.outputFile) {
-      PDFCraftAPI.triggerDownload(
+      pdflabAPI.triggerDownload(
         processing.result.outputFile,
         processing.result.originalFile || processing.result.outputFile
       )
@@ -153,64 +200,53 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
   }
 
   const validFiles = uploadedFiles.filter((f) => f.valid)
-  const canProcess = validFiles.length > 0 && (mode === "convert" || validFiles.length >= 2)
+  const canProcess = validFiles.length > 0 && (mode === "convert" || mode === "image" || validFiles.length >= 2)
 
   return (
     <div className="space-y-6">
-      {/* Upload Area */}
-      <Card className="glass">
-        <CardContent className="p-8">
-          <div
-            {...getRootProps()}
-            className={`
-              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all
-              ${isDragActive ? "border-primary bg-primary/5" : "border-border"}
-              ${processing.isProcessing ? "opacity-50 cursor-not-allowed" : "hover:border-primary hover:bg-primary/5"}
-            `}
-          >
-            <input {...getInputProps()} />
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                {mode === "convert" ? (
-                  <Zap className="w-6 h-6 text-primary" />
-                ) : (
-                  <Merge className="w-6 h-6 text-primary" />
-                )}
-              </div>
-              <div>
-                <h3 className="font-semibold text-xl mb-2">
-                  {mode === "convert"
-                    ? "Convert PDF to editable PowerPoint"
-                    : "Combine multiple PDFs into one"
-                  }
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {mode === "convert"
-                    ? "Drop your PDF here • Maximum 10MB"
-                    : `Drop your PDFs here • Up to ${maxFiles} files`
-                  }
-                </p>
-              </div>
-              {isDragActive && (
-                <Badge className="bg-primary/20 text-primary">
-                  Drop files here
-                </Badge>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* File List */}
       {uploadedFiles.length > 0 && (
         <Card className="glass">
-          <CardContent className="p-6">
-            <h4 className="font-semibold mb-4">Uploaded Files</h4>
-            <div className="space-y-3">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h4 className="font-semibold">Uploaded Files</h4>
+              {mode === "convert" && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-muted-foreground">Convert to:</span>
+                  <Select value={outputFormat} onValueChange={(value: "pptx" | "docx" | "xlsx") => setOutputFormat(value)}>
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pptx">
+                        <div className="flex items-center">
+                          <FilePresentation className="w-4 h-4 mr-2" />
+                          PowerPoint (.pptx)
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="docx">
+                        <div className="flex items-center">
+                          <FileText className="w-4 h-4 mr-2" />
+                          Word (.docx)
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="xlsx">
+                        <div className="flex items-center">
+                          <FileSpreadsheet className="w-4 h-4 mr-2" />
+                          Excel (.xlsx)
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
               {uploadedFiles.map((fileItem) => (
                 <div
                   key={fileItem.id}
-                  className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                  className="flex items-center justify-between p-2 bg-muted/30 rounded-lg"
                 >
                   <div className="flex items-center space-x-3">
                     <FileText className="w-5 h-5 text-muted-foreground" />
@@ -275,7 +311,7 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
             <div className="text-center space-y-4">
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
               <h3 className="font-semibold text-lg text-green-700">
-                {mode === "convert" ? "Conversion Complete!" : "Merge Complete!"}
+                {mode === "convert" ? "Conversion Complete!" : mode === "image" ? "Export Complete!" : "Merge Complete!"}
               </h3>
               <p className="text-muted-foreground">
                 {processing.result.message}
@@ -318,11 +354,19 @@ export function PDFUpload({ mode = "convert", onSuccess, onError }: PDFUploadPro
             onClick={processFiles}
             disabled={!canProcess}
             className="bg-primary hover:bg-primary/90"
+            data-testid={`process-button-${mode}`}
           >
             {mode === "convert" ? (
               <>
-                <Zap className="w-4 h-4 mr-2" />
-                Convert to PowerPoint
+                {outputFormat === "pptx" && <FilePresentation className="w-4 h-4 mr-2" />}
+                {outputFormat === "docx" && <FileText className="w-4 h-4 mr-2" />}
+                {outputFormat === "xlsx" && <FileSpreadsheet className="w-4 h-4 mr-2" />}
+                Convert to {outputFormat === "pptx" ? "PowerPoint" : outputFormat === "docx" ? "Word" : "Excel"}
+              </>
+            ) : mode === "image" ? (
+              <>
+                <Image className="w-4 h-4 mr-2" />
+                Export to Images
               </>
             ) : (
               <>

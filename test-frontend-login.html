@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Login - pdflab.pro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0051cc;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test Frontend Login</h1>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="mmkela@gmail.com"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value="Test@1234"
+                    required
+                >
+            </div>
+
+            <button type="submit" id="loginBtn">Login</button>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3015';
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            resultDiv.style.display = 'none';
+
+            try {
+                console.log('🔐 Attempting login...');
+                console.log('API URL:', `${API_BASE_URL}/api/auth/login`);
+                console.log('Email:', email);
+
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                console.log('Response status:', response.status, response.statusText);
+
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok && data.success && data.data) {
+                    // Success
+                    const { token, user } = data.data;
+
+                    // Store token in localStorage
+                    localStorage.setItem('authToken', token);
+                    localStorage.setItem('user', JSON.stringify(user));
+
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Login Successful!</h3>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Plan:</strong> ${user.plan}</p>
+                        <p><strong>Email Verified:</strong> ${user.email_verified ? 'Yes' : 'No'}</p>
+                        <p><strong>Conversions:</strong> ${user.conversions_used} / ${user.conversions_limit}</p>
+                        <p><strong>Token:</strong> ${token.substring(0, 30)}...</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    resultDiv.style.display = 'block';
+
+                    console.log('✅ Login successful, token stored in localStorage');
+                } else {
+                    // Handle error response
+                    const errorMessage = data.error?.message || data.message || 'Login failed';
+
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ Login Failed</h3>
+                        <p><strong>Error:</strong> ${errorMessage}</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        ${data.error?.code ? `<p><strong>Code:</strong> ${data.error.code}</p>` : ''}
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    resultDiv.style.display = 'block';
+
+                    console.error('❌ Login failed:', errorMessage);
+                }
+
+            } catch (error) {
+                console.error('❌ Login error:', error);
+
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Make sure the backend server is running on port 3015.</p>
+                `;
+                resultDiv.style.display = 'block';
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+
+        // Show current auth state
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('user');
+
+            if (token && user) {
+                const resultDiv = document.getElementById('result');
+                const userData = JSON.parse(user);
+
+                resultDiv.className = 'result info';
+                resultDiv.innerHTML = `
+                    <h3>ℹ️ Already Logged In</h3>
+                    <p><strong>Email:</strong> ${userData.email}</p>
+                    <p><strong>Plan:</strong> ${userData.plan}</p>
+                    <p><strong>Token:</strong> ${token.substring(0, 30)}...</p>
+                    <button onclick="localStorage.clear(); location.reload();">Logout & Clear</button>
+                `;
+                resultDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

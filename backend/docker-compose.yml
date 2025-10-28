@@ -2,17 +2,17 @@ version: '3.8'
 
 services:
   # Main API application
-  pdfcraft-api:
+  pdflab-api:
     build: .
-    container_name: pdfcraft-api
+    container_name: pdflab-api
     ports:
       - "3001:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
       - DB_HOST=mysql
-      - DB_NAME=pdfcraft_db
-      - DB_USER=pdfcraft
+      - DB_NAME=pdflab_db
+      - DB_USER=pdflab
       - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -29,16 +29,16 @@ services:
       - redis
     restart: unless-stopped
     networks:
-      - pdfcraft-network
+      - pdflab-network
 
   # MySQL Database
   mysql:
     image: mysql:8.0
-    container_name: pdfcraft-mysql
+    container_name: pdflab-mysql
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=pdfcraft_db
-      - MYSQL_USER=pdfcraft
+      - MYSQL_DATABASE=pdflab_db
+      - MYSQL_USER=pdflab
       - MYSQL_PASSWORD=${DB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
@@ -47,26 +47,26 @@ services:
       - "3306:3306"
     restart: unless-stopped
     networks:
-      - pdfcraft-network
+      - pdflab-network
     command: --default-authentication-plugin=mysql_native_password
 
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: pdfcraft-redis
+    container_name: pdflab-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
     networks:
-      - pdfcraft-network
+      - pdflab-network
     command: redis-server --appendonly yes
 
   # Nginx Reverse Proxy (optional)
   nginx:
     image: nginx:alpine
-    container_name: pdfcraft-nginx
+    container_name: pdflab-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -74,10 +74,10 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl
     depends_on:
-      - pdfcraft-api
+      - pdflab-api
     restart: unless-stopped
     networks:
-      - pdfcraft-network
+      - pdflab-network
 
 volumes:
   mysql_data:
@@ -86,5 +86,5 @@ volumes:
     driver: local
 
 networks:
-  pdfcraft-network:
+  pdflab-network:
     driver: bridge

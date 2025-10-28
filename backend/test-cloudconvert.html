@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudConvert PDF to PowerPoint Test - PDFLab.Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            margin-top: 30px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .status-badge.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .status-badge.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .test-section {
+            background: #f9fafb;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f9fafb;
+        }
+
+        .upload-area.drag-over {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .endpoint-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .endpoint-info code {
+            background: #f3f4f6;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .method.post {
+            background: #10b981;
+            color: white;
+        }
+
+        .method.get {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .response-box {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-top: 15px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .file-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid #10b981;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .test-results {
+            margin-top: 20px;
+        }
+
+        .test-result-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-result-item.success {
+            border-left-color: #10b981;
+        }
+
+        .test-result-item.error {
+            border-left-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>☁️ CloudConvert Integration Test</h1>
+            <p class="subtitle">Test PDF to PowerPoint conversion using CloudConvert API</p>
+
+            <div class="alert alert-info">
+                <strong>ℹ️ About CloudConvert:</strong> CloudConvert is a cloud-based file conversion service that provides high-quality PDF to PowerPoint conversion. This test page allows you to verify the integration is working correctly.
+            </div>
+
+            <div id="statusBadge"></div>
+        </div>
+
+        <!-- Configuration Info -->
+        <div class="card">
+            <h2>🔧 Configuration Status</h2>
+
+            <div class="test-section">
+                <h3>API Configuration</h3>
+                <button class="btn btn-info" onclick="testConnection()">Test Connection</button>
+                <button class="btn btn-info" onclick="getAccountInfo()">Get Account Info</button>
+
+                <div id="configResponse" class="response-box" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- File Upload Test -->
+        <div class="card">
+            <h2>📄 PDF to PowerPoint Conversion</h2>
+
+            <div class="test-section">
+                <h3>Upload PDF File</h3>
+
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <h3>Click to select PDF file or drag & drop here</h3>
+                    <p style="color: #6b7280; margin-top: 10px;">Maximum file size: 100MB</p>
+                </div>
+
+                <input type="file" id="fileInput" class="file-input" accept=".pdf,application/pdf" onchange="handleFileSelect(event)">
+
+                <div id="fileInfo" style="display: none;"></div>
+
+                <button class="btn" id="convertBtn" onclick="convertPDF()" disabled>
+                    Convert to PowerPoint
+                </button>
+
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-bar-fill" id="progressBarFill">0%</div>
+                </div>
+
+                <div id="conversionResponse" class="response-box" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Job Status Checker -->
+        <div class="card">
+            <h2>📊 Job Status Checker</h2>
+
+            <div class="test-section">
+                <h3>Check Conversion Status</h3>
+                <p style="margin-bottom: 15px; color: #6b7280;">Enter a CloudConvert job ID to check its status:</p>
+
+                <input type="text" id="jobIdInput" placeholder="Enter Job ID"
+                       style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; margin-bottom: 15px;">
+
+                <button class="btn btn-secondary" onclick="checkJobStatus()">Check Status</button>
+
+                <div id="statusResponse" class="response-box" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- API Documentation -->
+        <div class="card">
+            <h2>📚 API Endpoints</h2>
+
+            <div class="endpoint-info">
+                <span class="method post">POST</span>
+                <code>/api/cloudconvert/pdf-to-ppt</code>
+                <p style="margin-top: 10px; color: #6b7280;">Convert PDF to PowerPoint using CloudConvert</p>
+            </div>
+
+            <div class="endpoint-info">
+                <span class="method get">GET</span>
+                <code>/api/cloudconvert/status/:jobId</code>
+                <p style="margin-top: 10px; color: #6b7280;">Check CloudConvert job status</p>
+            </div>
+
+            <div class="endpoint-info">
+                <span class="method get">GET</span>
+                <code>/api/cloudconvert/info</code>
+                <p style="margin-top: 10px; color: #6b7280;">Get CloudConvert account information</p>
+            </div>
+
+            <div class="endpoint-info">
+                <span class="method get">GET</span>
+                <code>/api/cloudconvert/test</code>
+                <p style="margin-top: 10px; color: #6b7280;">Test CloudConvert connection</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api/cloudconvert';
+        let selectedFile = null;
+
+        // Initialize page
+        window.onload = function() {
+            testConnection();
+        };
+
+        // Drag and drop handlers
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.type.includes('pdf')) {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            if (file.size > 100 * 1024 * 1024) {
+                alert('File size exceeds 100MB limit');
+                return;
+            }
+
+            selectedFile = file;
+
+            // Display file info
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.style.display = 'block';
+            fileInfo.innerHTML = `
+                <div class="file-info">
+                    <div class="file-name">📄 ${file.name}</div>
+                    <div class="file-size">Size: ${formatFileSize(file.size)}</div>
+                </div>
+            `;
+
+            // Enable convert button
+            document.getElementById('convertBtn').disabled = false;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        async function testConnection() {
+            try {
+                showResponse('configResponse', 'Testing CloudConvert connection...');
+
+                const response = await fetch(`${API_BASE_URL}/test`);
+                const data = await response.json();
+
+                showResponse('configResponse', JSON.stringify(data, null, 2));
+
+                updateStatusBadge(data.success, data.message);
+            } catch (error) {
+                showResponse('configResponse', `Error: ${error.message}`);
+                updateStatusBadge(false, 'Connection failed');
+            }
+        }
+
+        async function getAccountInfo() {
+            try {
+                showResponse('configResponse', 'Fetching account information...');
+
+                const response = await fetch(`${API_BASE_URL}/info`);
+                const data = await response.json();
+
+                showResponse('configResponse', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('configResponse', `Error: ${error.message}`);
+            }
+        }
+
+        async function convertPDF() {
+            if (!selectedFile) {
+                alert('Please select a PDF file first');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            const convertBtn = document.getElementById('convertBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            try {
+                convertBtn.disabled = true;
+                convertBtn.innerHTML = '<span class="loading"></span> Converting...';
+                progressBar.style.display = 'block';
+                progressBarFill.style.width = '10%';
+                progressBarFill.textContent = '10%';
+
+                showResponse('conversionResponse', 'Uploading PDF to CloudConvert...');
+
+                const response = await fetch(`${API_BASE_URL}/pdf-to-ppt`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                progressBarFill.style.width = '100%';
+                progressBarFill.textContent = '100%';
+
+                showResponse('conversionResponse', JSON.stringify(data, null, 2));
+
+                if (data.success && data.data && data.data.jobId) {
+                    // Auto-populate job ID field
+                    document.getElementById('jobIdInput').value = data.data.jobId;
+
+                    if (data.data.downloadUrl) {
+                        setTimeout(() => {
+                            showResponse('conversionResponse',
+                                JSON.stringify(data, null, 2) +
+                                '\n\n✅ Conversion completed! Download URL: ' +
+                                data.data.downloadUrl
+                            );
+                        }, 500);
+                    }
+                }
+
+            } catch (error) {
+                showResponse('conversionResponse', `Error: ${error.message}`);
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.textContent = 'Convert to PowerPoint';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        async function checkJobStatus() {
+            const jobId = document.getElementById('jobIdInput').value.trim();
+
+            if (!jobId) {
+                alert('Please enter a job ID');
+                return;
+            }
+
+            try {
+                showResponse('statusResponse', 'Checking job status...');
+
+                const response = await fetch(`${API_BASE_URL}/status/${jobId}`);
+                const data = await response.json();
+
+                showResponse('statusResponse', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('statusResponse', `Error: ${error.message}`);
+            }
+        }
+
+        function showResponse(elementId, text) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent = text;
+        }
+
+        function updateStatusBadge(success, message) {
+            const badge = document.getElementById('statusBadge');
+            const statusClass = success ? 'success' : 'error';
+            badge.innerHTML = `<span class="status-badge ${statusClass}">${success ? '✅' : '❌'} ${message}</span>`;
+        }
+    </script>
+</body>
+</html>

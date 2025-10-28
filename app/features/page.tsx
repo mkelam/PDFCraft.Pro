@@ -246,7 +246,7 @@ export default function FeaturesPage() {
               <CardContent className="p-8">
                 <h3 className="text-2xl font-bold mb-4">Ready to Experience These Features?</h3>
                 <p className="text-muted-foreground mb-6">
-                  Join thousands of users who trust PDF Craft Pro for their document processing needs.
+                  Join thousands of users who trust PDF Lab Pro for their document processing needs.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/signup">
@@ -268,7 +268,7 @@ export default function FeaturesPage() {
 
       <footer className="border-t border-border/30 py-6 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="text-sm text-muted-foreground">© 2024 PDF Craft Pro. All rights reserved.</div>
+          <div className="text-sm text-muted-foreground">© 2024 PDF Lab Pro. All rights reserved.</div>
         </div>
       </footer>
     </div>

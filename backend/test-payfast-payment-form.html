@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFLab.Pro - PayFast Payment Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .plan-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .plan-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .plan-card .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .plan-card .price small {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .plan-card ul {
+            list-style: none;
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .plan-card li {
+            padding: 8px 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .payfast-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .submit-btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .submit-btn input[type="image"] {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn input[type="image"]:hover {
+            transform: scale(1.05);
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box strong {
+            color: #0066cc;
+        }
+
+        table {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        table td {
+            padding: 8px;
+        }
+
+        .credentials-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .credentials-box p {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 PDFLab.Pro Payment Test</h1>
+            <p>PayFast Integration - Production Ready</p>
+        </div>
+
+        <div class="card credentials-box">
+            <h3>✅ PayFast Configuration</h3>
+            <p><strong>Merchant ID:</strong> 25263515</p>
+            <p><strong>Domain:</strong> pdflab.pro</p>
+            <p><strong>Return URL:</strong> https://api.pdflab.pro/api/payfast/return</p>
+            <p><strong>Cancel URL:</strong> https://api.pdflab.pro/api/payfast/cancel</p>
+            <p><strong>Notify URL:</strong> https://api.pdflab.pro/api/payfast/notify</p>
+        </div>
+
+        <!-- Subscription Plans Display -->
+        <div class="card">
+            <h2>💳 Subscription Plans</h2>
+            <div class="plans-grid">
+                <div class="plan-card">
+                    <h3>Starter</h3>
+                    <div class="price">R129<small>/month</small></div>
+                    <ul>
+                        <li>✅ 100 conversions/month</li>
+                        <li>✅ 25MB max file size</li>
+                        <li>✅ OCR overlay access</li>
+                        <li>✅ Priority support</li>
+                    </ul>
+                </div>
+
+                <div class="plan-card">
+                    <h3>Pro</h3>
+                    <div class="price">R349<small>/month</small></div>
+                    <ul>
+                        <li>✅ Unlimited conversions</li>
+                        <li>✅ 100MB max file size</li>
+                        <li>✅ All features</li>
+                        <li>✅ Priority processing</li>
+                    </ul>
+                </div>
+
+                <div class="plan-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">R1,799<small>/month</small></div>
+                    <ul>
+                        <li>✅ Unlimited conversions</li>
+                        <li>✅ 500MB max file size</li>
+                        <li>✅ API access</li>
+                        <li>✅ Dedicated support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simple Payment Form (Your Form) -->
+        <div class="card">
+            <h2>🛒 Simple Payment Form</h2>
+            <div class="info-box">
+                <strong>Note:</strong> This is your basic PayFast form with quantity support.
+            </div>
+
+            <div class="payfast-form">
+                <script type="text/javascript">
+                function customQuantitiesPayFast(formReference) {
+                    formReference['amount'].value = formReference['amount'].value * formReference['custom_quantity'].value;
+                    return true;
+                }
+                </script>
+
+                <script type="text/javascript">
+                function actionPayFastJavascript(formReference) {
+                    let shippingValidOrOff = typeof shippingValid !== 'undefined' ? shippingValid : true;
+                    let customValid = shippingValidOrOff ? customQuantitiesPayFast(formReference) : false;
+
+                    if (typeof shippingValid !== 'undefined' && !shippingValid) {
+                        return false;
+                    }
+                    if (typeof customValid !== 'undefined' && !customValid) {
+                        return false;
+                    }
+                    return true;
+                }
+                </script>
+
+                <form onsubmit="return actionPayFastJavascript(this);" name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post">
+                    <input required type="hidden" name="cmd" value="_paynow">
+                    <input required type="hidden" name="receiver" pattern="[0-9]" value="25263515">
+                    <input type="hidden" name="return_url" value="https://api.pdflab.pro/api/payfast/return">
+                    <input type="hidden" name="cancel_url" value="https://api.pdflab.pro/api/payfast/cancel">
+                    <input type="hidden" name="notify_url" value="https://api.pdflab.pro/api/payfast/notify">
+                    <input required type="hidden" name="amount" value="100">
+
+                    <table>
+                        <tr>
+                            <td><label for="custom_quantity">Quantity: </label></td>
+                            <td><input required id="custom_quantity" type="number" name="custom_quantity" value="1" min="1"></td>
+                        </tr>
+                    </table>
+
+                    <input required type="hidden" name="item_name" maxlength="255" value="pdflab payment">
+                    <input type="hidden" name="item_description" maxlength="255" value="pdflab payment">
+
+                    <div class="submit-btn">
+                        <input type="image" src="https://my.payfast.io/images/buttons/BuyNow/Primary-Large-BuyNow.png" alt="Buy Now" title="Buy Now with Payfast">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Enhanced Form with Signature -->
+        <div class="card">
+            <h2>🔒 Enhanced Payment Form (With Signature)</h2>
+            <div class="info-box">
+                <strong>Recommended:</strong> This form includes MD5 signature for security and integrates with your subscription plans.
+            </div>
+
+            <div class="form-group">
+                <label for="plan_select">Select Subscription Plan:</label>
+                <select id="plan_select" onchange="updatePaymentForm()">
+                    <option value="">-- Select Plan --</option>
+                    <option value="starter" data-amount="129">Starter - R129/month</option>
+                    <option value="pro" data-amount="349">Pro - R349/month</option>
+                    <option value="enterprise" data-amount="1799">Enterprise - R1,799/month</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="user_email">Email Address:</label>
+                <input type="email" id="user_email" placeholder="your@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" id="first_name" placeholder="John" required>
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" id="last_name" placeholder="Doe" required>
+            </div>
+
+            <button onclick="initializePayment()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                Initialize Payment
+            </button>
+
+            <div id="payment-result" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;"></div>
+        </div>
+
+        <!-- Test Information -->
+        <div class="card">
+            <h2>🧪 Testing Information</h2>
+            <div class="info-box">
+                <p><strong>Sandbox Mode:</strong> Use PayFast test credentials to test without real payments.</p>
+                <p><strong>Test Cards:</strong> Visit <a href="https://developers.payfast.co.za/documentation/test-cards" target="_blank">PayFast Test Cards</a></p>
+            </div>
+
+            <h3 style="margin-top: 20px; color: #333;">Payment Flow:</h3>
+            <ol style="margin-left: 20px; color: #666;">
+                <li>User selects plan and enters details</li>
+                <li>Click "Initialize Payment"</li>
+                <li>Backend generates payment with signature</li>
+                <li>User redirected to PayFast</li>
+                <li>Complete payment on PayFast</li>
+                <li>User redirected back to return URL</li>
+                <li>PayFast sends webhook to notify URL</li>
+                <li>Backend verifies and updates subscription</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        function updatePaymentForm() {
+            const select = document.getElementById('plan_select');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (selectedOption.value) {
+                console.log('Selected plan:', selectedOption.value);
+                console.log('Amount:', selectedOption.dataset.amount);
+            }
+        }
+
+        async function initializePayment() {
+            console.log('🔵 initializePayment() called');
+
+            const plan = document.getElementById('plan_select').value;
+            const email = document.getElementById('user_email').value;
+            const firstName = document.getElementById('first_name').value;
+            const lastName = document.getElementById('last_name').value;
+            const resultDiv = document.getElementById('payment-result');
+
+            console.log('📋 Form data:', { plan, email, firstName, lastName });
+
+            // Validation
+            if (!plan) {
+                alert('Please select a subscription plan');
+                console.log('❌ Validation failed: No plan selected');
+                return;
+            }
+            if (!email || !firstName || !lastName) {
+                alert('Please fill in all required fields');
+                console.log('❌ Validation failed: Missing required fields');
+                return;
+            }
+
+            console.log('✅ Validation passed');
+
+            resultDiv.style.display = 'block';
+            resultDiv.style.background = '#fff3cd';
+            resultDiv.style.borderLeft = '4px solid #ffc107';
+            resultDiv.innerHTML = '<strong>Processing...</strong> Initializing payment...';
+
+            const requestData = {
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                plan: plan,
+                userId: 'test_user_' + Date.now()
+            };
+
+            console.log('📤 Sending request to:', `${API_URL}/api/payfast/initialize`);
+            console.log('📦 Request data:', requestData);
+
+            try {
+                const response = await fetch(`${API_URL}/api/payfast/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                console.log('📥 Response received:', response.status, response.statusText);
+
+                const data = await response.json();
+                console.log('📦 Response data:', data);
+
+                if (data.success) {
+                    resultDiv.style.background = '#d4edda';
+                    resultDiv.style.borderLeft = '4px solid #28a745';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Payment Initialized!</strong>
+                        <p><strong>Payment ID:</strong> ${data.data.payment_id}</p>
+                        <p><strong>Amount:</strong> R${data.data.amount}</p>
+                        <p><strong>Plan:</strong> ${plan}</p>
+                        <p style="margin-top: 15px;">
+                            <strong>Next Step:</strong> In production, you would be redirected to PayFast to complete payment.
+                        </p>
+                        <p><strong>Payment URL:</strong> ${data.data.payment_url}</p>
+                    `;
+
+                    console.log('Payment Data:', data);
+                } else {
+                    resultDiv.style.background = '#f8d7da';
+                    resultDiv.style.borderLeft = '4px solid #dc3545';
+                    resultDiv.innerHTML = `
+                        <strong>❌ Error!</strong>
+                        <p>${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error occurred:', error);
+                resultDiv.style.background = '#f8d7da';
+                resultDiv.style.borderLeft = '4px solid #dc3545';
+                resultDiv.innerHTML = `
+                    <strong>❌ Network Error!</strong>
+                    <p>${error.message}</p>
+                    <p>Make sure the backend server is running on ${API_URL}</p>
+                    <p><small>Check browser console (F12) for details</small></p>
+                `;
+            }
+        }
+
+        // Log API URL on page load
+        console.log('🌐 API URL configured as:', API_URL);
+        console.log('📍 Current location:', window.location.origin);
+    </script>
+</body>
+</html>

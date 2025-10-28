@@ -1,6 +1,12 @@
-// API utilities for PDFCraft.Pro backend communication
+// API utilities for pdflab.pro backend communication
+import { CONFIG } from '@/config/shared.config'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+// Use BMAD shared configuration to prevent endpoint drift
+// UPDATED: Use correct backend port for quality preservation system
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || CONFIG.API_BASE_URL;
+
+// Validate configuration on startup
+console.log(`🔧 BMAD API Config: ${API_BASE_URL}`);
 
 export interface ConversionResponse {
   success: boolean;
@@ -28,13 +34,65 @@ export interface HealthResponse {
   uptime?: number;
 }
 
-export class PDFCraftAPI {
+// Global token expiration warning handler
+let onTokenWarning: ((warning: any) => void) | null = null;
+
+export class pdflabAPI {
+  /**
+   * Set global token warning handler
+   */
+  static setTokenWarningHandler(handler: (warning: any) => void): void {
+    onTokenWarning = handler;
+  }
+
+  /**
+   * Make authenticated API request with token warning detection
+   */
+  private static async makeAuthenticatedRequest(url: string, options: RequestInit = {}): Promise<Response> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    // Check for token expiration warning in response headers
+    const tokenWarning = response.headers.get('X-Token-Warning');
+    if (tokenWarning && onTokenWarning) {
+      try {
+        const warning = JSON.parse(tokenWarning);
+        onTokenWarning(warning);
+      } catch (e) {
+        console.warn('Failed to parse token warning:', e);
+      }
+    }
+
+    // Handle expired token
+    if (response.status === 401) {
+      const errorData = await response.json();
+      if (errorData.error?.code === 'AUTH_TOKEN_EXPIRED') {
+        // Clear stored token and redirect to login
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('authToken');
+          // You can customize this based on your routing setup
+          window.location.href = '/login';
+        }
+        throw new Error(errorData.error.message);
+      }
+    }
+
+    return response;
+  }
   /**
    * Check API health status
    */
   static async checkHealth(): Promise<HealthResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/health`);
+      const response = await fetch(`${API_BASE_URL}/health`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -45,9 +103,9 @@ export class PDFCraftAPI {
   }
 
   /**
-   * Convert PDF to PowerPoint with job polling
+   * Convert PDF to Office format (PowerPoint, Word, or Excel) with job polling
    */
-  static async convertPDFToPPT(file: File): Promise<ConversionResponse> {
+  static async convertPDFToOffice(file: File, format: 'pptx' | 'docx' | 'xlsx' = 'pptx'): Promise<ConversionResponse> {
     try {
       // Validate file type
       if (file.type !== 'application/pdf') {
@@ -62,10 +120,23 @@ export class PDFCraftAPI {
 
       const formData = new FormData();
       formData.append('files', file);
+      formData.append('outputFormat', format);
 
-      // Submit conversion job
+      // OCR-Enhanced conversion options
+      formData.append('ocrEnabled', 'true');
+      formData.append('preserveImages', 'true');
+      formData.append('textOverlays', 'true');
+      formData.append('ocrAccuracy', 'high');
+
+      // Get auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+      // Submit conversion job with authentication
       const response = await fetch(`${API_BASE_URL}/api/convert/pdf-to-ppt`, {
         method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
         body: formData,
       });
 
@@ -79,27 +150,72 @@ export class PDFCraftAPI {
       return await this.pollJobCompletion(jobResponse.jobId);
 
     } catch (error) {
-      throw new Error(`PDF conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const formatName = format === 'pptx' ? 'PowerPoint' : format === 'docx' ? 'Word' : 'Excel';
+      throw new Error(`PDF to ${formatName} conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  /**
+   * Convert PDF to PowerPoint (legacy method for backwards compatibility)
+   */
+  static async convertPDFToPPT(file: File): Promise<ConversionResponse> {
+    return this.convertPDFToOffice(file, 'pptx');
   }
 
   /**
    * Poll job status until completion
    */
   private static async pollJobCompletion(jobId: string): Promise<ConversionResponse> {
-    const maxAttempts = 60; // 60 attempts = 60 seconds max
+    const maxAttempts = 120; // 120 attempts = 2 minutes max for large PDFs
     let attempts = 0;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
 
     while (attempts < maxAttempts) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/job/${jobId}/status`);
-        const statusData = await response.json();
+        // Add random timestamp to force fresh response and avoid 304 caching
+        const timestamp = Date.now() + Math.random();
+        const statusUrl = `${API_BASE_URL}/api/job/${jobId}/status?t=${timestamp}&_cache_bust=${attempts}`;
+        console.log(`Poll ${attempts + 1}: Requesting ${statusUrl}`);
+
+        const response = await fetch(statusUrl, {
+          cache: 'no-store', // More aggressive than no-cache
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'If-None-Match': '*', // Prevent conditional requests
+            'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT' // Prevent conditional requests
+          }
+        });
+
+        console.log(`Poll ${attempts + 1}: Response status ${response.status}`);
+
+        // Handle HTTP 304 responses gracefully
+        if (response.status === 304) {
+          console.log(`Poll ${attempts + 1}: Received 304 Not Modified, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          attempts++;
+          continue;
+        }
 
         if (!response.ok) {
           throw new Error(`Status check failed: ${response.status}`);
         }
 
+        // Only try to parse JSON if we have a response body
+        const contentLength = response.headers.get('content-length');
+        if (contentLength === '0' || response.status === 204) {
+          console.log(`Poll ${attempts + 1}: Empty response, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          attempts++;
+          continue;
+        }
+
+        const statusData = await response.json();
         const job = statusData.job;
+
+        console.log(`Poll ${attempts + 1}: ${job.status} (${job.progress || 0}%)`);
 
         if (job.status === 'completed') {
           return {
@@ -122,6 +238,7 @@ export class PDFCraftAPI {
         attempts++;
 
       } catch (error) {
+        console.error(`Poll ${attempts + 1} error:`, error.message);
         if (attempts >= maxAttempts - 1) {
           throw error;
         }
@@ -162,9 +279,15 @@ export class PDFCraftAPI {
         formData.append('files', file);
       });
 
-      // Submit merge job
+      // Get auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+      // Submit merge job with authentication
       const response = await fetch(`${API_BASE_URL}/api/convert/merge`, {
         method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
         body: formData,
       });
 
@@ -186,6 +309,51 @@ export class PDFCraftAPI {
 
     } catch (error) {
       throw new Error(`PDF merge failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Convert PDF to images with job polling
+   */
+  static async convertPDFToImages(file: File): Promise<ConversionResponse> {
+    try {
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        throw new Error('Only PDF files are allowed');
+      }
+
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        throw new Error('File size exceeds 10MB limit');
+      }
+
+      const formData = new FormData();
+      formData.append('files', file);
+
+      // Get auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+      // Submit image extraction job with authentication
+      const response = await fetch(`${API_BASE_URL}/api/convert/pdf-to-images`, {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: formData,
+      });
+
+      const jobResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(jobResponse.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Poll for job completion
+      return await this.pollJobCompletion(jobResponse.jobId);
+
+    } catch (error) {
+      throw new Error(`PDF to images conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -266,11 +434,13 @@ export class PDFCraftAPI {
 // Export individual functions for convenience
 export const {
   checkHealth,
+  convertPDFToOffice,
   convertPDFToPPT,
   mergePDFs,
+  convertPDFToImages,
   getDownloadUrl,
   downloadFile,
   formatFileSize,
   validatePDFFile,
   triggerDownload,
-} = PDFCraftAPI;
+} = pdflabAPI;

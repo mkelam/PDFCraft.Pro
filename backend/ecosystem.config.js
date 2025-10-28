@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'pdfcraft-api',
+      name: 'pdflab-api',
       script: './dist/server.js',
       instances: 'max', // Use all CPU cores
       exec_mode: 'cluster',
@@ -14,9 +14,9 @@ module.exports = {
         PORT: 3001,
       },
       // Logging
-      log_file: '/var/log/pdfcraft/combined.log',
-      out_file: '/var/log/pdfcraft/out.log',
-      error_file: '/var/log/pdfcraft/error.log',
+      log_file: '/var/log/pdflab/combined.log',
+      out_file: '/var/log/pdflab/out.log',
+      error_file: '/var/log/pdflab/error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
 
       // Process management
@@ -41,7 +41,7 @@ module.exports = {
       shutdown_with_message: true,
     },
     {
-      name: 'pdfcraft-worker',
+      name: 'pdflab-worker',
       script: './dist/workers/conversion.worker.js',
       instances: 2, // Separate worker processes
       exec_mode: 'fork',
@@ -54,9 +54,9 @@ module.exports = {
         WORKER_TYPE: 'conversion',
       },
       // Worker-specific logging
-      log_file: '/var/log/pdfcraft/worker.log',
-      out_file: '/var/log/pdfcraft/worker-out.log',
-      error_file: '/var/log/pdfcraft/worker-error.log',
+      log_file: '/var/log/pdflab/worker.log',
+      out_file: '/var/log/pdflab/worker-out.log',
+      error_file: '/var/log/pdflab/worker-error.log',
 
       // Worker management
       watch: false,
@@ -70,14 +70,14 @@ module.exports = {
   // Deployment configuration
   deploy: {
     production: {
-      user: 'pdfcraft',
+      user: 'pdflab',
       host: 'your-hostinger-vps-ip',
       ref: 'origin/main',
-      repo: 'git@github.com:yourusername/pdfcraft-pro.git',
-      path: '/var/www/pdfcraft',
+      repo: 'git@github.com:yourusername/pdflab-pro.git',
+      path: '/var/www/pdflab',
       'pre-deploy-local': '',
       'post-deploy': 'npm ci --production && npm run build && pm2 reload ecosystem.config.js --env production',
-      'pre-setup': 'mkdir -p /var/log/pdfcraft /var/www/pdfcraft/uploads /var/www/pdfcraft/temp'
+      'pre-setup': 'mkdir -p /var/log/pdflab /var/www/pdflab/uploads /var/www/pdflab/temp'
     }
   }
 };

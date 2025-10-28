@@ -1,0 +1,47 @@
+# Development Dockerfile for PDFCraft.Pro
+FROM node:18-alpine
+
+# Install system dependencies for PDF processing
+RUN apk add --no-cache \
+    libreoffice \
+    ghostscript \
+    imagemagick \
+    poppler-utils \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev \
+    pixman-dev \
+    pangomm-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    python3 \
+    make \
+    g++ \
+    dumb-init
+
+WORKDIR /app
+
+# Install global development tools
+RUN npm install -g nodemon ts-node
+
+# Create necessary directories
+RUN mkdir -p uploads temp logs
+
+# Copy package files and install dependencies
+COPY backend/package*.json ./backend/
+WORKDIR /app/backend
+RUN npm install
+
+# Go back to app root
+WORKDIR /app
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV PORT=3001
+
+# Expose port
+EXPOSE 3001
+
+# Start the application in development mode
+CMD ["dumb-init", "npm", "run", "dev", "--prefix", "backend"]

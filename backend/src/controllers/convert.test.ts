@@ -86,7 +86,7 @@ describe('PDF Conversion Functionality', () => {
     const page = pdfDoc.addPage();
     const { width, height } = page.getSize();
 
-    page.drawText('Test PDF for PDFCraft.Pro', {
+    page.drawText('Test PDF for pdflab.pro', {
       x: 50,
       y: height - 100,
       size: 20,
